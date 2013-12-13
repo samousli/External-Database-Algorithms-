@@ -5,26 +5,27 @@
  */
 package schedule;
 
+import java.util.List;
+
 /**
  *
  * @author avail
  */
-public class CPU {
+public class ReadyProcessesList {
 
-    private Process runningProcess;
-    private int timeToNextContextSwitch;
-    private int lastProcessStartTime;
+    private List processList;
 
-    public CPU() {
+    public ReadyProcessesList() {
     }
 
-    public void addProcess(Process process) {
+    public void addProcess(Process item) {
     }
-
-    public Process removeProcessFromCpu() {
+    
+    public Process getProcessToRunInCPU() {
         return null;
     }
 
-    public void execute() {
+    public void printList() {
     }
+
 }

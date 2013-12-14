@@ -6,22 +6,43 @@
 package schedule;
 
 /**
- *
+ * 
  * @author avail
  */
 public class Process {
 
     private int arrivalTime;
+    /**
+     * Burst time. Time that is required to complete execution of the particular process.
+     */
     private int cpuTotalTime;
+    /**
+     * Time left, the execution may be interrupted.
+     */
     private int cpuRemainingTime;
-
+    
+    /**
+     * The current state of the process 
+     * New          - 0
+     * Ready        - 1
+     * Running      - 2
+     * Terminated   - 3
+     * (Why not use an enumeration?)
+     */
     private int currentState;
+    
+    private int processID;
+    
 
     public Process(int pid, int arrivalTime, int cpuBurstTime) {
+        this.processID = pid;
+        this.arrivalTime = arrivalTime;
+        this.cpuRemainingTime = cpuBurstTime;
+        this.currentState  = 0; // New
     }
 
-    public int setProcessState(int newState) {
-        return 0;
+    public void setProcessState(int newState) {
+        this.currentState = newState;
     }
 
     public void changeCpuRemainingTime(int newCpuRemainingTime) {

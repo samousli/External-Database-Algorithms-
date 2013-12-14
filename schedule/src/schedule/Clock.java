@@ -14,21 +14,35 @@ import java.util.TimerTask;
  */
 public class Clock {
 
-    
+    /**
+     * Ticks since creation. Incremented by one every <tickPeriod> milliseconds
+     */
     private static int ticks;
-    public static final int tickFrequency = 100;
+    /**
+     * Time between each tick, in milliseconds.
+     */
+    public static final int tickPeriod = 100;
+    /**
+     * Timer that calls the timeRun() method every <tickPeriod>
+     */
     private static Timer timer;
-    private static TimerTickTask tickTask;
-
+    /**
+     * Initializes the object and schedules the timer.
+     */
     public Clock() {
         Clock.timer = new Timer();
-        timer.schedule(new TimerTickTask(this), 0 , tickFrequency);
+        timer.schedule(new TimerTickTask(this), 0 , tickPeriod);
     }
-    
+    /**
+     * Increments the ticks
+     */
     private void timeRun() {
         ticks++;
     }
-
+    
+    /**
+     * @return The current Clock time. 
+     */
     public int showTime() {
         return ticks;
     }

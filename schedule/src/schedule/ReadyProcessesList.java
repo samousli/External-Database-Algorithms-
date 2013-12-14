@@ -8,7 +8,9 @@ package schedule;
 import java.util.List;
 
 /**
- *
+ * A list(sequence) which contains all the ready processes. 
+ * Implementation depends on the algorithm, 
+ * perhaps a doubly linked list or a priority Queue 
  * @author avail
  */
 public class ReadyProcessesList {

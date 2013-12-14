@@ -8,7 +8,7 @@ package schedule;
 import java.io.File;
 
 /**
- *
+ * Collects statistics and logs them to a file.
  * @author avail
  */
 public class Statistics {

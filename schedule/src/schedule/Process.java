@@ -25,6 +25,7 @@ public class Process {
     }
 
     public void changeCpuRemainingTime(int newCpuRemainingTime) {
+        this.cpuRemainingTime = newCpuRemainingTime;
     }
 
 }

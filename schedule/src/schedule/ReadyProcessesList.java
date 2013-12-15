@@ -25,7 +25,10 @@ public class ReadyProcessesList {
     }
     
     public Process getProcessToRunInCPU() {
-        Process p = ((LinkedList<Process>)this.processList).removeFirst();
+        Process p = null;
+        if (!processList.isEmpty()) {
+            p = ((LinkedList<Process>)processList).removeFirst();
+        }
         return p;
     }
 

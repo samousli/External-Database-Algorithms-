@@ -2,6 +2,7 @@ package schedule;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -18,38 +20,36 @@ import java.util.StringTokenizer;
 public class ProcessGenerator {
 
     private File inputFile;
+    private final List<Process> processList;
 
     public ProcessGenerator(String filename, boolean readFile) {
+        this.processList = new ArrayList<>();
         Path p = Paths.get(filename);
         if (Files.exists((p))) {
             this.inputFile = new File(filename);
 
-            try {
-                //Initializing the IO
-                BufferedReader input = new BufferedReader(new FileReader(filename));
-                //Reading all the data.
+            try (BufferedReader input = new BufferedReader(new FileReader(filename))) {
                 String text = input.readLine();
-                //Closing input file.
-                input.close();
-                //Initializing the StringTokenizer which will be used to parse the input.
-                StringTokenizer tokenizer = new StringTokenizer(text);
+                int lineCount = Integer.parseInt(text);
 
-                //storing the numbers in an array list instead of a simple array 
-                //because its size is unknown during initializion.
-                ArrayList<Integer> temp = new ArrayList<>();
-                //Parsing to array.
-                while (tokenizer.hasMoreTokens()) {
-                    temp.add(Integer.valueOf(Integer.parseInt(tokenizer.nextToken())));
+                for (int i = 0; i < lineCount; i++) {
+                    text = input.readLine();
+                    String[] tokens = text.split(" ");
+                    this.processList.add(new Process(i,
+                            Integer.parseInt(tokens[0]),
+                            Integer.parseInt(tokens[1])));
                 }
-            } catch (IOException e) {
-                System.err.println("Error: " + e);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE, "Input file not found.", ex);
+            } catch (IOException ex) {
+                Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE, "File IO exception.", ex);
             }
-        }
 
+        }
     }
 
     public Process createProcess() {
-        return null;
+        return processList.remove(0);
     }
 
     public void StoreProcessToFile() {

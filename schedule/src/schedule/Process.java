@@ -1,14 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package schedule;
 
-/**
- * 
- * @author avail
- */
 public class Process {
 
     private int arrivalTime;
@@ -29,7 +20,7 @@ public class Process {
      * Terminated   - 3
      * (Why not use an enumeration?)
      */
-    private int currentState;
+    private ProcessState currentState;
     
     private int processID;
     
@@ -38,15 +29,27 @@ public class Process {
         this.processID = pid;
         this.arrivalTime = arrivalTime;
         this.cpuRemainingTime = cpuBurstTime;
-        this.currentState  = 0; // New
+        this.currentState  = ProcessState.NEW; 
     }
 
-    public void setProcessState(int newState) {
+    public void setProcessState(ProcessState newState) {
         this.currentState = newState;
     }
 
     public void changeCpuRemainingTime(int newCpuRemainingTime) {
         this.cpuRemainingTime = newCpuRemainingTime;
+    }
+    
+    /*
+    Prints the fields of the process
+    */
+    public void printProcess(){
+        System.out.println("Process ID:     " + this.processID);
+        System.out.println("Arrival time:   " + this.arrivalTime);
+        System.out.println("Burst time:     " + this.cpuTotalTime);
+        System.out.println("Remaining time: " + this.cpuRemainingTime);
+        System.out.println("Current state:  " + this.currentState);
+        System.out.println("=====================================");
     }
 
 }

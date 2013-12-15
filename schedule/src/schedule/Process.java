@@ -1,33 +1,40 @@
 package schedule;
 
 public class Process {
-
+    
+    /**
+     *  The time at which this process was created. 
+     */
     private int arrivalTime;
     /**
-     * Burst time. Time that is required to complete execution of the particular process.
+     *  Burst time. Time that is required to complete execution of the particular process.
      */
     private int cpuTotalTime;
     /**
-     * Time left, the execution may be interrupted.
+     *  Time left, the execution may be interrupted.
      */
     private int cpuRemainingTime;
     
     /**
-     * The current state of the process 
-     * New          - 0
-     * Ready        - 1
-     * Running      - 2
-     * Terminated   - 3
-     * (Why not use an enumeration?)
+     *  The current state of the process 
+     *  New         - 0
+     *  Ready       - 1
+     *  Running     - 2
+     *  Terminated  - 3
+     *  (Why not use an enumeration?)
      */
     private ProcessState currentState;
     
-    private int processID;
+    /**
+     *  Process ID 
+     */
+    private final int processID;
     
 
     public Process(int pid, int arrivalTime, int cpuBurstTime) {
         this.processID = pid;
         this.arrivalTime = arrivalTime;
+        this.cpuTotalTime = cpuBurstTime;
         this.cpuRemainingTime = cpuBurstTime;
         this.currentState  = ProcessState.NEW; 
     }

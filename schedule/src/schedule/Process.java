@@ -1,9 +1,5 @@
 package schedule;
 
-/**
- * 
- * @author avail
- */
 public class Process {
     
     /**
@@ -21,13 +17,9 @@ public class Process {
     
     /**
      *  The current state of the process 
-     *  New         - 0
-     *  Ready       - 1
-     *  Running     - 2
-     *  Terminated  - 3
-     *  (Why not use an enumeration?)
+     *  according to the enum ProcessState
      */
-    private int currentState;
+    private ProcessState currentState;
     
     /**
      *  Process ID 
@@ -40,15 +32,54 @@ public class Process {
         this.arrivalTime = arrivalTime;
         this.cpuTotalTime = cpuBurstTime;
         this.cpuRemainingTime = cpuBurstTime;
-        this.currentState  = 0; // New
+        this.currentState  = ProcessState.NEW; 
     }
 
-    public void setProcessState(int newState) {
+    public void setProcessState(ProcessState newState) {
         this.currentState = newState;
     }
 
     public void changeCpuRemainingTime(int newCpuRemainingTime) {
         this.cpuRemainingTime = newCpuRemainingTime;
+    }
+    
+    /*
+    Prints the fields of the process
+    */
+    public void printProcess(){
+        System.out.println("Process ID:     " + this.processID);
+        System.out.println("Arrival time:   " + this.arrivalTime);
+        System.out.println("Burst time:     " + this.cpuTotalTime);
+        System.out.println("Remaining time: " + this.cpuRemainingTime);
+        System.out.println("Current state:  " + this.currentState);
+        System.out.println("=====================================");
+    }
+    
+    /**
+     * 
+     * @return the arrival time
+     */
+    public int getArrivalTime()
+    {
+        return this.arrivalTime;
+    }
+    
+    /**
+     * 
+     * @return the total cpu time the process requires to complete
+     */
+    public int getCpuTotalTime()
+    {
+        return this.cpuTotalTime;
+    }
+    
+    /**
+     * 
+     * @return the remaining time to complete
+     */
+    public int getCpuRemainingTime()
+    {
+        return this.cpuRemainingTime;
     }
 
 }

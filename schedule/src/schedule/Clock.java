@@ -38,7 +38,7 @@ public class Clock {
     /**
      *  @return The current Clock time. 
      */
-    public int showTime() {
+    public static int showTime() {
         return ticks;
     }
 

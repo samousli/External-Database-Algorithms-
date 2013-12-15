@@ -10,7 +10,6 @@ import java.util.List;
  *  Optimal choices:
  *      RR:  Circular Queue (Linked List with add() and removeFirst() ) 
  *      SJF: Priority Queue
- * @author avail
  */
 public class ReadyProcessesList {
 
@@ -31,14 +30,24 @@ public class ReadyProcessesList {
         }
         return p;
     }
+    
+    public int getListSize()
+    {
+        return this.processList.size();
+    }
+    
+    public Process getProcess(int i){
+        return this.processList.get(i);
+    }
 
+    /**
+     * Prints every detail of the processes in the List
+     */
     public void printList() {
-        int i = 1;
-        System.out.println("List size: " + this.processList.size() 
-                + "List elements:");
-        for(Process p : this.processList) {
-            System.out.println(i + p.toString());
-            i++;
+        System.out.println("Number of processes:   " + this.processList.size());
+        System.out.println("________Processes________");
+        for(int i = 0; i < this.processList.size() ; i++){
+            this.processList.get(i).printProcess();
         }
     }
 

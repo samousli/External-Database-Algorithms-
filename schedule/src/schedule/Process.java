@@ -17,11 +17,7 @@ public class Process {
     
     /**
      *  The current state of the process 
-     *  New         - 0
-     *  Ready       - 1
-     *  Running     - 2
-     *  Terminated  - 3
-     *  (Why not use an enumeration?)
+     *  according to the enum ProcessState
      */
     private ProcessState currentState;
     
@@ -57,6 +53,33 @@ public class Process {
         System.out.println("Remaining time: " + this.cpuRemainingTime);
         System.out.println("Current state:  " + this.currentState);
         System.out.println("=====================================");
+    }
+    
+    /**
+     * 
+     * @return the arrival time
+     */
+    public int getArrivalTime()
+    {
+        return this.arrivalTime;
+    }
+    
+    /**
+     * 
+     * @return the total cpu time the process requires to complete
+     */
+    public int getCpuTotalTime()
+    {
+        return this.cpuTotalTime;
+    }
+    
+    /**
+     * 
+     * @return the remaining time to complete
+     */
+    public int getCpuRemainingTime()
+    {
+        return this.cpuRemainingTime;
     }
 
 }

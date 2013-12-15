@@ -6,7 +6,6 @@ import java.util.List;
 /**
  * Container class for new processes. 
  * Currently implemented using a doubly-linked list.
- * @author avail
  */
 public class NewProcessTemporaryList {
     /**
@@ -37,15 +36,13 @@ public class NewProcessTemporaryList {
     }
 
     /**
-     * Prints all elements of the list.
+     * Prints every detail of the processes in the List
      */
     public void printList() {
-        int i = 1;
-        System.out.println("List size: " + this.processList.size() 
-                + "List elements:");
-        for(Process p : this.processList) {
-            System.out.println(i + p.toString());
-            i++;
+        System.out.println("Number of processes:   " + this.processList.size());
+        System.out.println("________Processes________");
+        for(int i = 0; i < this.processList.size() ; i++){
+            this.processList.get(i).printProcess();
         }
     }
 

@@ -19,13 +19,13 @@ public class Statistics {
     private int totalWaitingTime;
     
     /**
-     * The lapse time since the arrival of a process and the first time it 
-     * got cpu time 
+     * The time elapsed since the arrival of the process and the first time it 
+     * got CPU time. 
      */
     private int responseTime;
     
     private int maximumLengthOfReadyProcessesList;
-    public int totalNumberOfProcesses;
+    private int totalNumberOfProcesses;
     
     /**
      * The file for saving the statistics
@@ -47,9 +47,9 @@ public class Statistics {
      * 
      * @param ProcessList the list containing the processes waiting to be executed
      * @return the average waiting time calculated as:
-     * [current time - (arrival time + cpu time)] / number of processes
-     * where cpu time is the total time the process spent in the cpu 
-     * and is calculated as: total cpu time - remaining cpu time
+     * [current time - (arrival time + CPU time)] / number of processes
+     * where CPU time is the total time the process spent in the CPU 
+     * and is calculated as: total CPU time - remaining CPU time
      */
     public float CalculateAverageWaitingTime(ReadyProcessesList ProcessList) {
         float total_waiting_time = 0;
@@ -65,5 +65,12 @@ public class Statistics {
     }
 
     public void WriteStatistics2File() {
+    }
+
+    /**
+     * @return the total number of processes
+     */
+    public int getTotalNumberOfProcesses() {
+        return totalNumberOfProcesses;
     }
 }

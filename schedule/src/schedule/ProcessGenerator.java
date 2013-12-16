@@ -16,7 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Creates processes given an input file or randomly, can also store these 
+ * processes  in the input file.
  */
 public class ProcessGenerator {
 
@@ -27,6 +28,12 @@ public class ProcessGenerator {
     private int nextPID = 0;
     private Process lastProcess;
 
+    /**
+     *
+     * @param filename input/output file name as defined by readFile parameter
+     * @param readFile if it's set to true, the file is only readable, otherwise
+     * random processes will be generated
+     */
     public ProcessGenerator(String filename, boolean readFile) {
         this.writeToFile = !readFile;
         this.inputFile = new File(filename);
@@ -34,36 +41,67 @@ public class ProcessGenerator {
         this.rnd = new Random();
     }
 
+    /**
+     * @return a process from the input file if it exists, a random process
+     * otherwise.
+     */
     public Process createProcess() {
         if (this.writeToFile) {
-            int burstTime = rnd.nextInt(100) + 1; // (1-100)
-            this.lastProcess = new Process(nextPID,Clock.showTime(),burstTime);
-            nextPID++;
+            createRandomProcess();
             StoreProcessToFile();
         } else {
-            this.lastProcess = processList.remove(0);
+            if (this.processList.isEmpty()) {
+                createRandomProcess();
+            } else {
+                this.lastProcess = processList.remove(0);
+            }
         }
         return this.lastProcess;
     }
 
-    public void StoreProcessToFile() {
+    /**
+     * Creates a random process with burstTime ranging from 1 to 100 and
+     * arrival time as current system clock time.
+     */
+    private void createRandomProcess() {
+        // range: (now, now+10)
+        int arrivalTime = rnd.nextInt(10) + Clock.showTime(); 
+        // range: (1-100)
+        int burstTime = rnd.nextInt(100) + 1; 
         
-        try (Writer writer = new BufferedWriter(
-                             new OutputStreamWriter(
-                             new FileOutputStream(this.inputFile)))) {
-            
-            writer.write(this.lastProcess.getArrivalTime() + " " + this.lastProcess.getCpuTotalTime());
-        } catch (IOException ex) {
-            Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE, null, ex);
-        } 
+        this.lastProcess = new Process(nextPID, arrivalTime, burstTime);
+        nextPID++;
     }
 
-    public List<Process> parseProcessFile() {
+    /**
+     * Save the last created process to file.
+     */
+    public void StoreProcessToFile() {
 
-        try (BufferedReader input = new BufferedReader(new FileReader(this.inputFile))) {
+        try (Writer writer = new BufferedWriter(
+                new OutputStreamWriter(
+                        new FileOutputStream(this.inputFile)))) {
+
+                    writer.write(this.lastProcess.getArrivalTime() + " "
+                            + this.lastProcess.getCpuTotalTime());
+                } catch (IOException ex) {
+                    Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE,
+                            "Unable to store process to file.", ex);
+                }
+    }
+
+    /**
+     * @return the processes defined in the input file.
+     */
+    public List<Process> parseProcessFile() {
+        if (this.writeToFile) {
+        }
+
+        try (BufferedReader input = new BufferedReader(
+                new FileReader(this.inputFile))) {
             String text = input.readLine();
 
-            while ( text != null) {
+            while (text != null) {
                 text = input.readLine();
                 String[] tokens = text.split(" ");
                 this.processList.add(new Process(this.nextPID,
@@ -72,9 +110,11 @@ public class ProcessGenerator {
                 this.nextPID++;
             }
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE, "Input file not found.", ex);
+            Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE,
+                    "Input file not found.", ex);
         } catch (IOException ex) {
-            Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE, "File IO exception.", ex);
+            Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE,
+                    "File IO exception.", ex);
         }
         return new ArrayList<>(processList);
     }

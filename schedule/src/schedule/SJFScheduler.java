@@ -2,7 +2,6 @@ package schedule;
 
 /**
  *
- * @author avail
  */
 public class SJFScheduler {
 

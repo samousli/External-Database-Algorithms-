@@ -2,7 +2,6 @@ package schedule;
 
 /**
  *
- * @author avail
  */
 public class CPU {
     
@@ -50,7 +49,7 @@ public class CPU {
     }
 
     /**
-     *  Execute process and update clock accordingly.
+     *  Execute process and update it accordingly.
      */
     public void execute() {
     }

@@ -5,7 +5,6 @@ import java.util.TimerTask;
 
 /**
  *
- * @author avail
  */
 public class Clock {
 
@@ -26,7 +25,6 @@ public class Clock {
      */
     public Clock() {
         Clock.timer = new Timer();
-        timer.schedule(new TimerTickTask(this), 0 , tickPeriod);
     }
     /**
      *  Increments the ticks
@@ -56,5 +54,20 @@ public class Clock {
         public void run() {
             clock.timeRun();
         } 
+    }
+    
+    /**
+     * Resets and starts the clock.
+     */
+    public void start() {
+        Clock.ticks = 0;
+        timer.schedule(new TimerTickTask(this), 0 , tickPeriod);
+    }
+    
+    /**
+     * Stops the clock.
+     */
+    public void stop() {
+        timer.cancel();
     }
 }

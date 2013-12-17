@@ -1,7 +1,6 @@
 package schedule;
 
 import java.io.File;
-import java.util.List;
 
 /**
  * Collects statistics and logs them to a file.
@@ -47,7 +46,7 @@ public class Statistics {
      * 
      * @param ProcessList the list containing the processes waiting to be executed
      * @return the average waiting time calculated as:
-     * [current time - (arrival time + cpu time)] / number of processes
+     * [sum of every process(current time - (arrival time + cpu time))] / number of processes
      * where cpu time is the total time the process spent in the cpu 
      * and is calculated as: total cpu time - remaining cpu time
      */

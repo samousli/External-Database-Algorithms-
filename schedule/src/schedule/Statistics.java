@@ -18,13 +18,13 @@ public class Statistics {
     private int totalWaitingTime;
     
     /**
-     * The lapse time since the arrival of a process and the first time it 
-     * got cpu time 
+     * The time elapsed since the arrival of the process and the first time it 
+     * got CPU time. 
      */
     private int responseTime;
     
     private int maximumLengthOfReadyProcessesList;
-    public int totalNumberOfProcesses;
+    private int totalNumberOfProcesses;
     
     /**
      * The file for saving the statistics
@@ -64,5 +64,12 @@ public class Statistics {
     }
 
     public void WriteStatistics2File() {
+    }
+
+    /**
+     * @return the total number of processes
+     */
+    public int getTotalNumberOfProcesses() {
+        return totalNumberOfProcesses;
     }
 }

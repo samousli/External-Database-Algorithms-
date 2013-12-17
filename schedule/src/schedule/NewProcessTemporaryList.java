@@ -31,7 +31,10 @@ public class NewProcessTemporaryList {
      * @return the first process.
      */
     public Process getFirst() {
-        Process p = ((LinkedList<Process>)this.processList).pop();
+        Process p = null;
+        if (!processList.isEmpty()) {
+            p = ((LinkedList<Process>)processList).removeFirst();
+        }
         return p;
     }
 

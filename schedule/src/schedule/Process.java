@@ -17,7 +17,6 @@ public class Process {
     
     /**
      *  The current state of the process 
-     *  according to the enum ProcessState
      */
     private ProcessState currentState;
     
@@ -26,7 +25,12 @@ public class Process {
      */
     private final int processID;
     
-
+    /**
+     * 
+     * @param pid the process ID.
+     * @param arrivalTime current time according to system Clock.
+     * @param cpuBurstTime time required for the process to finish.
+     */
     public Process(int pid, int arrivalTime, int cpuBurstTime) {
         this.processID = pid;
         this.arrivalTime = arrivalTime;
@@ -66,7 +70,7 @@ public class Process {
     
     /**
      * 
-     * @return the total cpu time the process requires to complete
+     * @return the total CPU time the process requires to complete
      */
     public int getCpuTotalTime()
     {

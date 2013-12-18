@@ -91,6 +91,8 @@ public class ProcessGenerator {
     }
 
     /**
+     * Parses the input file it's associated with and returns a list of processes
+     * from the given data. Can ignore badly formatted files 
      * @return the processes defined in the input file.
      */
     public List<Process> parseProcessFile() {
@@ -107,8 +109,7 @@ public class ProcessGenerator {
                 vals = tokenizeStrToInt(text);
                 // Ignore processes with invalid values.
                 if (vals == null) {
-                    System.out.println("Invalid process info in file. Ignoring it");
-                    System.out.println("Info: " + text);
+                    System.out.println("Ignoring " + text);
                 } else {
                 this.processList.add(new Process(this.nextPID, vals[0], vals[1]));
                 this.nextPID++;

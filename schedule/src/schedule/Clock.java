@@ -7,24 +7,26 @@ import java.util.TimerTask;
  *
  */
 public class Clock {
-
+    
+    /// Incremented by one every <tickPeriod> milliseconds
     /**
-     *  Ticks since creation. Incremented by one every <tickPeriod> milliseconds
+     *  Ticks since creation. Incremented manually.
      */
     private static int ticks;
     /**
      *  Time between each tick, in milliseconds.
      */
-    public static final int tickPeriod = 100;
+    //public static final int tickPeriod = 100;
     /**
      *  Timer that calls the timeRun() method every <tickPeriod>
      */
-    private static Timer timer;
+    //private static Timer timer;
     /**
      *  Initializes the object and schedules the timer.
      */
     public Clock() {
-        Clock.timer = new Timer();
+        //Clock.timer = new Timer();
+        ticks = 0;
     }
     /**
      *  Increments the ticks
@@ -59,15 +61,15 @@ public class Clock {
     /**
      * Resets and starts the clock.
      */
-    public void start() {
+    public void reset() {
         Clock.ticks = 0;
-        timer.schedule(new TimerTickTask(this), 0 , tickPeriod);
+        //timer.schedule(new TimerTickTask(this), 0 , tickPeriod);
     }
     
     /**
      * Stops the clock.
-     */
+     
     public void stop() {
         timer.cancel();
-    }
+    }*/
 }

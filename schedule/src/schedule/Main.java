@@ -25,7 +25,6 @@ public  class Main {
         
         // Create processes
         List<Process> pl = processGen.parseProcessFile();
-        System.out.println(pl.size());
         for (Process p : pl) {
             p.printProcess();
         }

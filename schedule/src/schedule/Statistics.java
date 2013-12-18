@@ -60,9 +60,13 @@ public class Statistics {
                     (process.getCpuTotalTime() - process.getCpuRemainingTime()));
         }
         float result = total_waiting_time / ProcessList.getListSize();
+        this.averageWaitingTime = result;
         return result;
     }
 
+    /**
+     * Writes statistics to output file
+     */
     public void WriteStatistics2File() {
     }
 

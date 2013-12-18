@@ -17,10 +17,6 @@ public class CPU {
      *  The time the previous process started
      */ 
     private int lastProcessStartTime;
-    /**
-     *  A waiting queue for new processes.
-     */
-    private NewProcessTemporaryList processList;
 
     
     public CPU() {
@@ -34,7 +30,7 @@ public class CPU {
      *  @param process the process that's ready to be executed.
      */
     public void addProcess(Process process) {
-        //this.runningProcess = process;
+        this.runningProcess = process;
     }
 
     /**
@@ -42,15 +38,22 @@ public class CPU {
      *  @return The process that got interrupted
      */
     public Process removeProcessFromCpu() {
-        //ToDo: Logs here.
         Process p = this.runningProcess;
         this.runningProcess = null; 
         return p;
     }
 
     /**
-     *  Execute process and update it accordingly.
+     *  Executes process and updates it accordingly.
      */
     public void execute() {
+        this.lastProcessStartTime = Clock.showTime();
+        this.runningProcess.setProcessState(ProcessState.RUNNING);
+        if (runningProcess != null) {
+           this.runningProcess.changeCpuRemainingTime(
+                   this.runningProcess.getCpuRemainingTime() - 
+                           this.timeToNextContextSwitch); 
+        }
+        this.runningProcess.setProcessState(ProcessState.READY);
     }
 }

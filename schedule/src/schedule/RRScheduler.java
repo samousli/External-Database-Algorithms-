@@ -20,6 +20,8 @@ public class RRScheduler {
     }
 
     public void RR() {
+        int currentTime = Clock.showTime();
+        while (currentTime + quantum > Clock.showTime()) { }
         
     }
 

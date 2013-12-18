@@ -16,8 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Creates processes given an input file or randomly, can also store these 
- * processes  in the input file.
+ * Creates processes given an input file or randomly, can also store these
+ * processes in the input file.
  */
 public class ProcessGenerator {
 
@@ -60,15 +60,15 @@ public class ProcessGenerator {
     }
 
     /**
-     * Creates a random process with burstTime ranging from 1 to 100 and
-     * arrival time as current system clock time.
+     * Creates a random process with burstTime ranging from 1 to 100 and arrival
+     * time as current system clock time.
      */
     private void createRandomProcess() {
         // range: (now, now+10)
-        int arrivalTime = rnd.nextInt(10) + Clock.showTime(); 
+        int arrivalTime = rnd.nextInt(10) + Clock.showTime();
         // range: (1-100)
-        int burstTime = rnd.nextInt(100) + 1; 
-        
+        int burstTime = rnd.nextInt(100) + 1;
+
         this.lastProcess = new Process(nextPID, arrivalTime, burstTime);
         nextPID++;
     }
@@ -95,28 +95,55 @@ public class ProcessGenerator {
      */
     public List<Process> parseProcessFile() {
         if (this.writeToFile) {
+            return null;
         }
 
         try (BufferedReader input = new BufferedReader(
                 new FileReader(this.inputFile))) {
             String text = input.readLine();
-
+            int vals[];
             while (text != null) {
-                text = input.readLine();
-                String[] tokens = text.split(" ");
-                this.processList.add(new Process(this.nextPID,
-                        Integer.parseInt(tokens[0]),
-                        Integer.parseInt(tokens[1])));
+                
+                vals = tokenizeStrToInt(text);
+                // Ignore processes with invalid values.
+                if (vals == null) {
+                    System.out.println("Invalid process info in file. Ignoring it");
+                    System.out.println("Info: " + text);
+                } else {
+                this.processList.add(new Process(this.nextPID, vals[0], vals[1]));
                 this.nextPID++;
+                }
+                text = input.readLine();
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE,
-                    "Input file not found.", ex);
+                    "Input file doesn't exist.", ex);
         } catch (IOException ex) {
             Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE,
                     "File IO exception.", ex);
         }
         return new ArrayList<>(processList);
+    }
+    
+    /**
+     * Tokenizes the input string into 2 integers.
+     * @param str input string
+     * @return an array of 2 integers or null if there was an error
+     */
+    private int[] tokenizeStrToInt(String str) {
+        String[] tokens = str.split(" ");
+        
+        if (tokens.length != 2 || tokens[0] == null || tokens[1].equals("") || 
+                tokens[1] == null || tokens[1].equals("")) {
+            return null;
+        }
+        int vals[] = new int[2];
+        vals[0] = Integer.parseInt(tokens[0]);
+        vals[1] = Integer.parseInt(tokens[1]);
+        if (vals[0] < 0 || vals[1] < 0) {
+            return null;
+        } 
+        return vals;
     }
 
 }

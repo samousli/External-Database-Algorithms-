@@ -9,7 +9,7 @@ import java.util.List;
  *  perhaps a doubly linked list or a priority Queue 
  *  Optimal choices:
  *      RR:  Circular Queue (Linked List with add() and removeFirst() ) 
- *      SJF: Priority Queue
+ *      SJF: Priority Queue 
  */
 public class ReadyProcessesList {
 

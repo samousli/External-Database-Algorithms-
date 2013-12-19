@@ -37,6 +37,14 @@ public class ProcessGenerator {
     public ProcessGenerator(String filename, boolean readFile) {
         this.writeToFile = !readFile;
         this.inputFile = new File(filename);
+        if (!this.inputFile.exists())
+        {
+            try {
+                this.inputFile.createNewFile();
+            } catch (IOException ex) {
+                Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         this.processList = new ArrayList<>();
         this.rnd = new Random();
     }

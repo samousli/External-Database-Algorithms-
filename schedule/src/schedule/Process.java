@@ -5,11 +5,11 @@ public class Process {
     /**
      *  The time at which this process was created. 
      */
-    private int arrivalTime;
+    private final int arrivalTime;
     /**
      *  Burst time. Time that is required to complete execution of the particular process.
      */
-    private int cpuTotalTime;
+    private final int cpuTotalTime;
     /**
      *  Time left, the execution may be interrupted.
      */
@@ -55,7 +55,7 @@ public class Process {
         System.out.println("Arrival time:   " + this.arrivalTime);
         System.out.println("Burst time:     " + this.cpuTotalTime);
         System.out.println("Remaining time: " + this.cpuRemainingTime);
-        System.out.println("Current state:  " + this.currentState);
+        System.out.println("Current state:  " + this.getCurrentState());
         System.out.println("=====================================");
     }
     
@@ -84,6 +84,13 @@ public class Process {
     public int getCpuRemainingTime()
     {
         return this.cpuRemainingTime;
+    }
+
+    /**
+     * @return the currentState
+     */
+    public ProcessState getCurrentState() {
+        return currentState;
     }
 
 }

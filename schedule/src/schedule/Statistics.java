@@ -76,7 +76,7 @@ public class Statistics {
      * and is calculated as: total CPU time - remaining CPU time
      */
     public float CalculateAverageWaitingTime(ReadyProcessesList ProcessList) {
-        float total_waiting_time = 0;
+        int total_waiting_time = 0;
         
         for (int i = 0; i < ProcessList.getListSize(); i++)
         {

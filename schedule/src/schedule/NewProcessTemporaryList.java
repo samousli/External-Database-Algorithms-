@@ -1,13 +1,16 @@
 package schedule;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Container class for new processes. 
- * Currently implemented using a doubly-linked list.
+ * Container class for new processes. Currently implemented using a
+ * doubly-linked list.
  */
 public class NewProcessTemporaryList {
+
     /**
      * A list that holds the new processes
      */
@@ -20,6 +23,7 @@ public class NewProcessTemporaryList {
 
     /**
      * Adds a new process to the list.
+     *
      * @param process process to be added.
      */
     public void addNewProcess(Process process) {
@@ -28,12 +32,25 @@ public class NewProcessTemporaryList {
 
     /**
      * Remove and return the first element of the list.
+     *
      * @return the first process.
      */
+    @SuppressWarnings("unchecked")
     public Process getFirst() {
         Process p = null;
+        Collections.sort(processList, new Comparator() {
+
+            @Override
+            public int compare(Object o1, Object o2) {
+                Process p1 = (Process) o1;
+                Process p2 = (Process) o2;
+                
+                return new Integer(p1.getArrivalTime()).compareTo(
+                       new Integer(p2.getArrivalTime()));
+            }
+        });
         if (!processList.isEmpty()) {
-            p = ((LinkedList<Process>)processList).removeFirst();
+            p = ((LinkedList<Process>) processList).removeFirst();
         }
         return p;
     }
@@ -44,7 +61,7 @@ public class NewProcessTemporaryList {
     public void printList() {
         System.out.println("Number of processes:   " + this.processList.size());
         System.out.println("________Processes________");
-        for(int i = 0; i < this.processList.size() ; i++){
+        for (int i = 0; i < this.processList.size(); i++) {
             this.processList.get(i).printProcess();
         }
     }

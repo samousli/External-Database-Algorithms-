@@ -1,7 +1,7 @@
 package schedule;
 
 /**
- *asdasdasdasdasd
+ * 
  */
 public class RRScheduler {
 
@@ -30,6 +30,8 @@ public class RRScheduler {
         cpu.execute();
         if (cpu.getRunningProcess().getCurrentState() == ProcessState.READY) {
             processList.addProcess(nextP);
+        } else {
+            // Run Stats!!
         }
     }
 

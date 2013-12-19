@@ -67,17 +67,16 @@ public class Statistics {
         }
     }
 
-
-/**
- *
- * @param ProcessList the list containing the processes waiting to be executed
- * @return the average waiting time calculated as: [sum of every process(current
- * time - (arrival time + cpu time))] / number of processes where cpu time is
- * the total time the process spent in the cpu and is calculated as: total cpu
- * time - remaining cpu time
- */
-public float CalculateAverageWaitingTime(ReadyProcessesList ProcessList) {
-        int total_waiting_time = 0;
+    /**
+     * 
+     * @param ProcessList the list containing the processes waiting to be executed
+     * @return the average waiting time calculated as:
+     * [sum of every process(current time - (arrival time + CPU time))] / number of processes
+     * where CPU time is the total time the process spent in the CPU 
+     * and is calculated as: total CPU time - remaining CPU time
+     */
+    public float CalculateAverageWaitingTime(ReadyProcessesList ProcessList) {
+        float total_waiting_time = 0;
         
         for (int i = 0; i < ProcessList.getListSize(); i++)
         {

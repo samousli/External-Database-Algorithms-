@@ -1,7 +1,7 @@
 package schedule;
 
 /**
- *
+ *asdasdasdasdasd
  */
 public class RRScheduler {
 
@@ -12,6 +12,7 @@ public class RRScheduler {
     RRScheduler(int quantum) {
         this.processList = new ReadyProcessesList();
         this.cpu = new CPU();
+        this.cpu.setTimeToNextContextSwitch(quantum);
         this.quantum = quantum;
     }
 
@@ -20,7 +21,16 @@ public class RRScheduler {
     }
 
     public void RR() {
-        
+        int currentTime = Clock.showTime();
+        if (cpu.getRunningProcess().getCurrentState() == ProcessState.RUNNING) {
+            return;
+        } 
+        Process nextP = processList.getProcessToRunInCPU();
+        cpu.addProcess(nextP);
+        cpu.execute();
+        if (cpu.getRunningProcess().getCurrentState() == ProcessState.READY) {
+            processList.addProcess(nextP);
+        }
     }
 
     /**

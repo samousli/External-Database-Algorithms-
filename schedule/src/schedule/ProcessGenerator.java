@@ -75,7 +75,7 @@ public class ProcessGenerator {
         // range: (now, now+10)
         int arrivalTime = rnd.nextInt(10) + Clock.showTime();
         // range: (1-100)
-        int burstTime = rnd.nextInt(100) + 1;
+        int burstTime = rnd.nextInt(10) + 1;
 
         this.lastProcess = new Process(nextPID, arrivalTime, burstTime);
         nextPID++;

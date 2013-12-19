@@ -14,12 +14,9 @@ public  class Main {
     private static ProcessGenerator processGen;
     private static Statistics stats;
     private static RRScheduler roundRobin;
+    private static final int shutdownTime = 100;
     
     
-    private static List<Process> getValidProcessesFromTemporaryList() {
-        
-        return null;
-    }
     public static void runRRSimulation(String inputFile, String outputFile, int quantum) {
         newProcesses = new NewProcessTemporaryList();
         File a  = new File(inputFile);
@@ -35,7 +32,7 @@ public  class Main {
         }
         
         
-        while (true) {
+        while (Clock.showTime() != shutdownTime) {
             // Add processes with current arrival time to the ready list of the scheduler.
             Process p = newProcesses.getFirst();
             while (p != null && p.getArrivalTime() == Clock.showTime()) {
@@ -49,7 +46,7 @@ public  class Main {
     }
     
     public static void main(String args[]) {
-        runRRSimulation(args[0], args[1], 100);
+        runRRSimulation(args[0], args[1], 10);
     }
     
 }

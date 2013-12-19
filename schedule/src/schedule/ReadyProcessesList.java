@@ -20,6 +20,7 @@ public class ReadyProcessesList {
     }
 
     public void addProcess(Process item) {
+        item.setProcessState(ProcessState.READY);
         this.processList.add(item);
     }
     

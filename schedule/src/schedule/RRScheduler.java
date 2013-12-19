@@ -21,8 +21,10 @@ public class RRScheduler {
     }
 
     public void RR() {
-        int currentTime = Clock.showTime();
+        //int currentTime = Clock.showTime();
+        
         if (cpu.getRunningProcess().getCurrentState() == ProcessState.RUNNING) {
+            cpu.execute();
             return;
         } 
         Process nextP = processList.getProcessToRunInCPU();

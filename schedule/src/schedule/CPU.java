@@ -51,12 +51,10 @@ public class CPU {
         if (getRunningProcess() == null) {
             return;
         }
-        this.lastProcessStartTime = Clock.showTime();
         this.getRunningProcess().setProcessState(ProcessState.RUNNING);
         
         this.getRunningProcess().changeCpuRemainingTime(
-                this.getRunningProcess().getCpuRemainingTime()
-                - this.timeToNextContextSwitch);
+                this.getRunningProcess().getCpuRemainingTime() - 1 );
 
         if (this.getRunningProcess().getCpuRemainingTime() == 0) {
             this.getRunningProcess().setProcessState(ProcessState.TERMINATED);

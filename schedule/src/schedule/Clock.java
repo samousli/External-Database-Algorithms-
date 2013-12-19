@@ -31,7 +31,7 @@ public class Clock {
     /**
      *  Increments the ticks
      */
-    private void timeRun() {
+    public void timeRun() {
         ticks++;
     }
     

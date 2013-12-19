@@ -1,6 +1,7 @@
 package schedule;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -14,23 +15,36 @@ public  class Main {
     private static Statistics stats;
     private static RRScheduler roundRobin;
     
+    
+    private static List<Process> getValidProcessesFromTemporaryList() {
+        
+        return null;
+    }
     public static void runRRSimulation(String inputFile, String outputFile, int quantum) {
         newProcesses = new NewProcessTemporaryList();
         File a  = new File(inputFile);
         processGen = new ProcessGenerator(inputFile, true);
         stats = new Statistics(outputFile);
         roundRobin = new RRScheduler(quantum);
-        
-        
+        clock = new Clock();
         
         // Create processes
         List<Process> pl = processGen.parseProcessFile();
         for (Process p : pl) {
-            p.printProcess();
+            newProcesses.addNewProcess(p);
         }
         
-        // Start clock
-        clock = new Clock();
+        
+        while (true) {
+            // Add processes with current arrival time to the ready list of the scheduler.
+            Process p = newProcesses.getFirst();
+            while (p != null && p.getArrivalTime() == Clock.showTime()) {
+                roundRobin.addProcessToReadyList(p);
+                p = newProcesses.getFirst();
+            }
+            roundRobin.RR();
+            clock.timeRun();
+        }
         
     }
     

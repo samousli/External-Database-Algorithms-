@@ -6,11 +6,11 @@ package schedule;
 public class RRScheduler {
 
     private int quantum;
-    private final ReadyProcessesList processList;
+    private final RRReadyProcessesList processList;
     private final CPU cpu; 
 
     RRScheduler(int quantum) {
-        this.processList = new ReadyProcessesList();
+        this.processList = new RRReadyProcessesList();
         this.cpu = new CPU();
         this.cpu.setTimeToNextContextSwitch(quantum);
         this.quantum = quantum;

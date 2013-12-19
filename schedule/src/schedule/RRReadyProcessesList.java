@@ -11,11 +11,11 @@ import java.util.List;
  *      RR:  Circular Queue (Linked List with add() and removeFirst() ) 
  *      SJF: Priority Queue 
  */
-public class ReadyProcessesList {
+public class RRReadyProcessesList {
 
     private final List<Process> processList;
 
-    public ReadyProcessesList() {
+    public RRReadyProcessesList() {
         this.processList = new LinkedList<>();
     }
 

@@ -75,7 +75,7 @@ public class Statistics {
      * where CPU time is the total time the process spent in the CPU 
      * and is calculated as: total CPU time - remaining CPU time
      */
-    public float CalculateAverageWaitingTime(ReadyProcessesList ProcessList) {
+    public float CalculateAverageWaitingTime(RRReadyProcessesList ProcessList) {
         int total_waiting_time = 0;
         
         for (int i = 0; i < ProcessList.getListSize(); i++)
@@ -93,7 +93,7 @@ public class Statistics {
     * updates every field in Statistics for the current clock time
     * @param ProcessList is the list containing the processes waiting the cpu
     */
-    public void updateStatistics(ReadyProcessesList ProcessList)
+    public void updateStatistics(RRReadyProcessesList ProcessList)
     {
         this.CalculateAverageWaitingTime(ProcessList);
         this.totalNumberOfProcesses = ProcessList.getListSize();

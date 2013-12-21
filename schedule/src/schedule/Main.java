@@ -14,15 +14,16 @@ public class Main {
     private static Statistics stats;
     private static RRScheduler roundRobin;
     private static final int shutdownTime = 100;
-    
-    public static void Initialize(String inputFile, String outputFile, int quantum)
-    {
-       newProcesses = new NewProcessTemporaryList(); 
-       File a = new File(inputFile);
-       processGen = new ProcessGenerator(inputFile, true);
-       stats = new Statistics(outputFile);
-       roundRobin = new RRScheduler(quantum);
-       clock = new Clock();
+    /**
+     * Add processes with current arrival time to the ready list of the scheduler.
+     */
+    public static void addProcessesToReadyList() {
+        newProcesses.sortByArrivalTime();
+        Process p = newProcesses.getFirst();
+        while (p != null && p.getArrivalTime() <= Clock.showTime()) {
+            roundRobin.addProcessToReadyList(p);
+            p = newProcesses.getFirst();
+        }
     }
 
     public static void runRRSimulation() {

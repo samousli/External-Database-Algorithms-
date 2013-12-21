@@ -27,14 +27,7 @@ public class SJFScheduler {
         {
          //   this.processQueue.add(list.getProcess(i));
         }
-        if (this.isPreemptive)
-        {
-            
-        }
-        else
-        {
-            
-        }
+        
     }
 
 }

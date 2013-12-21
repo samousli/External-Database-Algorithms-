@@ -37,7 +37,7 @@ public class Main {
 
         // Create processes
         //List<Process> pl = processGen.parseProcessFile();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             newProcesses.addNewProcess(processGen.createProcess());
         }
 

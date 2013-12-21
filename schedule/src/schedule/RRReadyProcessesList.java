@@ -27,7 +27,7 @@ public class RRReadyProcessesList {
     public Process getProcessToRunInCPU() {
         Process p = null;
         if (!processList.isEmpty()) {
-            p = ((LinkedList<Process>)processList).removeFirst();
+            return ((LinkedList<Process>)processList).removeFirst();
         }
         return p;
     }

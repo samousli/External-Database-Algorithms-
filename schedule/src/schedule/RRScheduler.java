@@ -17,22 +17,25 @@ public class RRScheduler {
     }
 
     public void addProcessToReadyList(Process process) {
-        processList.addProcess(process);
+        this.processList.addProcess(process);
     }
 
     public void RR() {
         //int currentTime = Clock.showTime();
         
-        if (cpu.getRunningProcess().getCurrentState() == ProcessState.RUNNING) {
+        if (cpu.getRunningProcess() != null &&
+            cpu.getRunningProcess().getCurrentState() == ProcessState.RUNNING) {
             cpu.execute();
             return;
         } 
-        Process nextP = processList.getProcessToRunInCPU();
+        Process nextP = this.processList.getProcessToRunInCPU();
+        if (nextP == null) { return; }
         cpu.addProcess(nextP);
         cpu.execute();
         if (cpu.getRunningProcess().getCurrentState() == ProcessState.READY) {
             processList.addProcess(nextP);
         } else {
+            // Process terminated.
             // Run Stats!!
         }
     }

@@ -48,18 +48,18 @@ public class CPU {
      * Executes process and updates it accordingly.
      */
     public void execute() {
-        if (getRunningProcess() == null) {
+        if (this.runningProcess == null) {
             return;
         }
-        this.getRunningProcess().setProcessState(ProcessState.RUNNING);
+        this.runningProcess.setProcessState(ProcessState.RUNNING);
         
-        this.getRunningProcess().changeCpuRemainingTime(
-                this.getRunningProcess().getCpuRemainingTime() - 1 );
+        this.runningProcess.changeCpuRemainingTime(
+                this.runningProcess.getCpuRemainingTime() - 1 );
 
-        if (this.getRunningProcess().getCpuRemainingTime() == 0) {
-            this.getRunningProcess().setProcessState(ProcessState.TERMINATED);
+        if (this.runningProcess.getCpuRemainingTime() == 0) {
+            this.runningProcess.setProcessState(ProcessState.TERMINATED);
         } else {
-            this.getRunningProcess().setProcessState(ProcessState.READY);
+            this.runningProcess.setProcessState(ProcessState.READY);
         }
     }
 
@@ -74,6 +74,6 @@ public class CPU {
      * @return the runningProcess
      */
     public Process getRunningProcess() {
-        return runningProcess;
+        return this.runningProcess;
     }
 }

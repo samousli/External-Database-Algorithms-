@@ -35,20 +35,9 @@ public class NewProcessTemporaryList {
      *
      * @return the first process.
      */
-    @SuppressWarnings("unchecked")
     public Process getFirst() {
         Process p = null;
-        Collections.sort(processList, new Comparator() {
-
-            @Override
-            public int compare(Object o1, Object o2) {
-                Process p1 = (Process) o1;
-                Process p2 = (Process) o2;
-                
-                return new Integer(p1.getArrivalTime()).compareTo(
-                       new Integer(p2.getArrivalTime()));
-            }
-        });
+        
         if (!processList.isEmpty()) {
             p = ((LinkedList<Process>) processList).removeFirst();
         }
@@ -64,6 +53,17 @@ public class NewProcessTemporaryList {
         for (int i = 0; i < this.processList.size(); i++) {
             this.processList.get(i).printProcess();
         }
+    }
+    
+    public void sortByArrivalTime() { 
+        Collections.sort(processList, new Comparator<Process>() {
+
+            @Override
+            public int compare(Process p1, Process p2) {
+                return new Integer(p1.getArrivalTime()).compareTo(
+                       new Integer(p2.getArrivalTime()));
+            }
+        });
     }
 
 }

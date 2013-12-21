@@ -28,13 +28,18 @@ public class RRScheduler {
             cpu.execute();
             return;
         } 
+        
+        if (this.processList.getListSize() == 0) { 
+            System.out.println("No processes left.");
+            return;
+        }
         Process nextP = this.processList.getProcessToRunInCPU();
-        if (nextP == null) { return; }
         cpu.addProcess(nextP);
         cpu.execute();
         if (cpu.getRunningProcess().getCurrentState() == ProcessState.READY) {
             processList.addProcess(nextP);
         } else {
+            nextP.printProcess();
             // Process terminated.
             // Run Stats!!
         }

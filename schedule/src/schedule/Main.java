@@ -15,6 +15,17 @@ public class Main {
     private static Statistics stats;
     private static RRScheduler roundRobin;
     private static final int shutdownTime = 100;
+    /**
+     * Add processes with current arrival time to the ready list of the scheduler.
+     */
+    public static void addProcessesToReadyList() {
+        newProcesses.sortByArrivalTime();
+        Process p = newProcesses.getFirst();
+        while (p != null && p.getArrivalTime() <= Clock.showTime()) {
+            roundRobin.addProcessToReadyList(p);
+            p = newProcesses.getFirst();
+        }
+    }
 
     public static void runRRSimulation(String inputFile, String outputFile, int quantum) {
         newProcesses = new NewProcessTemporaryList();
@@ -25,19 +36,13 @@ public class Main {
         clock = new Clock();
 
         // Create processes
-        List<Process> pl = processGen.parseProcessFile();
-        for (Process p : pl) {
-            newProcesses.addNewProcess(p);
+        //List<Process> pl = processGen.parseProcessFile();
+        for (int i = 0; i < 100; i++) {
+            newProcesses.addNewProcess(processGen.createProcess());
         }
 
         while (Clock.showTime() != shutdownTime) {
-            // Add processes with current arrival time to the ready list of the scheduler.
-            Process p = newProcesses.getFirst();
-            newProcesses.sortByArrivalTime();
-            while (p != null && p.getArrivalTime() == Clock.showTime()) {
-                roundRobin.addProcessToReadyList(p);
-                p = newProcesses.getFirst();
-            }
+            addProcessesToReadyList();
             roundRobin.RR();
             clock.timeRun();
         }

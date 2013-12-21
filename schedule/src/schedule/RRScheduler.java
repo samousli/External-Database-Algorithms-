@@ -21,8 +21,6 @@ public class RRScheduler {
     }
 
     public void RR() {
-        //int currentTime = Clock.showTime();
-        
         if (cpu.getRunningProcess() != null &&
             cpu.getRunningProcess().getCurrentState() == ProcessState.RUNNING) {
             cpu.execute();
@@ -30,7 +28,7 @@ public class RRScheduler {
         } 
         
         if (this.processList.getListSize() == 0) { 
-            System.out.println("No processes left.");
+            System.out.println("CPU idle (clockTime: " + Clock.showTime() +  " )");
             return;
         }
         Process nextP = this.processList.getProcessToRunInCPU();
@@ -39,6 +37,7 @@ public class RRScheduler {
         if (cpu.getRunningProcess().getCurrentState() == ProcessState.READY) {
             processList.addProcess(nextP);
         } else {
+            System.out.println("Process Terminated (clockTime: " + Clock.showTime() +  " )");
             nextP.printProcess();
             // Process terminated.
             // Run Stats!!

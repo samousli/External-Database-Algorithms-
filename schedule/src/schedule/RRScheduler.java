@@ -5,7 +5,7 @@ package schedule;
  */
 public class RRScheduler {
 
-    private int quantum;
+    private final int quantum;
     private final RRReadyProcessesList processList;
     private final CPU cpu;
 
@@ -24,7 +24,7 @@ public class RRScheduler {
         if (cpu.getRunningProcess() == null || 
                 cpu.getRunningProcess().getCurrentState() != ProcessState.RUNNING) {
             if (this.processList.getListSize() == 0) {
-                System.out.println("CPU idle (clockTime: " + Clock.showTime() + " )");
+                System.out.println("CPU idle (Time: " + Clock.showTime() + " )");
                 return;
             }
             Process nextP = this.processList.getProcessToRunInCPU();
@@ -36,7 +36,7 @@ public class RRScheduler {
                 cpu.getRunningProcess().getCurrentState() == ProcessState.READY) {
             processList.addProcess(cpu.getRunningProcess());
         } else {
-            System.out.println("Process Terminated (clockTime: " + Clock.showTime() + " )");
+            System.out.println("Process Terminated (Time: " + Clock.showTime() + " )");
             cpu.getRunningProcess().printProcess();
             // Process terminated.
             // Run Stats!!
@@ -47,14 +47,7 @@ public class RRScheduler {
      * @return the quantum
      */
     public int getQuantum() {
-        return quantum;
-    }
-
-    /**
-     * @param quantum the quantum to set
-     */
-    public void setQuantum(int quantum) {
-        this.quantum = quantum;
+        return this.quantum;
     }
 
 }

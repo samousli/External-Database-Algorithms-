@@ -1,6 +1,5 @@
 package schedule;
 
-import java.util.Timer;
 import java.util.TimerTask;
 
 /**
@@ -45,11 +44,11 @@ public class Clock {
     /**
      *  A helper class thats used to recursively call the timeRun method.
      */
-    private class TimerTickTask extends TimerTask
+    private static class TimerTickTask extends TimerTask
     {
-        Clock clock;
-        public TimerTickTask(Clock c) {
-            this.clock = c;
+        private static Clock clock;
+        public  TimerTickTask(Clock c) {
+            clock = c;
         }
 
         @Override

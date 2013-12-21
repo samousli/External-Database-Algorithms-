@@ -16,12 +16,10 @@ public class CPU {
     /**
      * The time the previous process started
      */
-    private int lastProcessStartTime;
+   // private int lastProcessStartTime;
 
     public CPU() {
         this.runningProcess = null;
-        this.lastProcessStartTime = 0;
-        this.timeToNextContextSwitch = 0;
     }
 
     /**
@@ -52,7 +50,7 @@ public class CPU {
             return;
         }
         this.runningProcess.setProcessState(ProcessState.RUNNING);
-        
+        System.out.println("P" + this.runningProcess.getID());
         this.runningProcess.changeCpuRemainingTime(
                 this.runningProcess.getCpuRemainingTime() - 1 );
 

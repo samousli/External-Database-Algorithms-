@@ -2,6 +2,8 @@ package schedule;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -57,6 +59,12 @@ public class Main {
             addProcessesToReadyList();
             roundRobin.RR();
             clock.timeRun();
+            // Sleep for 100ms after every iteration
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Sleep interrupted", ex);
+            }
         }
 
     }

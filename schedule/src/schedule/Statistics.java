@@ -103,7 +103,8 @@ public class Statistics {
     /**
      * Writes statistics to output file
      */
-    public void WriteStatistics2File() {
+    public void WriteStatistics2File(RRReadyProcessesList ProcessList) {
+        this.updateStatistics(ProcessList);
         try {
             PrintWriter fileWriter;
             fileWriter = new PrintWriter(new BufferedWriter(new FileWriter(this.outputFile, true)));

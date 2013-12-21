@@ -27,19 +27,13 @@ public class Main {
 
     public static void runRRSimulation() {
         // Create processes
-        List<Process> pl = processGen.parseProcessFile();
-        for (Process p : pl) {
-            newProcesses.addNewProcess(p);
+        //List<Process> pl = processGen.parseProcessFile();
+        for (int i = 0; i < 100; i++) {
+            newProcesses.addNewProcess(processGen.createProcess());
         }
 
         while (Clock.showTime() != shutdownTime) {
-            // Add processes with current arrival time to the ready list of the scheduler.
-            Process p = newProcesses.getFirst();
-            newProcesses.sortByArrivalTime();
-            while (p != null && p.getArrivalTime() == Clock.showTime()) {
-                roundRobin.addProcessToReadyList(p);
-                p = newProcesses.getFirst();
-            }
+            addProcessesToReadyList();
             roundRobin.RR();
             clock.timeRun();
         }

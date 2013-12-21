@@ -22,11 +22,12 @@ public class RRReadyProcessesList {
     public void addProcess(Process item) {
         item.setProcessState(ProcessState.READY);
         this.processList.add(item);
+        System.out.println(this.getListSize());
     }
     
     public Process getProcessToRunInCPU() {
         Process p = null;
-        if (!processList.isEmpty()) {
+        if (!this.processList.isEmpty()) {
             return ((LinkedList<Process>)processList).removeFirst();
         }
         return p;

@@ -25,6 +25,16 @@ public class Main {
             p = newProcesses.getFirst();
         }
     }
+    
+    public static void Initialize(String inputFile, String outputFile, int quantum)
+    {
+         newProcesses = new NewProcessTemporaryList(); 
+         File a = new File(inputFile); 
+         processGen = new ProcessGenerator(inputFile, true); 
+         stats = new Statistics(outputFile); 
+         roundRobin = new RRScheduler(quantum); 
+         clock = new Clock();
+    }
 
     public static void runRRSimulation() {
         // Create processes

@@ -6,6 +6,11 @@ package schedule;
 public class CPU {
 
     /**
+     * CPU clock
+     */
+    private Clock clock;
+
+    /**
      * Currently running process
      */
     private Process runningProcess;
@@ -13,12 +18,13 @@ public class CPU {
      * Time to interrupt
      */
     private int timeToNextContextSwitch;
+
     /**
      * The time the previous process started
      */
-   // private int lastProcessStartTime;
-
+    // private int lastProcessStartTime;
     public CPU() {
+        this.clock = new Clock();
         this.runningProcess = null;
     }
 
@@ -43,16 +49,21 @@ public class CPU {
     }
 
     /**
-     * Executes process and updates it accordingly.
+     * Executes the loaded process and updates it's state and CPU clock
+     * accordingly.
      */
     public void execute() {
         if (this.runningProcess == null) {
             return;
         }
         this.runningProcess.setProcessState(ProcessState.RUNNING);
-        System.out.println("P" + this.runningProcess.getID());
+        System.out.println("[CPU] " + "time: " + Clock.showTime()
+                + " running PID: " + this.runningProcess.getID());
+
+        // Update clock.
+        clock.timeRun();
         this.runningProcess.changeCpuRemainingTime(
-                this.runningProcess.getCpuRemainingTime() - 1 );
+                this.runningProcess.getCpuRemainingTime() - 1);
 
         if (this.runningProcess.getCpuRemainingTime() == 0) {
             this.runningProcess.setProcessState(ProcessState.TERMINATED);

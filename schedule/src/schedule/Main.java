@@ -10,14 +10,20 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-    private static Clock clock;
+    //private static Clock clock;
     private static NewProcessTemporaryList newProcesses;
     private static ProcessGenerator processGen;
-    private static Statistics stats;
+    static Statistics stats;
     private static RRScheduler roundRobin;
     private static final int shutdownTime = 50;
     private static boolean useInputFile;
 
+    /**
+     *
+     * @param inputFile
+     * @param outputFile
+     * @param quantum
+     */
     public static void Initialize(String inputFile, String outputFile, int quantum) {
         newProcesses = new NewProcessTemporaryList();
         File a = new File(inputFile);
@@ -25,27 +31,31 @@ public class Main {
         processGen = new ProcessGenerator(inputFile, useInputFile);
         stats = new Statistics(outputFile);
         roundRobin = new RRScheduler(quantum);
-        clock = new Clock();
+        //clock = new Clock();
     }
 
     /**
      * Add processes with current arrival time to the ready list of the
      * scheduler.
      */
-    public static void addProcessesToReadyList() {
+    public static void populateReadyProcessList() {
         newProcesses.sortByArrivalTime();
         Process p = newProcesses.getFirst();
         while (p != null && p.getArrivalTime() <= Clock.showTime()) {
             roundRobin.addProcessToReadyList(p);
             p = newProcesses.getFirst();
         }
-        newProcesses.addNewProcess(p);
+        // an extra process that doesnt fit the description is removed, 
+        // we add it back.
+        if ( p != null && p.getArrivalTime() > Clock.showTime()) {
+            newProcesses.addNewProcess(p);
+        }
     }
-    
 
-    public static void runRRSimulation() {
-
-        // Create processes using the input file or 10 randomly created ones.
+    /**
+     * Create processes using the input file or create 10 randomly.
+     */
+    public static void populateNewProcessList() {
         if (useInputFile) {
             List<Process> pl = processGen.parseProcessFile();
             for (Process p : pl) {
@@ -56,10 +66,23 @@ public class Main {
                 newProcesses.addNewProcess(processGen.createProcess());
             }
         }
-        while (Clock.showTime() != shutdownTime) {
-            addProcessesToReadyList();
-            roundRobin.RR(stats);
-            clock.timeRun();
+    }
+
+    /**
+     * Main loop, runs till the completion time, printing current state also
+     * pauses for 100 milliseconds at every iteration.
+     */
+    public static void runRRSimulation() {
+
+        populateNewProcessList();
+        populateReadyProcessList();
+        // Continue if queue is not empty and cpu is not idle
+        // Stop if queue is empty and cpu is idle
+        // Continue while there are processes or CPU is busy
+        while (newProcesses.getListSize() > 0 || roundRobin.isCPUIdle() == false) {
+            
+            roundRobin.RR();
+            populateReadyProcessList();
             // Sleep for 100ms after every iteration
             try {
                 Thread.sleep(100);
@@ -67,9 +90,13 @@ public class Main {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Sleep interrupted", ex);
             }
         }
-
+        System.out.println("Simulation done in " + Clock.showTime() + " steps");
     }
 
+    /**
+     *
+     * @param args
+     */
     public static void main(String args[]) {
         if (args.length == 1) {
             Initialize(null, args[0], 1);

@@ -20,9 +20,9 @@ public class RRScheduler {
         this.processList.addProcess(process);
     }
 
-    public void RR(Statistics stats) {
-        if (cpu.getRunningProcess() == null || 
-                cpu.getRunningProcess().getCurrentState() != ProcessState.RUNNING) {
+    public void RR() {
+        if (cpu.getRunningProcess() == null
+                || cpu.getRunningProcess().getCurrentState() != ProcessState.RUNNING) {
             if (this.processList.getListSize() == 0) {
                 System.out.println("CPU idle (Time: " + Clock.showTime() + " )");
                 return;
@@ -32,14 +32,14 @@ public class RRScheduler {
         }
         cpu.execute();
         Process cpuProcess = cpu.getRunningProcess();
-        
-        if (cpuProcess != null && 
-                cpuProcess.getCurrentState() == ProcessState.READY) {
+
+        if (cpuProcess != null
+                && cpuProcess.getCurrentState() == ProcessState.READY) {
             processList.addProcess(cpuProcess);
         } else {
             System.out.println("Process Terminated (Time: " + Clock.showTime() + " )");
             cpuProcess.printProcess();
-            stats.WriteStatistics2File(processList , cpuProcess);
+            Main.stats.WriteStatistics2File(processList, cpuProcess);
             // Process terminated.
             // Run Stats!!
         }
@@ -50,6 +50,10 @@ public class RRScheduler {
      */
     public int getQuantum() {
         return this.quantum;
+    }
+
+    public boolean isCPUIdle() {
+        return (this.processList.getListSize() == 0);
     }
 
 }

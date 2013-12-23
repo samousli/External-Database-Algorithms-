@@ -15,7 +15,6 @@ public class Main {
     private static ProcessGenerator processGen;
     static Statistics stats;
     private static RRScheduler roundRobin;
-    private static final int shutdownTime = 50;
     private static boolean useInputFile;
 
     /**
@@ -75,14 +74,11 @@ public class Main {
     public static void runRRSimulation() {
 
         populateNewProcessList();
-        populateReadyProcessList();
-        // Continue if queue is not empty and cpu is not idle
-        // Stop if queue is empty and cpu is idle
         // Continue while there are processes or CPU is busy
         while (newProcesses.getListSize() > 0 || roundRobin.isCPUIdle() == false) {
             
-            roundRobin.RR();
             populateReadyProcessList();
+            roundRobin.RR();
             // Sleep for 100ms after every iteration
             try {
                 Thread.sleep(100);
@@ -90,7 +86,7 @@ public class Main {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Sleep interrupted", ex);
             }
         }
-        System.out.println("Simulation done in " + Clock.showTime() + " steps");
+        System.out.println("Simulation complete! (" + Clock.showTime() + " steps)");
     }
 
     /**
@@ -101,7 +97,7 @@ public class Main {
         if (args.length == 1) {
             Initialize(null, args[0], 1);
         } else if (args.length == 2) {
-            Initialize(args[0], args[1], 1);
+            Initialize(args[0], args[1], 3);
         }
         runRRSimulation();
     }

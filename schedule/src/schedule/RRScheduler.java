@@ -21,32 +21,28 @@ public class RRScheduler {
     }
 
     public void RR() {
-        
-        int runFor = 0;
-        if (cpu.getRunningProcess() == null
-                || cpu.getRunningProcess().getCurrentState() != ProcessState.RUNNING) {
-            if (this.processList.getListSize() == 0) {
-                System.out.println("CPU idle (Time: " + Clock.showTime() + " )");
-                return;
-            }
-            Process nextP = this.processList.getProcessToRunInCPU();
-            runFor = Math.min(nextP.getCpuRemainingTime(), quantum);
-            cpu.addProcess(nextP);
+        // if the queue is empty just increment the clock.
+        if(this.processList.getListSize() == 0) {
+            cpu.addProcess(null);
+            cpu.execute();
+            return;
         }
+        
+        Process currentProcess = this.processList.getProcessToRunInCPU();
+        
         // Execute for n steps or until it finishes.
+        cpu.addProcess(currentProcess);
+        int runFor = Math.min(currentProcess.getCpuRemainingTime(), quantum);
         for (int i = 0; i < runFor; i++) {
             cpu.execute();
         }
-       
-        Process cpuProcess = cpu.getRunningProcess();
 
-        if (cpuProcess != null
-                && cpuProcess.getCurrentState() == ProcessState.READY) {
-            processList.addProcess(cpuProcess);
+        if (currentProcess.getCurrentState() == ProcessState.READY) {
+            processList.addProcess(currentProcess);
         } else {
             System.out.println("Process Terminated (Time: " + Clock.showTime() + " )");
-            cpuProcess.printProcess();
-            Main.stats.WriteStatistics2File(processList, cpuProcess);
+            currentProcess.printProcess();
+            Main.stats.WriteStatistics2File(processList, currentProcess);
         }
     }
 

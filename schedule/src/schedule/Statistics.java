@@ -37,7 +37,7 @@ public class Statistics {
     /**
      * The file for saving the statistics
      */
-    private File outputFile;
+    private final File outputFile;
 
     /**
      * constructor of the class

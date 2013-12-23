@@ -93,4 +93,10 @@ public class Process {
         return currentState;
     }
 
+    /**
+     * @return the process ID
+     */
+    public int getID() {
+        return this.processID;
+    }
 }

@@ -65,5 +65,8 @@ public class NewProcessTemporaryList {
             }
         });
     }
-
+    
+    public int getListSize() {
+        return this.processList.size();
+    }
 }

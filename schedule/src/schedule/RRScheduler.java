@@ -1,13 +1,13 @@
 package schedule;
 
 /**
- * 
+ *
  */
 public class RRScheduler {
 
-    private int quantum;
+    private final int quantum;
     private final RRReadyProcessesList processList;
-    private final CPU cpu; 
+    private final CPU cpu;
 
     RRScheduler(int quantum) {
         this.processList = new RRReadyProcessesList();
@@ -21,25 +21,23 @@ public class RRScheduler {
     }
 
     public void RR() {
-        //int currentTime = Clock.showTime();
-        
-        if (cpu.getRunningProcess() != null &&
-            cpu.getRunningProcess().getCurrentState() == ProcessState.RUNNING) {
-            cpu.execute();
-            return;
-        } 
-        
-        if (this.processList.getListSize() == 0) { 
-            System.out.println("No processes left.");
-            return;
+        if (cpu.getRunningProcess() == null || 
+                cpu.getRunningProcess().getCurrentState() != ProcessState.RUNNING) {
+            if (this.processList.getListSize() == 0) {
+                System.out.println("CPU idle (Time: " + Clock.showTime() + " )");
+                return;
+            }
+            Process nextP = this.processList.getProcessToRunInCPU();
+            cpu.addProcess(nextP);
         }
-        Process nextP = this.processList.getProcessToRunInCPU();
-        cpu.addProcess(nextP);
         cpu.execute();
-        if (cpu.getRunningProcess().getCurrentState() == ProcessState.READY) {
-            processList.addProcess(nextP);
+        
+        if (cpu.getRunningProcess() != null && 
+                cpu.getRunningProcess().getCurrentState() == ProcessState.READY) {
+            processList.addProcess(cpu.getRunningProcess());
         } else {
-            nextP.printProcess();
+            System.out.println("Process Terminated (Time: " + Clock.showTime() + " )");
+            cpu.getRunningProcess().printProcess();
             // Process terminated.
             // Run Stats!!
         }
@@ -49,14 +47,7 @@ public class RRScheduler {
      * @return the quantum
      */
     public int getQuantum() {
-        return quantum;
-    }
-
-    /**
-     * @param quantum the quantum to set
-     */
-    public void setQuantum(int quantum) {
-        this.quantum = quantum;
+        return this.quantum;
     }
 
 }

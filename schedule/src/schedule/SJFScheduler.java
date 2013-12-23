@@ -8,7 +8,7 @@ import java.util.PriorityQueue;
  */
 public class SJFScheduler {
 
-    private boolean isPreemptive;
+    private final boolean isPreemptive;
     private SJFReadyProcessesList processList;
     
     /**

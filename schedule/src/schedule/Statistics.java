@@ -89,14 +89,12 @@ public class Statistics {
             total_waiting_time += Clock.showTime() - (terminatedProcess.getArrivalTime() + 
                 (terminatedProcess.getCpuTotalTime() - terminatedProcess.getCpuRemainingTime()));
             size++;
-            System.out.println("   "+ terminatedProcess.getID() + "   " + terminatedProcess.getCpuTotalTime() + "   " + terminatedProcess.getCpuRemainingTime());
         }
         for (int i = 0; i < ProcessList.getListSize(); i++)
         {
             Process process = ProcessList.getProcess(i);
             total_waiting_time += Clock.showTime() - (process.getArrivalTime() + 
                     (process.getCpuTotalTime() - process.getCpuRemainingTime()));
-            System.out.println("   "+ process.getID() + "   " + process.getCpuTotalTime() + "   " + process.getCpuRemainingTime());
         }
         this.totalWaitingTime = total_waiting_time;
         if (size > 0)

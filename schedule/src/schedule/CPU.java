@@ -57,8 +57,9 @@ public class CPU {
             return;
         }
         this.runningProcess.setProcessState(ProcessState.RUNNING);
-        System.out.println("[CPU] " + "time: " + Clock.showTime()
-                + " running PID: " + this.runningProcess.getID());
+        System.out.println("[CPU] Running    P" 
+                + this.runningProcess.getID()
+                + " at clock: " + Clock.showTime());
 
         // Update clock.
         clock.timeRun();
@@ -67,6 +68,10 @@ public class CPU {
 
         if (this.runningProcess.getCpuRemainingTime() == 0) {
             this.runningProcess.setProcessState(ProcessState.TERMINATED);
+           // System.out.println("[CPU] Terminated P" 
+           //         + this.runningProcess.getID()
+           //         + " at clock: " + Clock.showTime());
+
         } else {
             this.runningProcess.setProcessState(ProcessState.READY);
         }

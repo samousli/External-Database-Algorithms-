@@ -57,6 +57,11 @@ public class Statistics {
         }
     }
     
+    public int getResponseTime()
+    {
+       return 0; 
+    }
+    
     /**
      * updates the field MaximumListLength
      */
@@ -75,27 +80,39 @@ public class Statistics {
      * where CPU time is the total time the process spent in the CPU 
      * and is calculated as: total CPU time - remaining CPU time
      */
-    public float CalculateAverageWaitingTime(RRReadyProcessesList ProcessList) {
-        int total_waiting_time = 0;
+    public float CalculateAverageWaitingTime(RRReadyProcessesList ProcessList, Process terminatedProcess) {
+        int total_waiting_time = 1;
+        int size = ProcessList.getListSize();
         
+        if (terminatedProcess != null)
+        {
+            total_waiting_time += Clock.showTime() - (terminatedProcess.getArrivalTime() + 
+                (terminatedProcess.getCpuTotalTime() - terminatedProcess.getCpuRemainingTime()));
+            size++;
+            System.out.println("   "+ terminatedProcess.getID() + "   " + terminatedProcess.getCpuTotalTime() + "   " + terminatedProcess.getCpuRemainingTime());
+        }
         for (int i = 0; i < ProcessList.getListSize(); i++)
         {
             Process process = ProcessList.getProcess(i);
             total_waiting_time += Clock.showTime() - (process.getArrivalTime() + 
                     (process.getCpuTotalTime() - process.getCpuRemainingTime()));
+            System.out.println("   "+ process.getID() + "   " + process.getCpuTotalTime() + "   " + process.getCpuRemainingTime());
         }
         this.totalWaitingTime = total_waiting_time;
-        this.averageWaitingTime = total_waiting_time / ProcessList.getListSize();
+        if (size > 0)
+        {
+            this.averageWaitingTime = total_waiting_time / size;
+        }
         return this.averageWaitingTime;
     }
 
     /**
     * updates every field in Statistics for the current clock time
-    * @param ProcessList is the list containing the processes waiting the cpu
+    * @param ProcessList is the list containing the processes waiting the CPU
     */
-    public void updateStatistics(RRReadyProcessesList ProcessList)
+    public void updateStatistics(RRReadyProcessesList ProcessList, Process terminatedProcess)
     {
-        this.CalculateAverageWaitingTime(ProcessList);
+        this.CalculateAverageWaitingTime(ProcessList, terminatedProcess);
         this.totalNumberOfProcesses = ProcessList.getListSize();
         this.UpdateMaximumListLength();
     }
@@ -103,15 +120,15 @@ public class Statistics {
     /**
      * Writes statistics to output file
      */
-    public void WriteStatistics2File(RRReadyProcessesList ProcessList) {
-        this.updateStatistics(ProcessList);
+    public void WriteStatistics2File(RRReadyProcessesList ProcessList, Process terminatedProcess) {
+        this.updateStatistics(ProcessList, terminatedProcess);
         try {
             PrintWriter fileWriter;
             fileWriter = new PrintWriter(new BufferedWriter(new FileWriter(this.outputFile, true)));
             fileWriter.println("_________Statistics________");
             fileWriter.println("Total waiting time:        " + this.totalWaitingTime);
             fileWriter.println("Average waiting time:      " + this.averageWaitingTime);
-            fileWriter.println("Response time:             " + this.responseTime);
+            fileWriter.println("Time:                      " + Clock.showTime());
             fileWriter.println("___________________________");
             fileWriter.close();
             

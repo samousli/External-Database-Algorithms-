@@ -20,7 +20,7 @@ public class RRScheduler {
         this.processList.addProcess(process);
     }
 
-    public void RR() {
+    public void RR(Statistics stats) {
         if (cpu.getRunningProcess() == null || 
                 cpu.getRunningProcess().getCurrentState() != ProcessState.RUNNING) {
             if (this.processList.getListSize() == 0) {
@@ -31,13 +31,15 @@ public class RRScheduler {
             cpu.addProcess(nextP);
         }
         cpu.execute();
+        Process cpuProcess = cpu.getRunningProcess();
         
-        if (cpu.getRunningProcess() != null && 
-                cpu.getRunningProcess().getCurrentState() == ProcessState.READY) {
-            processList.addProcess(cpu.getRunningProcess());
+        if (cpuProcess != null && 
+                cpuProcess.getCurrentState() == ProcessState.READY) {
+            processList.addProcess(cpuProcess);
         } else {
             System.out.println("Process Terminated (Time: " + Clock.showTime() + " )");
-            cpu.getRunningProcess().printProcess();
+            cpuProcess.printProcess();
+            stats.WriteStatistics2File(processList , cpuProcess);
             // Process terminated.
             // Run Stats!!
         }

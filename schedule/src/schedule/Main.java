@@ -15,7 +15,7 @@ public class Main {
     private static ProcessGenerator processGen;
     private static Statistics stats;
     private static RRScheduler roundRobin;
-    private static final int shutdownTime = 100;
+    private static final int shutdownTime = 50;
     private static boolean useInputFile;
 
     public static void Initialize(String inputFile, String outputFile, int quantum) {
@@ -42,15 +42,6 @@ public class Main {
         newProcesses.addNewProcess(p);
     }
     
-    public static void Initialize(String inputFile, String outputFile, int quantum)
-    {
-         newProcesses = new NewProcessTemporaryList(); 
-         File a = new File(inputFile); 
-         processGen = new ProcessGenerator(inputFile, true); 
-         stats = new Statistics(outputFile); 
-         roundRobin = new RRScheduler(quantum); 
-         clock = new Clock();
-    }
 
     public static void runRRSimulation() {
 
@@ -67,7 +58,7 @@ public class Main {
         }
         while (Clock.showTime() != shutdownTime) {
             addProcessesToReadyList();
-            roundRobin.RR();
+            roundRobin.RR(stats);
             clock.timeRun();
             // Sleep for 100ms after every iteration
             try {

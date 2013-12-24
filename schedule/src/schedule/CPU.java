@@ -64,12 +64,18 @@ public class CPU {
         this.runningProcess.setProcessState(ProcessState.RUNNING);
         System.out.println("[CPU] Running P" + this.runningProcess.getID()
                 + " at clock: " + Clock.showTime());
+        
+        //Update response time 
+        if (runningProcess.getCpuTotalTime() == this.runningProcess.getCpuRemainingTime())
+        {
+            this.runningProcess.setResponseTime(Clock.showTime());
+        }
 
         // Update clock.
         clock.timeRun();
         this.runningProcess.changeCpuRemainingTime(
                 this.runningProcess.getCpuRemainingTime() - 1);
-
+        
         // Change state
         if (this.runningProcess.getCpuRemainingTime() == 0) {
             this.runningProcess.setProcessState(ProcessState.TERMINATED);

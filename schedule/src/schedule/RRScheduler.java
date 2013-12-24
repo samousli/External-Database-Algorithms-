@@ -9,6 +9,10 @@ public class RRScheduler {
     private final RRReadyProcessesList processList;
     private final CPU cpu;
 
+    /**
+     * 
+     * @param quantum 
+     */
     RRScheduler(int quantum) {
         this.processList = new RRReadyProcessesList();
         this.cpu = new CPU();
@@ -16,12 +20,19 @@ public class RRScheduler {
         this.quantum = quantum;
     }
 
+    /**
+     * 
+     * @param process 
+     */
     public void addProcessToReadyList(Process process) {
         this.processList.addProcess(process);
     }
 
+    /**
+     * 
+     */
     public void RR() {
-        // if the queue is empty just increment the clock.
+        // If the queue is empty just increment the clock.
         if(this.processList.getListSize() == 0) {
             cpu.addProcess(null);
             cpu.execute();

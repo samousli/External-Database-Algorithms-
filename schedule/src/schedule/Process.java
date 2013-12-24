@@ -60,9 +60,9 @@ public class Process {
         System.out.println("Process ID:     " + this.processID);
         System.out.println("Arrival time:   " + this.arrivalTime);
         System.out.println("Burst time:     " + this.cpuTotalTime);
+        System.out.println("Response time:  " + this.responseTime);
         System.out.println("Remaining time: " + this.cpuRemainingTime);
         System.out.println("Current state:  " + this.getCurrentState());
-        System.out.println("Response time:  " + this.responseTime);
         System.out.println("=====================================");
     }
     

@@ -37,8 +37,7 @@ public class ProcessGenerator {
     public ProcessGenerator(String filename, boolean readFile) {
         this.writeToFile = !readFile;
         this.inputFile = new File(filename);
-        if (!this.inputFile.exists())
-        {
+        if (!this.inputFile.exists()) {
             try {
                 this.inputFile.createNewFile();
             } catch (IOException ex) {
@@ -87,20 +86,20 @@ public class ProcessGenerator {
     public void StoreProcessToFile() {
 
         try (Writer writer = new BufferedWriter(
-                new OutputStreamWriter(
-                        new FileOutputStream(this.inputFile)))) {
+                new OutputStreamWriter(new FileOutputStream(this.inputFile)))) {
 
-                    writer.write(this.lastProcess.getArrivalTime() + " "
-                            + this.lastProcess.getCpuTotalTime());
-                } catch (IOException ex) {
-                    Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE,
-                            "Unable to store process to file.", ex);
-                }
+            writer.write(this.lastProcess.getArrivalTime() + " "
+                    + this.lastProcess.getCpuTotalTime());
+        } catch (IOException ex) {
+            Logger.getLogger(ProcessGenerator.class.getName()).log(
+                    Level.SEVERE, "Unable to store process to file.", ex);
+        }
     }
 
     /**
-     * Parses the input file it's associated with and returns a list of processes
-     * from the given data. Can ignore badly formatted files 
+     * Parses the input file it's associated with and returns a list of
+     * processes from the given data. Ignores badly formatted lines.
+     *
      * @return the processes defined in the input file.
      */
     public List<Process> parseProcessFile() {
@@ -112,17 +111,23 @@ public class ProcessGenerator {
                 new FileReader(this.inputFile))) {
             String text = input.readLine();
             int vals[];
+            int lineCount = 1;
             while (text != null) {
-                
+
                 vals = tokenizeStrToInt(text);
                 // Ignore processes with invalid values.
                 if (vals == null) {
-                    System.out.println("Ignoring " + text);
+                    // Check for comment lines
+                    if (!text.startsWith("//")) {
+                        System.out.println("Ignoring input line "
+                                + lineCount + ": \"" + text + "\"");
+                    }
                 } else {
-                this.processList.add(new Process(this.nextPID, vals[0], vals[1]));
-                this.nextPID++;
+                    this.processList.add(new Process(this.nextPID, vals[0], vals[1]));
+                    this.nextPID++;
                 }
                 text = input.readLine();
+                lineCount++;
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE,
@@ -133,25 +138,30 @@ public class ProcessGenerator {
         }
         return new ArrayList<>(processList);
     }
-    
+
     /**
      * Tokenizes the input string into 2 integers.
+     *
      * @param str input string
      * @return an array of 2 integers or null if there was an error
      */
     private int[] tokenizeStrToInt(String str) {
         String[] tokens = str.split(" ");
-        
-        if (tokens.length != 2 || tokens[0] == null || tokens[1].equals("") || 
-                tokens[1] == null || tokens[1].equals("")) {
+
+        if (tokens.length != 2 || tokens[0] == null || tokens[1].equals("")
+                || tokens[1] == null || tokens[1].equals("")) {
             return null;
         }
         int vals[] = new int[2];
-        vals[0] = Integer.parseInt(tokens[0]);
-        vals[1] = Integer.parseInt(tokens[1]);
-        if (vals[0] < 0 || vals[1] < 0) {
+        try {
+            vals[0] = Integer.parseInt(tokens[0]);
+            vals[1] = Integer.parseInt(tokens[1]);
+        } catch (NumberFormatException e) {
             return null;
-        } 
+        }
+        if (vals[0] < 0 || vals[1] <= 0) {
+            return null;
+        }
         return vals;
     }
 

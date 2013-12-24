@@ -48,7 +48,8 @@ public class RRScheduler {
             cpu.execute();
         }
 
-        if (currentProcess.getCurrentState() == ProcessState.READY) {
+        if (currentProcess.getCurrentState() == ProcessState.RUNNING) {
+            currentProcess.setProcessState(ProcessState.READY);
             processList.addProcess(currentProcess);
         } else {
             System.out.println("Process Terminated (Time: " + Clock.showTime() + " )");

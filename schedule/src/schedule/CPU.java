@@ -8,7 +8,7 @@ public class CPU {
     /**
      * CPU clock
      */
-    private Clock clock;
+    private final Clock clock;
 
     /**
      * Currently running process
@@ -29,11 +29,16 @@ public class CPU {
     }
 
     /**
-     * Adds a process that's ready to be executed.
+     * Adds a process that's ready to be executed and updates the previous
+     * process's state.
      *
      * @param process the process that's ready to be executed.
      */
     public void addProcess(Process process) {
+        if (this.runningProcess != null 
+                && this.runningProcess.getCurrentState() == ProcessState.RUNNING) {
+            this.runningProcess.setProcessState(ProcessState.READY);
+        }
         this.runningProcess = process;
     }
 
@@ -79,12 +84,12 @@ public class CPU {
         // Change state
         if (this.runningProcess.getCpuRemainingTime() == 0) {
             this.runningProcess.setProcessState(ProcessState.TERMINATED);
-        } else {
-            this.runningProcess.setProcessState(ProcessState.READY);
         }
     }
 
     /**
+     * This is useless and makes no sense to me whatsoever. 
+     * Why should the CPU know about the future? 
      * @param timeToNextContextSwitch the timeToNextContextSwitch to set
      */
     public void setTimeToNextContextSwitch(int timeToNextContextSwitch) {

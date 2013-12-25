@@ -3,11 +3,12 @@ package schedule;
 /**
  *
  */
-public class SJFScheduler {
+public class SJFScheduler implements Scheduler {
 
     private final boolean isPreemptive;
     private final CPU cpu;
     private final SJFReadyProcessesList processList;
+    private final TerminatedProcessesList terminatedProcesses;
 
     /**
      *
@@ -17,16 +18,19 @@ public class SJFScheduler {
         this.isPreemptive = isPreemptive;
         this.cpu = new CPU();
         this.processList = new SJFReadyProcessesList();
+        this.terminatedProcesses = new TerminatedProcessesList();
     }
 
     /**
      *
      * @param process process to be added
      */
+    @Override
     public void addProcessToReadyList(Process process) {
         this.processList.addProcess(process);
     }
 
+    @Override
     public boolean isCPUIdle() {
         return (this.processList.getListSize() == 0);
     }
@@ -58,6 +62,7 @@ public class SJFScheduler {
             this.processList.removeProcess(currentProcess);
             System.out.println( currentProcess.getID() + " Terminated (clock: " 
                     + Clock.showTime() + " )");
+            this.terminatedProcesses.addProcess(currentProcess);
             currentProcess.printProcess();
             //Main.stats.WriteStatistics2File(processList, currentProcess);
         }

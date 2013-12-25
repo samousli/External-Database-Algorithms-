@@ -3,7 +3,7 @@ package schedule;
 /**
  *
  */
-public class RRScheduler {
+public class RRScheduler implements Scheduler{
 
     private final int quantum;
     private final RRReadyProcessesList processList;
@@ -26,10 +26,24 @@ public class RRScheduler {
      * 
      * @param process 
      */
+    @Override
     public void addProcessToReadyList(Process process) {
         this.processList.addProcess(process);
     }
 
+    
+    /**
+     * @return the quantum
+     */
+    public int getQuantum() {
+        return this.quantum;
+    }
+
+    @Override
+    public boolean isCPUIdle() {
+        return (this.processList.getListSize() == 0);
+    }
+    
     /**
      * 
      */
@@ -56,20 +70,11 @@ public class RRScheduler {
         } else {
             System.out.println("[CPU] P" + currentProcess.getID() 
                     + " Terminated (clock: " + Clock.showTime() + " )");
+            this.terminatedProcesses.addProcess(currentProcess);
             currentProcess.printProcess();
             Main.stats.WriteStatistics2File(this.processList, this.terminatedProcesses);
+            
         }
-    }
-
-    /**
-     * @return the quantum
-     */
-    public int getQuantum() {
-        return this.quantum;
-    }
-
-    public boolean isCPUIdle() {
-        return (this.processList.getListSize() == 0);
     }
 
 }

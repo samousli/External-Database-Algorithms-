@@ -35,7 +35,7 @@ public class CPU {
      * @param process the process that's ready to be executed.
      */
     public void addProcess(Process process) {
-        if (this.runningProcess != null 
+        if (this.runningProcess != null
                 && this.runningProcess.getCurrentState() == ProcessState.RUNNING) {
             this.runningProcess.setProcessState(ProcessState.READY);
         }
@@ -58,7 +58,7 @@ public class CPU {
      * accordingly.
      */
     public void execute() {
-        
+
         // Idle
         if (this.runningProcess == null) {
             System.out.println("[CPU] Idle at clock: " + Clock.showTime());
@@ -68,11 +68,10 @@ public class CPU {
         // Process running
         this.runningProcess.setProcessState(ProcessState.RUNNING);
         System.out.println("[CPU] Running P" + this.runningProcess.getID()
-                + " at clock: " + Clock.showTime());
-        
+                + " (clock: " + Clock.showTime() + ")");
+
         //Update response time 
-        if (runningProcess.getCpuTotalTime() == this.runningProcess.getCpuRemainingTime())
-        {
+        if (runningProcess.getCpuTotalTime() == this.runningProcess.getCpuRemainingTime()) {
             this.runningProcess.setResponseTime(Clock.showTime());
         }
 
@@ -80,7 +79,7 @@ public class CPU {
         clock.timeRun();
         this.runningProcess.changeCpuRemainingTime(
                 this.runningProcess.getCpuRemainingTime() - 1);
-        
+
         // Change state
         if (this.runningProcess.getCpuRemainingTime() == 0) {
             this.runningProcess.setProcessState(ProcessState.TERMINATED);
@@ -88,8 +87,9 @@ public class CPU {
     }
 
     /**
-     * This is useless and makes no sense to me whatsoever. 
-     * Why should the CPU know about the future? 
+     * This is useless and makes no sense to me whatsoever. Why should the CPU
+     * know about the future?
+     *
      * @param timeToNextContextSwitch the timeToNextContextSwitch to set
      */
     public void setTimeToNextContextSwitch(int timeToNextContextSwitch) {

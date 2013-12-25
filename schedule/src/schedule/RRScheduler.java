@@ -54,11 +54,8 @@ public class RRScheduler {
             currentProcess.setProcessState(ProcessState.READY);
             processList.addProcess(currentProcess);
         } else {
-            //The terminated process it added to the terminatedProcesses, a message is printed
-            //and statistics are called to write to the file a new line with the new numbers
-            
-            this.terminatedProcesses.addProcess(currentProcess);
-            System.out.println("Process Terminated (Time: " + Clock.showTime() + " )");
+            System.out.println("[CPU] P" + currentProcess.getID() 
+                    + " Terminated (clock: " + Clock.showTime() + " )");
             currentProcess.printProcess();
             Main.stats.WriteStatistics2File(this.processList, this.terminatedProcesses);
         }

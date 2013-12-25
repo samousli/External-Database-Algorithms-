@@ -56,7 +56,8 @@ public class SJFScheduler {
             currentProcess.setProcessState(ProcessState.READY);
         } else {
             this.processList.removeProcess(currentProcess);
-            System.out.println("Process Terminated (Time: " + Clock.showTime() + " )");
+            System.out.println( currentProcess.getID() + " Terminated (clock: " 
+                    + Clock.showTime() + " )");
             currentProcess.printProcess();
             //Main.stats.WriteStatistics2File(processList, currentProcess);
         }

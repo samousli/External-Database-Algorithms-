@@ -7,10 +7,12 @@ public class RRScheduler {
 
     private final int quantum;
     private final RRReadyProcessesList processList;
+    private final TerminatedProcessesList terminatedProcesses;
     private final CPU cpu;
 
     RRScheduler(int quantum) {
         this.processList = new RRReadyProcessesList();
+        this.terminatedProcesses = new TerminatedProcessesList();
         this.cpu = new CPU();
         this.cpu.setTimeToNextContextSwitch(quantum);
         this.quantum = quantum;
@@ -40,9 +42,13 @@ public class RRScheduler {
         if (currentProcess.getCurrentState() == ProcessState.READY) {
             processList.addProcess(currentProcess);
         } else {
+            //The terminated process it added to the terminatedProcesses, a message is printed
+            //and statistics are called to write to the file a new line with the new numbers
+            
+            this.terminatedProcesses.addProcess(currentProcess);
             System.out.println("Process Terminated (Time: " + Clock.showTime() + " )");
             currentProcess.printProcess();
-            Main.stats.WriteStatistics2File(processList, currentProcess);
+            Main.stats.WriteStatistics2File(this.processList, this.terminatedProcesses);
         }
     }
 

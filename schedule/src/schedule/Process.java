@@ -21,6 +21,11 @@ public class Process {
     private int responseTime;
     
     /**
+     * Time the process terminated
+     */
+    private int terminationTime;
+    
+    /**
      *  The current state of the process 
      */
     private ProcessState currentState;
@@ -43,6 +48,7 @@ public class Process {
         this.cpuRemainingTime = cpuBurstTime;
         this.currentState  = ProcessState.NEW; 
         this.responseTime = -1 ;
+        this.terminationTime = -1;
     }
 
     public void setProcessState(ProcessState newState) {
@@ -57,12 +63,13 @@ public class Process {
     Prints the fields of the process
     */
     public void printProcess(){
-        System.out.println("Process ID:     " + this.processID);
-        System.out.println("Arrival time:   " + this.arrivalTime);
-        System.out.println("Burst time:     " + this.cpuTotalTime);
-        System.out.println("Remaining time: " + this.cpuRemainingTime);
-        System.out.println("Current state:  " + this.getCurrentState());
-        System.out.println("Response time:  " + this.responseTime);
+        System.out.println("Process ID:       " + this.processID);
+        System.out.println("Arrival time:     " + this.arrivalTime);
+        System.out.println("Burst time:       " + this.cpuTotalTime);
+        System.out.println("Remaining time:   " + this.cpuRemainingTime);
+        System.out.println("Current state:    " + this.getCurrentState());
+        System.out.println("Response time:    " + this.responseTime);
+        System.out.println("Termination time: " + this.terminationTime);
         System.out.println("=====================================");
     }
     
@@ -124,5 +131,23 @@ public class Process {
     public void setResponseTime(int time)
     {
         this.responseTime = time;
+    }
+    
+    /**
+     * set the field terminationTime to the value of the parameter time
+     * @param time,time the process terminated 
+     */
+    public void setTerminationTime(int time)
+    {
+        this.terminationTime = time;
+    }
+    
+    /**
+     * 
+     * @return the termination time of the process 
+     */
+    public int getTerminationTime()
+    {
+        return this.terminationTime;
     }
 }

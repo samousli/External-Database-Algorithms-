@@ -10,6 +10,10 @@ public class RRScheduler {
     private final TerminatedProcessesList terminatedProcesses;
     private final CPU cpu;
 
+    /**
+     * 
+     * @param quantum 
+     */
     RRScheduler(int quantum) {
         this.processList = new RRReadyProcessesList();
         this.terminatedProcesses = new TerminatedProcessesList();
@@ -18,12 +22,19 @@ public class RRScheduler {
         this.quantum = quantum;
     }
 
+    /**
+     * 
+     * @param process 
+     */
     public void addProcessToReadyList(Process process) {
         this.processList.addProcess(process);
     }
 
+    /**
+     * 
+     */
     public void RR() {
-        // if the queue is empty just increment the clock.
+        // If the queue is empty just increment the clock.
         if(this.processList.getListSize() == 0) {
             cpu.addProcess(null);
             cpu.execute();
@@ -39,7 +50,8 @@ public class RRScheduler {
             cpu.execute();
         }
 
-        if (currentProcess.getCurrentState() == ProcessState.READY) {
+        if (currentProcess.getCurrentState() == ProcessState.RUNNING) {
+            currentProcess.setProcessState(ProcessState.READY);
             processList.addProcess(currentProcess);
         } else {
             //The terminated process it added to the terminatedProcesses, a message is printed

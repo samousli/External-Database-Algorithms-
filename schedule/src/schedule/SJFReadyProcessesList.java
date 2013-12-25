@@ -18,19 +18,14 @@ public class SJFReadyProcessesList {
         this.processQueue = new PriorityQueue<>(11, new Comparator<Process>() {
 
             /*
-             0 if p1.CpuRemainingTime = p2.CpuRemainingTime
+             0 if p1.CpuRemainingTime == p2.CpuRemainingTime
              1 if p1.CpuRemainingTime > p2.CpuRemainingTime
              -1 if p1.CpuRemainingTime < p2.CpuRemainingTime
              */
             @Override
-            public int compare(Process o1, Process o2) {
-                if (o1.getCpuRemainingTime() == o2.getCpuRemainingTime()) {
-                    return 0;
-                } else if (o1.getCpuRemainingTime() > o2.getCpuRemainingTime()) {
-                    return 1;
-                } else {
-                    return -1;
-                }
+            public int compare(Process p1, Process p2) {
+                return new Integer(p1.getCpuRemainingTime()).compareTo(
+                        new Integer(p2.getCpuRemainingTime()));
             }
         });
     }
@@ -41,13 +36,16 @@ public class SJFReadyProcessesList {
     }
 
     public Process getProcessToRunInCPU() {
-        return processQueue.poll();
+        return processQueue.peek();
+    }
+    
+    public boolean removeProcess(Process process) {
+        return processQueue.remove(process);
     }
 
     public int getListSize() {
         return this.processQueue.size();
     }
-
 
     /**
      * Prints every detail of the processes in the List

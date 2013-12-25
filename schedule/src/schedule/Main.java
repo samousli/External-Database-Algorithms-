@@ -15,6 +15,7 @@ public class Main {
     private static ProcessGenerator processGen;
     static Statistics stats;
     private static RRScheduler roundRobin;
+    private static SJFScheduler shortestJobFirst;
     private static boolean useInputFile;
 
     /**
@@ -23,14 +24,30 @@ public class Main {
      * @param outputFile
      * @param quantum
      */
-    public static void Initialize(String inputFile, String outputFile, int quantum) {
+    public static void initializeRR(String inputFile, String outputFile,
+            int quantum) {
         newProcesses = new NewProcessTemporaryList();
         File a = new File(inputFile);
         useInputFile = (inputFile != null);
         processGen = new ProcessGenerator(inputFile, useInputFile);
         stats = new Statistics(outputFile);
         roundRobin = new RRScheduler(quantum);
-        //clock = new Clock();
+    }
+
+    /**
+     *
+     * @param inputFile
+     * @param outputFile
+     * @param preemptive
+     */
+    public static void initializeSJF(String inputFile, String outputFile,
+            boolean preemptive) {
+        newProcesses = new NewProcessTemporaryList();
+        File a = new File(inputFile);
+        useInputFile = (inputFile != null);
+        processGen = new ProcessGenerator(inputFile, useInputFile);
+        stats = new Statistics(outputFile);
+        shortestJobFirst = new SJFScheduler(preemptive);
     }
 
     /**
@@ -41,12 +58,17 @@ public class Main {
         newProcesses.sortByArrivalTime();
         Process p = newProcesses.getFirst();
         while (p != null && p.getArrivalTime() <= Clock.showTime()) {
-            roundRobin.addProcessToReadyList(p);
+            if (roundRobin != null) {
+                roundRobin.addProcessToReadyList(p);
+            }
+            if (shortestJobFirst != null) {
+                shortestJobFirst.addProcessToReadyList(p);
+            }
             p = newProcesses.getFirst();
         }
         // an extra process that doesnt fit the description is removed, 
         // we add it back.
-        if ( p != null && p.getArrivalTime() > Clock.showTime()) {
+        if (p != null && p.getArrivalTime() > Clock.showTime()) {
             newProcesses.addNewProcess(p);
         }
     }
@@ -68,25 +90,55 @@ public class Main {
     }
 
     /**
-     * Main loop, runs till the completion time, printing current state also
-     * pauses for 100 milliseconds at every iteration.
+     * Main loop for round robin scheduler, runs until the completion time
+     * printing current state also pauses for 100 milliseconds at every
+     * iteration.
      */
     public static void runRRSimulation() {
-
+        System.out.println("Running round robin simulation..\n");
         populateNewProcessList();
         // Continue while there are processes or CPU is busy
-        while (newProcesses.getListSize() > 0 || roundRobin.isCPUIdle() == false) {
-            
+        while (newProcesses.getListSize() > 0
+                || roundRobin.isCPUIdle() == false) {
+
             populateReadyProcessList();
             roundRobin.RR();
             // Sleep for 100ms after every iteration
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE, "Sleep interrupted", ex);
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE,
+                        "Sleep interrupted", ex);
             }
         }
-        System.out.println("Simulation complete! (" + Clock.showTime() + " steps)");
+        System.out.println("Simulation complete! ("
+                + Clock.showTime() + " steps)");
+    }
+
+    /**
+     * Main loop for the shortest job first scheduler runs until the completion
+     * time, printing current state also pauses for 100 milliseconds at every
+     * iteration.
+     */
+    public static void runSJFSimulation() {
+        System.out.printf("Running shortest job first simulation..\n");
+        populateNewProcessList();
+        // Continue while there are processes or CPU is busy
+        while (newProcesses.getListSize() > 0
+                || shortestJobFirst.isCPUIdle() == false) {
+
+            populateReadyProcessList();
+            shortestJobFirst.SJF();
+            // Sleep for 100ms after every iteration
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Main.class.getName()).log(Level.SEVERE,
+                        "Sleep interrupted", ex);
+            }
+        }
+        System.out.println("Simulation complete! ("
+                + Clock.showTime() + " steps)");
     }
 
     /**
@@ -94,12 +146,25 @@ public class Main {
      * @param args
      */
     public static void main(String args[]) {
-        if (args.length == 1) {
-            Initialize(null, args[0], 1);
-        } else if (args.length == 2) {
-            Initialize(args[0], args[1], 3);
+        boolean useRR  = true;
+        boolean useSJF = false;
+        
+        if (useRR) {
+            if (args.length == 1) {
+                initializeRR(null, args[0], 1);
+            } else if (args.length == 2) {
+                initializeRR(args[0], args[1], 1);
+            }
+            runRRSimulation();
         }
-        runRRSimulation();
+        if (useSJF) {
+            if (args.length == 1) {
+                initializeSJF(null, args[0], false);
+            } else if (args.length == 2) {
+                initializeSJF(args[0], args[1], false);
+            }
+            runSJFSimulation();
+        }
     }
 
 }

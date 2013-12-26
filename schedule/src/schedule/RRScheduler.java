@@ -55,6 +55,9 @@ public class RRScheduler implements Scheduler{
             return;
         }
         
+        //Updates the maximum list length in Statistics
+        this.updateMaximumListLength();
+        
         Process currentProcess = this.processList.getProcessToRunInCPU();
         
         // Execute for n steps or until it finishes.
@@ -72,9 +75,21 @@ public class RRScheduler implements Scheduler{
                     + " Terminated (clock: " + Clock.showTime() + " )");
             this.terminatedProcesses.addProcess(currentProcess);
             currentProcess.printProcess();
-            Main.stats.WriteStatistics2File(this.processList, this.terminatedProcesses);
-            
+            this.updateStatistics();    
         }
     }
+    
+    
+    @Override
+    public void updateStatistics()
+    {
+        Main.stats.updateStatistics(this.processList, this.terminatedProcesses);
+        Main.stats.WriteStatistics2File();
+    }
 
+    @Override
+    public void updateMaximumListLength()
+    {
+        Main.stats.UpdateMaximumListLength(this.processList.getListSize());
+    }
 }

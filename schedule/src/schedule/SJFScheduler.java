@@ -67,4 +67,15 @@ public class SJFScheduler implements Scheduler {
             //Main.stats.WriteStatistics2File(processList, currentProcess);
         }
     }
+    
+    @Override
+    public void updateStatistics()
+    {   
+    }
+
+    @Override
+    public void updateMaximumListLength()
+    {
+        Main.stats.UpdateMaximumListLength(this.processList.getListSize());
+    }
 }

@@ -26,7 +26,7 @@ public class Statistics {
     private int totalWaitingTime;
 
     /**
-     * The time elapsed since the arrival of the process and the first time it
+     * The time since the arrival of the process and the first time it
      * got CPU time.
      */
     private float responseTime;
@@ -62,9 +62,10 @@ public class Statistics {
     /**
      * updates the field MaximumListLength
      */
-    public void UpdateMaximumListLength() {
-        if (this.maximumLengthOfReadyProcessesList < this.totalNumberOfProcesses) {
-            this.maximumLengthOfReadyProcessesList = this.totalNumberOfProcesses;
+    public void UpdateMaximumListLength(int length) {
+        if (this.maximumLengthOfReadyProcessesList < length)
+        {
+            this.maximumLengthOfReadyProcessesList = length;
         }
     }
 
@@ -150,18 +151,14 @@ public class Statistics {
     public void updateStatistics(RRReadyProcessesList ProcessList, TerminatedProcessesList terminatedProcesses) {
         this.CalculateAverageWaitingTime(ProcessList, terminatedProcesses);
         this.CalculateAverageResponseTime(ProcessList, terminatedProcesses);
-        this.totalNumberOfProcesses = ProcessList.getListSize();
-        this.UpdateMaximumListLength();
+        this.totalNumberOfProcesses = ProcessList.getListSize() + terminatedProcesses.getListSize();
+        this.UpdateMaximumListLength(ProcessList.getListSize());
     }
 
     /**
-     * Writes statistics to output file
-     *
-     * @param ProcessList the list with the processes waiting for the CPU
-     * @param terminatedProcesses the list with the terminated processes
+     * Writes current saved statistics to output file
      */
-    public void WriteStatistics2File(RRReadyProcessesList ProcessList, TerminatedProcessesList terminatedProcesse) {
-        this.updateStatistics(ProcessList, terminatedProcesse);
+    public void WriteStatistics2File() {
         try {
             PrintWriter fileWriter;
             fileWriter = new PrintWriter(new BufferedWriter(new FileWriter(this.outputFile, true)));
@@ -188,6 +185,6 @@ public class Statistics {
     }
 
     int getTotalRunTime() {
-        return this.totalWaitingTime;
+        return Clock.showTime() - this.totalWaitingTime;
     }
 }

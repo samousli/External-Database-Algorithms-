@@ -51,4 +51,9 @@ public class TerminatedProcessesList {
             this.processList.get(i).printProcess();
         }
     }
+    
+    public List getTerminatedProcessesList()
+    {
+        return this.processList;
+    }
 }

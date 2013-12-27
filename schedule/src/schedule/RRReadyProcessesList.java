@@ -51,5 +51,10 @@ public class RRReadyProcessesList {
             this.processList.get(i).printProcess();
         }
     }
+    
+    public List getProcessList()
+    {
+        return this.processList;
+    }
 
 }

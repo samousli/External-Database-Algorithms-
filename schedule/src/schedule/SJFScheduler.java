@@ -43,7 +43,10 @@ public class SJFScheduler implements Scheduler {
             cpu.execute();
             return;
         }
-
+        
+        //Update the maximum ready processes list length in staatistics
+        this.updateMaximumListLength();
+        
         Process currentProcess = this.processList.getProcessToRunInCPU();
 
         if (this.isPreemptive) {
@@ -70,7 +73,9 @@ public class SJFScheduler implements Scheduler {
     
     @Override
     public void updateStatistics()
-    {   
+    { 
+       // Main.stats.updateStatistics(this.processList.getProcessList(), this.terminatedProcesses.getTerminatedProcessesList());
+        Main.stats.WriteStatistics2File();
     }
 
     @Override

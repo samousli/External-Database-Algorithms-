@@ -83,7 +83,7 @@ public class RRScheduler implements Scheduler{
     @Override
     public void updateStatistics()
     {
-        Main.stats.updateStatistics(this.processList, this.terminatedProcesses);
+        Main.stats.updateStatistics(this.processList.getProcessList(), this.terminatedProcesses.getTerminatedProcessesList());
         Main.stats.WriteStatistics2File();
     }
 

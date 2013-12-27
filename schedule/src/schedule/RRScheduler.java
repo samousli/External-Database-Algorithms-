@@ -55,7 +55,7 @@ public class RRScheduler implements Scheduler{
             return;
         }
         
-        //Updates the maximum list length in Statistics
+        //Updates the maximum list length in RRStatistics
         this.updateMaximumListLength();
         
         Process currentProcess = this.processList.getProcessToRunInCPU();

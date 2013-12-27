@@ -104,12 +104,14 @@ public class Main {
             populateReadyProcessList();
             roundRobin.RR();
             // Sleep for 100ms after every iteration
+            /*
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
                 Logger.getLogger(Main.class.getName()).log(Level.SEVERE,
                         "Sleep interrupted", ex);
             }
+            */
         }
         System.out.println("Simulation complete! ("
                 + Clock.showTime() + " steps)");
@@ -147,13 +149,13 @@ public class Main {
      */
     public static void main(String args[]) {
         boolean useRR  = true;
-        boolean useSJF = false;
+        boolean useSJF = true;
         
         if (useRR) {
             if (args.length == 1) {
-                initializeRR(null, args[0], 1);
+                initializeRR(null, args[0], 100);
             } else if (args.length == 2) {
-                initializeRR(args[0], args[1], 1);
+                initializeRR(args[0], args[1], 100);
             }
             runRRSimulation();
         }

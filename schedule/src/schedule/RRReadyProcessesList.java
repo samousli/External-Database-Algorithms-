@@ -1,5 +1,6 @@
 package schedule;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,9 +53,9 @@ public class RRReadyProcessesList {
         }
     }
     
-    public List getProcessList()
+    public List<Process> getProcessList()
     {
-        return this.processList;
+        return Collections.unmodifiableList(this.processList);
     }
 
 }

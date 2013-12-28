@@ -17,6 +17,7 @@ public class Main {
     private static RRScheduler roundRobin;
     private static SJFScheduler shortestJobFirst;
     private static boolean useInputFile;
+    private static boolean sleep_between_iterations = false;
 
     /**
      *
@@ -103,15 +104,15 @@ public class Main {
 
             populateReadyProcessList();
             roundRobin.RR();
-            // Sleep for 100ms after every iteration
-            /*
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE,
-                        "Sleep interrupted", ex);
+            if (sleep_between_iterations) {
+                try {
+                    // Sleep for 100ms after every iteration
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE,
+                            "Sleep interrupted", ex);
+                }
             }
-            */
         }
         System.out.println("Simulation complete! ("
                 + Clock.showTime() + " steps)");
@@ -131,12 +132,15 @@ public class Main {
 
             populateReadyProcessList();
             shortestJobFirst.SJF();
-            // Sleep for 100ms after every iteration
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Main.class.getName()).log(Level.SEVERE,
-                        "Sleep interrupted", ex);
+
+            if (sleep_between_iterations) {
+                try {
+                    // Sleep for 100ms after every iteration
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE,
+                            "Sleep interrupted", ex);
+                }
             }
         }
         System.out.println("Simulation complete! ("
@@ -148,22 +152,23 @@ public class Main {
      * @param args
      */
     public static void main(String args[]) {
-        boolean useRR  = true;
+        boolean useRR = true;
+        int quantum = 5;
         boolean useSJF = true;
-        
+        boolean preemptive = true;
         if (useRR) {
             if (args.length == 1) {
-                initializeRR(null, args[0], 100);
+                initializeRR(null, args[0], quantum);
             } else if (args.length == 2) {
-                initializeRR(args[0], args[1], 100);
+                initializeRR(args[0], args[1], quantum);
             }
             runRRSimulation();
         }
         if (useSJF) {
             if (args.length == 1) {
-                initializeSJF(null, args[0], false);
+                initializeSJF(null, args[0], preemptive);
             } else if (args.length == 2) {
-                initializeSJF(args[0], args[1], false);
+                initializeSJF(args[0], args[1], preemptive);
             }
             runSJFSimulation();
         }

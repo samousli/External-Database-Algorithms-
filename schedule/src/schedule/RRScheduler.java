@@ -63,6 +63,10 @@ public class RRScheduler implements Scheduler{
         // Execute for n steps or until it finishes.
         cpu.addProcess(currentProcess);
         int runFor = Math.min(currentProcess.getCpuRemainingTime(), quantum);
+        System.out.println("[CPU] Running \tP" + currentProcess.getID()
+                + " (from:" + Clock.showTime() + " to:\t" 
+                + (Clock.showTime() + runFor) +  ")");
+
         for (int i = 0; i < runFor; i++) {
             cpu.execute();
         }

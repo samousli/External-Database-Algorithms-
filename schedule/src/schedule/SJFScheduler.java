@@ -43,12 +43,13 @@ public class SJFScheduler implements Scheduler {
             cpu.execute();
             return;
         }
-        
+
         //Update the maximum ready processes list length in staatistics
         this.updateMaximumListLength();
-        
-        Process currentProcess = this.processList.getProcessToRunInCPU();
 
+        Process currentProcess = this.processList.getProcessToRunInCPU();
+        System.out.println("[CPU] Running P" + currentProcess.getID()
+                + " (clock:\t" + Clock.showTime() + ")");
         if (this.isPreemptive) {
             cpu.addProcess(currentProcess);
             cpu.execute();
@@ -63,24 +64,22 @@ public class SJFScheduler implements Scheduler {
             currentProcess.setProcessState(ProcessState.READY);
         } else {
             this.processList.removeProcess(currentProcess);
-            System.out.println( currentProcess.getID() + " Terminated (clock: " 
-                    + Clock.showTime() + " )");
+            System.out.println("[CPU] P" + currentProcess.getID()
+                    + " Terminated (clock: " + Clock.showTime() + " )");
             this.terminatedProcesses.addProcess(currentProcess);
             currentProcess.printProcess();
             //Main.stats.WriteStatistics2File(processList, currentProcess);
         }
     }
-    
+
     @Override
-    public void updateStatistics()
-    { 
-       // Main.stats.updateStatistics(this.processList.getProcessList(), this.terminatedProcesses.getTerminatedProcessesList());
+    public void updateStatistics() {
+        // Main.stats.updateStatistics(this.processList.getProcessList(), this.terminatedProcesses.getTerminatedProcessesList());
         Main.stats.WriteStatistics2File();
     }
 
     @Override
-    public void updateMaximumListLength()
-    {
+    public void updateMaximumListLength() {
         Main.stats.UpdateMaximumListLength(this.processList.getListSize());
     }
 }

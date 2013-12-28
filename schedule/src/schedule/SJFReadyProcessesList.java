@@ -58,5 +58,10 @@ public class SJFReadyProcessesList {
             temp.poll().printProcess();
         }
     }
+    
+    public PriorityQueue getQueue()
+    {
+        return this.processQueue;
+    }
 
 }

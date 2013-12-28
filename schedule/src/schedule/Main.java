@@ -13,7 +13,8 @@ public class Main {
     //private static Clock clock;
     private static NewProcessTemporaryList newProcesses;
     private static ProcessGenerator processGen;
-    static RRStatistics stats;
+    static RRStatistics RRstats;
+    static SJFStatistics SJFstats;
     private static RRScheduler roundRobin;
     private static SJFScheduler shortestJobFirst;
     private static boolean useInputFile;
@@ -30,7 +31,7 @@ public class Main {
         File a = new File(inputFile);
         useInputFile = (inputFile != null);
         processGen = new ProcessGenerator(inputFile, useInputFile);
-        stats = new RRStatistics(outputFile);
+        RRstats = new RRStatistics(outputFile);
         roundRobin = new RRScheduler(quantum);
     }
 
@@ -46,7 +47,7 @@ public class Main {
         File a = new File(inputFile);
         useInputFile = (inputFile != null);
         processGen = new ProcessGenerator(inputFile, useInputFile);
-        stats = new RRStatistics(outputFile);
+        SJFstats = new SJFStatistics(outputFile);
         shortestJobFirst = new SJFScheduler(preemptive);
     }
 

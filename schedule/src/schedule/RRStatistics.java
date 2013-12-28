@@ -13,9 +13,8 @@ public class RRStatistics extends Statistics {
      *
      * @param filename the file to write the statistics
      */
-    public RRStatistics(String filename) {
-
-        super(filename);
+    public RRStatistics(String filename) {        
+        super(filename, "RR");  
     }
 
 
@@ -104,5 +103,5 @@ public class RRStatistics extends Statistics {
         this.totalNumberOfProcesses = ProcessList.size() + terminatedProcesses.size();
         this.UpdateMaximumListLength(ProcessList.size());
     }
-
+    
 }

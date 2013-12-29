@@ -3,7 +3,7 @@ package schedule;
 /**
  *
  */
-public class RRScheduler implements Scheduler{
+public class RRScheduler implements Scheduler {
 
     private final int quantum;
     private final RRReadyProcessesList processList;
@@ -11,8 +11,8 @@ public class RRScheduler implements Scheduler{
     private final CPU cpu;
 
     /**
-     * 
-     * @param quantum 
+     *
+     * @param quantum
      */
     RRScheduler(int quantum) {
         this.processList = new RRReadyProcessesList();
@@ -23,15 +23,14 @@ public class RRScheduler implements Scheduler{
     }
 
     /**
-     * 
-     * @param process 
+     *
+     * @param process
      */
     @Override
     public void addProcessToReadyList(Process process) {
         this.processList.addProcess(process);
     }
 
-    
     /**
      * @return the quantum
      */
@@ -40,32 +39,32 @@ public class RRScheduler implements Scheduler{
     }
 
     @Override
-    public boolean isCPUIdle() {
+    public boolean CPUIdle() {
         return (this.processList.getListSize() == 0);
     }
-    
+
     /**
-     * 
+     *
      */
     public void RR() {
         // If the queue is empty just increment the clock.
-        if(this.processList.getListSize() == 0) {
+        if (this.CPUIdle()) {
             cpu.addProcess(null);
             cpu.execute();
             return;
         }
-        
+
         //Updates the maximum list length in RRStatistics
         this.updateMaximumListLength();
-        
+
         Process currentProcess = this.processList.getProcessToRunInCPU();
-        
+
         // Execute for n steps or until it finishes.
         cpu.addProcess(currentProcess);
         int runFor = Math.min(currentProcess.getCpuRemainingTime(), quantum);
-        System.out.println("[CPU] Running \tP" + currentProcess.getID()
-                + " (from:" + Clock.showTime() + " to:\t" 
-                + (Clock.showTime() + runFor) +  ")");
+        System.out.println("[CPU] Running P" + currentProcess.getID()
+                + " (from:" + Clock.showTime() + " to:\t"
+                + (Clock.showTime() + runFor) + ")");
 
         for (int i = 0; i < runFor; i++) {
             cpu.execute();
@@ -75,25 +74,22 @@ public class RRScheduler implements Scheduler{
             currentProcess.setProcessState(ProcessState.READY);
             processList.addProcess(currentProcess);
         } else {
-            System.out.println("[CPU] P" + currentProcess.getID() 
+            System.out.println("[CPU] P" + currentProcess.getID()
                     + " Terminated (clock: " + Clock.showTime() + " )");
             this.terminatedProcesses.addProcess(currentProcess);
             currentProcess.printProcess();
-            this.updateStatistics();    
+            this.updateStatistics();
         }
     }
-    
-    
+
     @Override
-    public void updateStatistics()
-    {
+    public void updateStatistics() {
         Main.RRstats.updateStatistics(this.processList.getProcessList(), this.terminatedProcesses.getTerminatedProcessesList());
         Main.RRstats.WriteStatistics2File();
     }
 
     @Override
-    public void updateMaximumListLength()
-    {
+    public void updateMaximumListLength() {
         Main.RRstats.UpdateMaximumListLength(this.processList.getListSize());
     }
 }

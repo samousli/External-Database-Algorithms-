@@ -67,9 +67,7 @@ public class CPU {
         }
         // Process running
         this.runningProcess.setProcessState(ProcessState.RUNNING);
-        System.out.println("[CPU] Running P" + this.runningProcess.getID()
-                + " (clock: " + Clock.showTime() + ")");
-
+        
         //Update response time 
         if (runningProcess.getCpuTotalTime() == this.runningProcess.getCpuRemainingTime()) {
             this.runningProcess.setResponseTime(Clock.showTime());

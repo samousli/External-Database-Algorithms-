@@ -18,7 +18,7 @@ public class Main {
     private static RRScheduler roundRobin;
     private static SJFScheduler shortestJobFirst;
     private static boolean useInputFile;
-    private static boolean sleep_between_iterations = false;
+    private static boolean sleep_between_iterations;
 
     /**
      *
@@ -34,6 +34,7 @@ public class Main {
         processGen = new ProcessGenerator(inputFile, useInputFile);
         RRstats = new RRStatistics(outputFile);
         roundRobin = new RRScheduler(quantum);
+
     }
 
     /**
@@ -97,11 +98,11 @@ public class Main {
      * iteration.
      */
     public static void runRRSimulation() {
-        System.out.println("Running round robin simulation..\n");
+        System.out.println("\nRunning round robin simulation..\n");
         populateNewProcessList();
         // Continue while there are processes or CPU is busy
         while (newProcesses.getListSize() > 0
-                || roundRobin.isCPUIdle() == false) {
+                || roundRobin.CPUIdle() == false) {
 
             populateReadyProcessList();
             roundRobin.RR();
@@ -125,11 +126,11 @@ public class Main {
      * iteration.
      */
     public static void runSJFSimulation() {
-        System.out.printf("Running shortest job first simulation..\n");
+        System.out.println("\nRunning shortest job first simulation..\n");
         populateNewProcessList();
         // Continue while there are processes or CPU is busy
         while (newProcesses.getListSize() > 0
-                || shortestJobFirst.isCPUIdle() == false) {
+                || shortestJobFirst.CPUIdle() == false) {
 
             populateReadyProcessList();
             shortestJobFirst.SJF();
@@ -153,6 +154,7 @@ public class Main {
      * @param args
      */
     public static void main(String args[]) {
+        sleep_between_iterations = true;
         boolean useRR = true;
         int quantum = 5;
         boolean useSJF = true;

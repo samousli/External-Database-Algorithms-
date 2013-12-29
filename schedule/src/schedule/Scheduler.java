@@ -12,7 +12,7 @@ public interface Scheduler {
     /**
      * @return true if CPU is idle. (No ready processes are available)  
      */
-    boolean isCPUIdle();
+    boolean CPUIdle();
     
     /**
      * Updates Statistics according to any new changes done in the processes the scheduler keeps track of

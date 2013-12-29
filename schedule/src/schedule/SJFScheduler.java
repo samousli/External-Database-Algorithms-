@@ -31,14 +31,14 @@ public class SJFScheduler implements Scheduler {
     }
 
     @Override
-    public boolean isCPUIdle() {
+    public boolean CPUIdle() {
         return (this.processList.getListSize() == 0);
     }
 
     public void SJF() {
         // If the queue is empty just increment the clock. 
         // Practically it means that the CPU is idle.
-        if (this.processList.getListSize() == 0) {
+        if (this.CPUIdle()) {
             cpu.addProcess(null);
             cpu.execute();
             return;
@@ -73,15 +73,14 @@ public class SJFScheduler implements Scheduler {
     }
 
     @Override
-    public void updateStatistics()
-    { 
-        Main.SJFstats.updateStatistics(this.processList.getQueue(), this.terminatedProcesses.getTerminatedProcessesList());
-        Main.SJFstats.WriteStatistics2File();
+    public void updateStatistics() {
+        Main.RRstats.updateStatistics(this.processList.getProcessList(), 
+                this.terminatedProcesses.getTerminatedProcessesList());
+        Main.RRstats.WriteStatistics2File();
     }
 
     @Override
-    public void updateMaximumListLength()
-    {
-        Main.SJFstats.UpdateMaximumListLength(this.processList.getListSize());
+    public void updateMaximumListLength() {
+        Main.RRstats.UpdateMaximumListLength(this.processList.getListSize());
     }
 }

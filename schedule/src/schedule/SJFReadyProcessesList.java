@@ -1,6 +1,9 @@
 package schedule;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.PriorityQueue;
 
 /**
@@ -38,7 +41,7 @@ public class SJFReadyProcessesList {
     public Process getProcessToRunInCPU() {
         return processQueue.peek();
     }
-    
+
     public boolean removeProcess(Process process) {
         return processQueue.remove(process);
     }
@@ -58,9 +61,23 @@ public class SJFReadyProcessesList {
             temp.poll().printProcess();
         }
     }
-    
-    public PriorityQueue getQueue()
-    {
+
+    /**
+     *
+     * @return a list representation of the contents of this queue. There are no
+     * back references, so it can be modified freely.
+     */
+    public List<Process> getProcessList() {
+        // Queue to array
+        Process arr[] = this.processQueue.toArray(
+                new Process[this.processQueue.size()]);
+        // Array to list
+        List<Process> l = new ArrayList<>();
+        l.addAll(Arrays.asList(arr));
+        return l;
+    }
+
+    public PriorityQueue getQueue() {
         return this.processQueue;
     }
 

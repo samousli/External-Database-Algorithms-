@@ -41,11 +41,11 @@ public abstract class Statistics {
     /**
      * The file for saving the statistics
      */
-    protected final File outputFile;
+    protected  File outputFile;
     
-    public Statistics(String filename)
+    public Statistics(String filename, String Scheduler)
     {
-        
+        filename = Scheduler + filename;
         this.outputFile = new File(filename);
 
         if (this.outputFile.exists()) {

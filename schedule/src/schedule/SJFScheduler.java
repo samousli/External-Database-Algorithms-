@@ -68,18 +68,20 @@ public class SJFScheduler implements Scheduler {
                     + " Terminated (clock: " + Clock.showTime() + " )");
             this.terminatedProcesses.addProcess(currentProcess);
             currentProcess.printProcess();
-            //Main.stats.WriteStatistics2File(processList, currentProcess);
+            this.updateStatistics();
         }
     }
 
     @Override
-    public void updateStatistics() {
-        // Main.stats.updateStatistics(this.processList.getProcessList(), this.terminatedProcesses.getTerminatedProcessesList());
-        Main.stats.WriteStatistics2File();
+    public void updateStatistics()
+    { 
+        Main.SJFstats.updateStatistics(this.processList.getQueue(), this.terminatedProcesses.getTerminatedProcessesList());
+        Main.SJFstats.WriteStatistics2File();
     }
 
     @Override
-    public void updateMaximumListLength() {
-        Main.stats.UpdateMaximumListLength(this.processList.getListSize());
+    public void updateMaximumListLength()
+    {
+        Main.SJFstats.UpdateMaximumListLength(this.processList.getListSize());
     }
 }

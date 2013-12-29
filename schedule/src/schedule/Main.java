@@ -17,7 +17,7 @@ public class Main {
     static Statistics SJFstats;
     private static RRScheduler roundRobin;
     private static SJFScheduler shortestJobFirst;
-    private static boolean onlyReadInputFile; // as it is now if it exists it's read.
+    private static boolean readOnlyInput; // as it is now if it exists it's read.
     private static boolean sleep_between_iterations;
 
     /**
@@ -29,8 +29,8 @@ public class Main {
     public static void initializeRR(String inputFile, String outputFile,
             int quantum) {
         newProcesses = new NewProcessTemporaryList();
-        onlyReadInputFile = false;//(inputFile != null);
-        processGen = new ProcessGenerator(inputFile, onlyReadInputFile);
+        readOnlyInput = (inputFile != null);
+        processGen = new ProcessGenerator(inputFile, readOnlyInput);
         RRstats = new Statistics(outputFile, "RR");
         roundRobin = new RRScheduler(quantum);
 
@@ -45,8 +45,8 @@ public class Main {
     public static void initializeSJF(String inputFile, String outputFile,
             boolean preemptive) {
         newProcesses = new NewProcessTemporaryList();
-        onlyReadInputFile = false;//(inputFile != null);
-        processGen = new ProcessGenerator(inputFile, onlyReadInputFile);
+        readOnlyInput = (inputFile != null);
+        processGen = new ProcessGenerator(inputFile, readOnlyInput);
         SJFstats = new Statistics(outputFile, "SJF");
         shortestJobFirst = new SJFScheduler(preemptive);
     }
@@ -79,7 +79,7 @@ public class Main {
      */
     public static void populateNewProcessList() {
         List<Process> pList;
-        if (onlyReadInputFile) {
+        if (readOnlyInput) {
             pList = processGen.parseProcessFile();
         } else {
             pList = processGen.generateRandomList();

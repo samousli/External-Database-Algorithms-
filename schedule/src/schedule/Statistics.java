@@ -44,8 +44,9 @@ public class Statistics {
      */
     protected  File outputFile;
     
-    public Statistics(String filename)
+    public Statistics(String filename, String scheduler)
     {
+        filename = scheduler + filename;
         this.outputFile = new File(filename);
 
         if (this.outputFile.exists()) {

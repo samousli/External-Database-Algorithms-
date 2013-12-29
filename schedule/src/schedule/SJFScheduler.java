@@ -37,14 +37,14 @@ public class SJFScheduler implements Scheduler {
 
     @Override
     public void updateStatistics() {
-        Main.stats.updateStatistics(this.processList.getProcessList(), 
+        Main.SJFstats.updateStatistics(this.processList.getProcessList(), 
                 this.terminatedProcesses.getTerminatedProcessesList());
-        Main.stats.WriteStatistics2File();
+        Main.SJFstats.WriteStatistics2File();
     }
 
     @Override
     public void updateMaximumListLength() {
-        Main.stats.UpdateMaximumListLength(this.processList.getListSize());
+        Main.SJFstats.UpdateMaximumListLength(this.processList.getListSize());
     }
     
     /**

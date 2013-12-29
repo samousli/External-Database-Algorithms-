@@ -45,7 +45,7 @@ public class NewProcessTemporaryList {
     }
 
     /**
-     * Prints every detail of the processes in the List
+     * Prints every detail of each process in the list.
      */
     public void printList() {
         System.out.println("Number of processes:   " + this.processList.size());
@@ -55,6 +55,9 @@ public class NewProcessTemporaryList {
         }
     }
     
+    /**
+     * Sorts all elements in an ascending order based on their arrival time.
+     */
     public void sortByArrivalTime() { 
         Collections.sort(processList, new Comparator<Process>() {
 
@@ -66,6 +69,10 @@ public class NewProcessTemporaryList {
         });
     }
     
+    /**
+     * 
+     * @return the size of the process list.
+     */
     public int getListSize() {
         return this.processList.size();
     }

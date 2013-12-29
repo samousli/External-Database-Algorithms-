@@ -20,7 +20,7 @@ public class SJFScheduler implements Scheduler {
         this.processList = new SJFReadyProcessesList();
         this.terminatedProcesses = new TerminatedProcessesList();
     }
-
+    
     /**
      *
      * @param process process to be added
@@ -35,6 +35,25 @@ public class SJFScheduler implements Scheduler {
         return (this.processList.getListSize() == 0);
     }
 
+    @Override
+    public void updateStatistics() {
+        Main.stats.updateStatistics(this.processList.getProcessList(), 
+                this.terminatedProcesses.getTerminatedProcessesList());
+        Main.stats.WriteStatistics2File();
+    }
+
+    @Override
+    public void updateMaximumListLength() {
+        Main.stats.UpdateMaximumListLength(this.processList.getListSize());
+    }
+    
+    /**
+     * @return true if the scheduling is preemptive.
+     */
+    public boolean isPreemptive() {
+        return this.isPreemptive;
+    }
+    
     public void SJF() {
         // If the queue is empty just increment the clock. 
         // Practically it means that the CPU is idle.
@@ -49,7 +68,7 @@ public class SJFScheduler implements Scheduler {
 
         Process currentProcess = this.processList.getProcessToRunInCPU();
         System.out.println("[CPU] Running P" + currentProcess.getID()
-                + " (clock:\t" + Clock.showTime() + ")");
+                + " (clock: " + Clock.showTime() + ")");
         if (this.isPreemptive) {
             cpu.addProcess(currentProcess);
             cpu.execute();
@@ -65,22 +84,10 @@ public class SJFScheduler implements Scheduler {
         } else {
             this.processList.removeProcess(currentProcess);
             System.out.println("[CPU] P" + currentProcess.getID()
-                    + " Terminated (clock: " + Clock.showTime() + " )");
+                    + " Terminated (clock: " + Clock.showTime() + ")");
             this.terminatedProcesses.addProcess(currentProcess);
             currentProcess.printProcess();
             this.updateStatistics();
         }
-    }
-
-    @Override
-    public void updateStatistics() {
-        Main.RRstats.updateStatistics(this.processList.getProcessList(), 
-                this.terminatedProcesses.getTerminatedProcessesList());
-        Main.RRstats.WriteStatistics2File();
-    }
-
-    @Override
-    public void updateMaximumListLength() {
-        Main.RRstats.UpdateMaximumListLength(this.processList.getListSize());
-    }
+    } 
 }

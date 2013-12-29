@@ -59,7 +59,7 @@ public class RRScheduler implements Scheduler {
 
         Process currentProcess = this.processList.getProcessToRunInCPU();
 
-        // Execute for n steps or until it finishes.
+        // Execute for at least quantum steps or until it finishes.
         cpu.addProcess(currentProcess);
         int runFor = Math.min(currentProcess.getCpuRemainingTime(), quantum);
         System.out.println("[CPU] Running P" + currentProcess.getID()
@@ -84,12 +84,12 @@ public class RRScheduler implements Scheduler {
 
     @Override
     public void updateStatistics() {
-        Main.RRstats.updateStatistics(this.processList.getProcessList(), this.terminatedProcesses.getTerminatedProcessesList());
-        Main.RRstats.WriteStatistics2File();
+        Main.stats.updateStatistics(this.processList.getProcessList(), this.terminatedProcesses.getTerminatedProcessesList());
+        Main.stats.WriteStatistics2File();
     }
 
     @Override
     public void updateMaximumListLength() {
-        Main.RRstats.UpdateMaximumListLength(this.processList.getListSize());
+        Main.stats.UpdateMaximumListLength(this.processList.getListSize());
     }
 }

@@ -6,10 +6,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -21,31 +27,45 @@ import java.util.logging.Logger;
  */
 public class ProcessGenerator {
 
-    private final File inputFile;
+    private File inputFile = null;
     private final List<Process> processList;
-    private final boolean writeToFile;
+    private final boolean readOnly;
     private final Random rnd;
     private int nextPID = 0;
     private Process lastProcess;
 
     /**
+     * This class handles all process creation requests.
      *
      * @param filename input/output file name as defined by readFile parameter
-     * @param readFile if it's set to true, the file is only readable, otherwise
+     * @param readOnly if it's set to true, the file is only readable, otherwise
      * random processes will be generated
      */
-    public ProcessGenerator(String filename, boolean readFile) {
-        this.writeToFile = !readFile;
-        this.inputFile = new File(filename);
-        if (!this.inputFile.exists()) {
+    public ProcessGenerator(String filename, boolean readOnly) {
+        this.readOnly = readOnly;
+        this.rnd = new Random();
+        this.processList = new ArrayList<>();
+
+        // If file name is null and file is not read-only, 
+        // create random filename to save randomly created processes.
+        String _filename = filename;
+        if (_filename == null && !this.readOnly) {
+            Date now = new Date();
+
+            _filename = "Input " + now.toLocaleString() + ".txt";
+        }
+
+        this.inputFile = new File(_filename);
+
+        if (!this.readOnly) {
             try {
                 this.inputFile.createNewFile();
             } catch (IOException ex) {
-                Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(ProcessGenerator.class.getName()).log(
+                        Level.SEVERE, "Unable to create new input file", ex);
             }
         }
-        this.processList = new ArrayList<>();
-        this.rnd = new Random();
+
     }
 
     /**
@@ -53,59 +73,77 @@ public class ProcessGenerator {
      * otherwise.
      */
     public Process createProcess() {
-        if (this.writeToFile) {
-            createRandomProcess();
-            StoreProcessToFile();
+        Process p;
+
+        if (!this.processList.isEmpty()) {
+            p = processList.remove(0);
         } else {
-            if (this.processList.isEmpty()) {
-                createRandomProcess();
-            } else {
-                this.lastProcess = processList.remove(0);
-            }
+            p = createRandomProcess();
         }
-        return this.lastProcess;
+
+        if (!this.readOnly) {
+            StoreProcessToFile(p);
+        }
+        return p;
     }
 
     /**
      * Creates a random process with burstTime ranging from 1 to 100 and arrival
      * time as current system clock time.
      */
-    private void createRandomProcess() {
+    private Process createRandomProcess() {
         // range: (now, now+10)
         int arrivalTime = rnd.nextInt(10) + Clock.showTime();
         // range: (1-100)
         int burstTime = rnd.nextInt(10) + 1;
-
-        this.lastProcess = new Process(nextPID, arrivalTime, burstTime);
         nextPID++;
+        return new Process(nextPID, arrivalTime, burstTime);
     }
 
     /**
-     * Save the last created process to file.
+     * @return generates a list of random processes
      */
-    public void StoreProcessToFile() {
+    public List<Process> generateRandomList() {
+        int count = rnd.nextInt(20) + 1;
+        List<Process> pList = new ArrayList<>();
+        Process p;
+        for (int i = 0; i < count; i++) {
+            p = this.createRandomProcess();
+            StoreProcessToFile(p);
+            pList.add(p);
+        }
+        return pList;
+    }
 
-        try (Writer writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(this.inputFile)))) {
+    /**
+     * Save a process to file.
+     *
+     * @param process process to be stored in file.
+     */
+    public void StoreProcessToFile(Process process) {
+        if (this.readOnly) {
+            return;
+        }
 
-            writer.write(this.lastProcess.getArrivalTime() + " "
-                    + this.lastProcess.getCpuTotalTime());
+        try (PrintWriter writer = new PrintWriter(
+                new BufferedWriter(new FileWriter(inputFile, true)))) {
+            
+            writer.println(process.getArrivalTime() + " "
+                    + process.getCpuTotalTime());
+
         } catch (IOException ex) {
             Logger.getLogger(ProcessGenerator.class.getName()).log(
-                    Level.SEVERE, "Unable to store process to file.", ex);
+                    Level.SEVERE, "Can't write process to file.", ex);
         }
     }
 
     /**
-     * Parses the input file it's associated with and returns a list of
-     * processes from the given data. Ignores badly formatted lines.
+     * Parses the input file it's associated with and returns an unmodifiable
+     * list of processes from the given data. Ignores badly formatted lines.
      *
      * @return the processes defined in the input file.
      */
     public List<Process> parseProcessFile() {
-        if (this.writeToFile) {
-            return null;
-        }
 
         try (BufferedReader input = new BufferedReader(
                 new FileReader(this.inputFile))) {
@@ -119,11 +157,12 @@ public class ProcessGenerator {
                 if (vals == null) {
                     // Check for comment lines
                     if (!text.startsWith("//")) {
-                        System.out.println("Ignoring input line "
-                                + lineCount + ": \"" + text + "\"");
+                        System.out.println("Ignoring input: line "
+                                + lineCount + " (\"" + text + "\")");
                     }
                 } else {
-                    this.processList.add(new Process(this.nextPID, vals[0], vals[1]));
+                    this.processList.add(new Process(
+                            this.nextPID, vals[0], vals[1]));
                     this.nextPID++;
                 }
                 text = input.readLine();
@@ -136,7 +175,7 @@ public class ProcessGenerator {
             Logger.getLogger(ProcessGenerator.class.getName()).log(Level.SEVERE,
                     "File IO exception.", ex);
         }
-        return new ArrayList<>(processList);
+        return Collections.unmodifiableList(processList);
     }
 
     /**

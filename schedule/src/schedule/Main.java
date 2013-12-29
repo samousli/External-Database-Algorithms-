@@ -13,11 +13,10 @@ public class Main {
     //private static Clock clock;
     private static NewProcessTemporaryList newProcesses;
     private static ProcessGenerator processGen;
-    static RRStatistics RRstats;
-    static SJFStatistics SJFstats;
+    static Statistics stats;
     private static RRScheduler roundRobin;
     private static SJFScheduler shortestJobFirst;
-    private static boolean useInputFile;
+    private static boolean onlyReadInputFile; // as it is now if it exists it's read.
     private static boolean sleep_between_iterations;
 
     /**
@@ -29,10 +28,9 @@ public class Main {
     public static void initializeRR(String inputFile, String outputFile,
             int quantum) {
         newProcesses = new NewProcessTemporaryList();
-        File a = new File(inputFile);
-        useInputFile = (inputFile != null);
-        processGen = new ProcessGenerator(inputFile, useInputFile);
-        RRstats = new RRStatistics(outputFile);
+        onlyReadInputFile = false;//(inputFile != null);
+        processGen = new ProcessGenerator(inputFile, onlyReadInputFile);
+        stats = new Statistics(outputFile);
         roundRobin = new RRScheduler(quantum);
 
     }
@@ -46,10 +44,9 @@ public class Main {
     public static void initializeSJF(String inputFile, String outputFile,
             boolean preemptive) {
         newProcesses = new NewProcessTemporaryList();
-        File a = new File(inputFile);
-        useInputFile = (inputFile != null);
-        processGen = new ProcessGenerator(inputFile, useInputFile);
-        SJFstats = new SJFStatistics(outputFile);
+        onlyReadInputFile = false;//(inputFile != null);
+        processGen = new ProcessGenerator(inputFile, onlyReadInputFile);
+        stats = new Statistics(outputFile);
         shortestJobFirst = new SJFScheduler(preemptive);
     }
 
@@ -77,18 +74,18 @@ public class Main {
     }
 
     /**
-     * Create processes using the input file or create 10 randomly.
+     * Creates processes using the input file or generates some randomly.
      */
     public static void populateNewProcessList() {
-        if (useInputFile) {
-            List<Process> pl = processGen.parseProcessFile();
-            for (Process p : pl) {
-                newProcesses.addNewProcess(p);
-            }
+        List<Process> pList;
+        if (onlyReadInputFile) {
+            pList = processGen.parseProcessFile();
         } else {
-            for (int i = 0; i < 10; i++) {
-                newProcesses.addNewProcess(processGen.createProcess());
-            }
+            pList = processGen.generateRandomList();
+        }
+
+        for (Process p : pList) {
+            newProcesses.addNewProcess(p);
         }
     }
 
@@ -98,7 +95,8 @@ public class Main {
      * iteration.
      */
     public static void runRRSimulation() {
-        System.out.println("\nRunning round robin simulation..\n");
+        System.out.println("Running round robin simulation..");
+        System.out.println("    Quantum: " + roundRobin.getQuantum());
         populateNewProcessList();
         // Continue while there are processes or CPU is busy
         while (newProcesses.getListSize() > 0
@@ -112,7 +110,7 @@ public class Main {
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Main.class.getName()).log(Level.SEVERE,
-                            "Sleep interrupted", ex);
+                            "Sleep interrupted.", ex);
                 }
             }
         }
@@ -126,7 +124,8 @@ public class Main {
      * iteration.
      */
     public static void runSJFSimulation() {
-        System.out.println("\nRunning shortest job first simulation..\n");
+        System.out.println("Running shortest job first simulation..");
+        System.out.println("    Preemptive: " + shortestJobFirst.isPreemptive());
         populateNewProcessList();
         // Continue while there are processes or CPU is busy
         while (newProcesses.getListSize() > 0
@@ -141,7 +140,7 @@ public class Main {
                     Thread.sleep(100);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Main.class.getName()).log(Level.SEVERE,
-                            "Sleep interrupted", ex);
+                            "Sleep interrupted.", ex);
                 }
             }
         }
@@ -150,29 +149,84 @@ public class Main {
     }
 
     /**
+     * Prints the correct usage in case of bad arguments.
+     */
+    private static void badArguments() {
+        System.err.println("Bad arguments.");
+        System.out.println("Correct usage is:");
+        System.out.println("schedule [inputfile] outputfile [OPTIONS]");
+        System.out.println("Options:");
+        System.out.println("    -rr                 Use round robin scheduler");
+        System.out.println("    -sjf                Use shortest job first scheduler");
+        System.out.println("    --quantum=<val>     Default value is 5");
+        System.out.println("    -q=<val>            Same as --quantum");
+        System.out.println("    --premptive         Use preemption in SJF");
+        System.out.println("    -p                  Same as -preemptive");
+        System.out.println("");
+        System.out.println("Note: All options are case insensitive");
+        System.exit(1);
+    }
+
+    /**
      *
      * @param args
      */
     public static void main(String args[]) {
+
+        // Default values
         sleep_between_iterations = true;
         boolean useRR = true;
         int quantum = 5;
-        boolean useSJF = true;
-        boolean preemptive = true;
-        if (useRR) {
-            if (args.length == 1) {
-                initializeRR(null, args[0], quantum);
-            } else if (args.length == 2) {
-                initializeRR(args[0], args[1], quantum);
+        boolean useSJF = false;
+        boolean preemptive = false;
+        String input = null, output;// = "results.txt";
+
+        // Parse input
+        if (args.length < 1) {
+            badArguments();
+        }
+
+        output = args[0];
+
+        for (int i = 0; i < args.length; i++) {
+            String arg = args[i].toLowerCase();
+
+            if (arg.equals("-rr")) {
+                useSJF = false;
+                useRR = true;
+                continue;
+            } else if (arg.equals("-sjf")) {
+                useRR = false;
+                useSJF = true;
+                continue;
+            } else if (arg.startsWith("--quantum=")
+                    || arg.startsWith("-q=")) {
+                try {
+                    quantum = Integer.parseInt(arg.split("=")[1]);
+                } catch (NumberFormatException e) {
+                }
+                continue;
+            } else if (arg.equals("--preemptive")
+                    || arg.equals("-p")) {
+                preemptive = true;
+                continue;
             }
+            // If arg1 isn't an option it's the output file, so arg0 is input
+            // else arg0 is the output file and processes are generated randomly.
+            if (i == 1) {
+                output = args[1];
+                input = args[0];
+            } else {
+                output = args[0];
+            }
+        }
+
+        if (useRR) {
+            initializeRR(input, output, quantum);
             runRRSimulation();
         }
         if (useSJF) {
-            if (args.length == 1) {
-                initializeSJF(null, args[0], preemptive);
-            } else if (args.length == 2) {
-                initializeSJF(args[0], args[1], preemptive);
-            }
+            initializeSJF(input, output, preemptive);
             runSJFSimulation();
         }
     }

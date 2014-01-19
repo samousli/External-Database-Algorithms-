@@ -63,13 +63,13 @@ public class Process {
     Prints the fields of the process
     */
     public void printProcess(){
-        System.out.println("Process ID:       " + this.processID);
-        System.out.println("Arrival time:     " + this.arrivalTime);
-        System.out.println("Burst time:       " + this.cpuTotalTime);
-        System.out.println("Remaining time:   " + this.cpuRemainingTime);
-        System.out.println("Current state:    " + this.getCurrentState());
-        System.out.println("Response time:    " + this.responseTime);
-        System.out.println("Termination time: " + this.terminationTime);
+        System.out.println("\tProcess ID:       " + this.processID);
+        System.out.println("\tArrival time:     " + this.arrivalTime);
+        System.out.println("\tBurst time:       " + this.cpuTotalTime);
+        System.out.println("\tRemaining time:   " + this.cpuRemainingTime);
+        System.out.println("\tCurrent state:    " + this.getCurrentState());
+        System.out.println("\tResponse time:    " + this.responseTime);
+        System.out.println("\tTermination time: " + this.terminationTime);
         System.out.println("=====================================");
     }
     

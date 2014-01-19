@@ -9,6 +9,8 @@ public class RRScheduler implements Scheduler {
     private final RRReadyProcessesList processList;
     private final TerminatedProcessesList terminatedProcesses;
     private final CPU cpu;
+    
+    private Process currentProcess = null;
 
     /**
      *
@@ -40,42 +42,47 @@ public class RRScheduler implements Scheduler {
 
     @Override
     public boolean CPUIdle() {
-        return (this.processList.getListSize() == 0);
+        return (this.processList.getListSize() == 0 && 
+                (currentProcess == null 
+                || currentProcess.getCurrentState() == ProcessState.TERMINATED)
+                );
     }
 
     /**
      *
      */
     public void RR() {
+        
+        // Add the previously active process to the end of the queue, 
+        // ToDo: refactor properly
+        if (currentProcess != null 
+                && currentProcess.getCurrentState() == ProcessState.READY) {
+            processList.addProcess(currentProcess);
+        }
+        
         // If the queue is empty just increment the clock.
-        if (this.CPUIdle()) {
+        if (CPUIdle()) {
             cpu.addProcess(null);
             cpu.execute();
             return;
         }
-
+        
         //Updates the maximum list length in RRStatistics
         this.updateMaximumListLength();
 
-        Process currentProcess = this.processList.getProcessToRunInCPU();
-
-        // Execute for at least quantum steps or until it finishes.
-        cpu.addProcess(currentProcess);
-        int runFor = Math.min(currentProcess.getCpuRemainingTime(), quantum);
+        currentProcess = this.processList.getProcessToRunInCPU();
+        
         System.out.println("[CPU] Running P" + currentProcess.getID()
-                + " (from:" + Clock.showTime() + " to:\t"
-                + (Clock.showTime() + runFor) + ")");
-
-        for (int i = 0; i < runFor; i++) {
-            cpu.execute();
-        }
-
-        if (currentProcess.getCurrentState() == ProcessState.RUNNING) {
-            currentProcess.setProcessState(ProcessState.READY);
-            processList.addProcess(currentProcess);
-        } else {
+                + " (clock: " + Clock.showTime() + ")");
+        
+        cpu.addProcess(currentProcess);
+        cpu.execute();    
+            
+        if (currentProcess.getCurrentState() == ProcessState.TERMINATED) {
+            
             System.out.println("[CPU] P" + currentProcess.getID()
                     + " Terminated (clock: " + Clock.showTime() + " )");
+            
             this.terminatedProcesses.addProcess(currentProcess);
             currentProcess.printProcess();
             this.updateStatistics();

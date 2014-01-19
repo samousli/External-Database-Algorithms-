@@ -97,7 +97,7 @@ public class Main {
      */
     public static void runRRSimulation() {
         System.out.println("Running round robin simulation..");
-        System.out.println("    Quantum: " + roundRobin.getQuantum());
+        System.out.println("    Quantum = " + roundRobin.getQuantum());
         populateNewProcessList();
         // Continue while there are processes or CPU is busy
         while (newProcesses.getListSize() > 0
@@ -126,7 +126,7 @@ public class Main {
      */
     public static void runSJFSimulation() {
         System.out.println("Running shortest job first simulation..");
-        System.out.println("    Preemptive: " + shortestJobFirst.isPreemptive());
+        System.out.println("    Preemptive = " + shortestJobFirst.isPreemptive());
         populateNewProcessList();
         // Continue while there are processes or CPU is busy
         while (newProcesses.getListSize() > 0
@@ -196,22 +196,28 @@ public class Main {
                 useSJF = false;
                 useRR = true;
                 continue;
-            } else if (arg.equals("-sjf")) {
+            } 
+            
+            if (arg.equals("-sjf")) {
                 useRR = false;
                 useSJF = true;
                 continue;
-            } else if (arg.startsWith("--quantum=")
+            } 
+            
+            if (arg.startsWith("--quantum=")
                     || arg.startsWith("-q=")) {
                 try {
                     quantum = Integer.parseInt(arg.split("=")[1]);
-                } catch (NumberFormatException e) {
-                }
+                } catch (NumberFormatException e) {}
                 continue;
-            } else if (arg.equals("--preemptive")
+            }
+            
+            if (arg.equals("--preemptive")
                     || arg.equals("-p")) {
                 preemptive = true;
                 continue;
             }
+            
             // If arg1 isn't an option it's the output file, so arg0 is input
             // else arg0 is the output file and processes are generated randomly.
             if (i == 1) {

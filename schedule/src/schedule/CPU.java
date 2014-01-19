@@ -81,6 +81,8 @@ public class CPU {
         // Change state
         if (this.runningProcess.getCpuRemainingTime() == 0) {
             this.runningProcess.setProcessState(ProcessState.TERMINATED);
+        } else {
+            this.runningProcess.setProcessState(ProcessState.READY);
         }
     }
 

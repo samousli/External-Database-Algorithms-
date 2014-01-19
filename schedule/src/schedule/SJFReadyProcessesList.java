@@ -27,7 +27,7 @@ public class SJFReadyProcessesList {
              */
             @Override
             public int compare(Process p1, Process p2) {
-                return new Integer(p1.getCpuRemainingTime()).compareTo(
+                return new Integer( p1.getCpuRemainingTime()).compareTo(
                         new Integer(p2.getCpuRemainingTime()));
             }
         });
@@ -38,6 +38,10 @@ public class SJFReadyProcessesList {
         this.processQueue.add(item);
     }
 
+    /**
+     * Returns the first process without removing it, null if it the last is empty
+     * @return 
+     */
     public Process getProcessToRunInCPU() {
         return processQueue.peek();
     }
@@ -75,10 +79,6 @@ public class SJFReadyProcessesList {
         List<Process> l = new ArrayList<>();
         l.addAll(Arrays.asList(arr));
         return l;
-    }
-
-    public PriorityQueue getQueue() {
-        return this.processQueue;
     }
 
 }

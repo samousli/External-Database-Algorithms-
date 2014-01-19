@@ -5,17 +5,18 @@ package schedule;
  */
 public class SJFScheduler implements Scheduler {
 
-    private final boolean isPreemptive;
+    private final boolean preemptive;
     private final CPU cpu;
     private final SJFReadyProcessesList processList;
     private final TerminatedProcessesList terminatedProcesses;
+    private Process currentProcess;
 
     /**
      *
      * @param isPreemptive
      */
     public SJFScheduler(boolean isPreemptive) {
-        this.isPreemptive = isPreemptive;
+        this.preemptive = isPreemptive;
         this.cpu = new CPU();
         this.processList = new SJFReadyProcessesList();
         this.terminatedProcesses = new TerminatedProcessesList();
@@ -51,7 +52,7 @@ public class SJFScheduler implements Scheduler {
      * @return true if the scheduling is preemptive.
      */
     public boolean isPreemptive() {
-        return this.isPreemptive;
+        return this.preemptive;
     }
     
     public void SJF() {
@@ -63,31 +64,31 @@ public class SJFScheduler implements Scheduler {
             return;
         }
 
-        //Update the maximum ready processes list length in staatistics
+        //Update the maximum ready processes list length in statistics
         this.updateMaximumListLength();
-
-        Process currentProcess = this.processList.getProcessToRunInCPU();
+        
+        if (preemptive || currentProcess == null) {
+            currentProcess = this.processList.getProcessToRunInCPU();
+        }
         System.out.println("[CPU] Running P" + currentProcess.getID()
                 + " (clock: " + Clock.showTime() + ")");
-        if (this.isPreemptive) {
-            cpu.addProcess(currentProcess);
-            cpu.execute();
-        } else {
-            cpu.addProcess(currentProcess);
-            for (int i = 0; i < currentProcess.getCpuTotalTime(); i++) {
-                cpu.execute();
-            }
-        }
+        
+        cpu.addProcess(currentProcess);
+        cpu.execute();
 
-        if (currentProcess.getCurrentState() == ProcessState.RUNNING) {
-            currentProcess.setProcessState(ProcessState.READY);
-        } else {
-            this.processList.removeProcess(currentProcess);
+        if (currentProcess.getCurrentState() == ProcessState.TERMINATED) {
+            
             System.out.println("[CPU] P" + currentProcess.getID()
                     + " Terminated (clock: " + Clock.showTime() + ")");
+           
+            // Earlier we only peeked at the element if it terminates 
+            // we have to remove it.
+            this.processList.removeProcess(currentProcess);
+            
             this.terminatedProcesses.addProcess(currentProcess);
             currentProcess.printProcess();
             this.updateStatistics();
+            currentProcess = null;
         }
     } 
 }

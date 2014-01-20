@@ -75,7 +75,7 @@ public class SJFScheduler implements Scheduler {
             // Doesn't remove it from the list.
             Process prevProcess = currentProcess;
             currentProcess = this.processList.getProcessToRunInCPU();
-            if (preemptive && prevProcess != null && prevProcess.equals(currentProcess)) {
+            if (preemptive && prevProcess != null && !prevProcess.equals(currentProcess)) {
                 
                 contextSwitchCount++;
                 PrettyPrinter.print("SJF", "Context switch! P" + prevProcess.getID() + " -> P" + currentProcess.getID());

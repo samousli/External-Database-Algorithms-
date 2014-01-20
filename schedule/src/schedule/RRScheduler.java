@@ -67,7 +67,7 @@ public class RRScheduler implements Scheduler {
         // Doesn't remove it from the list.
             Process prevProcess = currentProcess;
             currentProcess = this.processList.getProcessToRunInCPU();
-            if ( prevProcess != null && prevProcess.equals(currentProcess)) {
+            if ( prevProcess != null && !prevProcess.equals(currentProcess)) {
                 
                 contextSwitchCount++;
                 PrettyPrinter.print("RR", "Context switch! P" + prevProcess.getID() + " -> P" + currentProcess.getID());

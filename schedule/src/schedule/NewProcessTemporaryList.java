@@ -63,8 +63,13 @@ public class NewProcessTemporaryList {
 
             @Override
             public int compare(Process p1, Process p2) {
-                return new Integer(p1.getArrivalTime()).compareTo(
+                int result =  new Integer(p1.getArrivalTime()).compareTo(
                        new Integer(p2.getArrivalTime()));
+                // In case of equality the second criteria is pid
+                if (result == 0 ) {
+                    result = new Integer(p1.getID()).compareTo(new Integer(p2.getID()));
+                }
+                return result;
             }
         });
     }

@@ -29,16 +29,16 @@ public class CPU {
     }
 
     /**
-     * Adds a process that's ready to be executed and updates the previous
-     * process's state.
+     * Sets the process that's ready to be executed. 
      *
      * @param process the process that's ready to be executed.
      */
     public void addProcess(Process process) {
+        /*
         if (this.runningProcess != null
                 && this.runningProcess.getCurrentState() == ProcessState.RUNNING) {
             this.runningProcess.setProcessState(ProcessState.READY);
-        }
+        }*/
         this.runningProcess = process;
     }
 
@@ -48,23 +48,26 @@ public class CPU {
      * @return The process that got interrupted
      */
     public Process removeProcessFromCpu() {
-        Process p = this.getRunningProcess();
+        Process p = this.runningProcess;
         this.runningProcess = null;
         return p;
     }
 
     /**
-     * Executes the loaded process and updates it's state and CPU clock
+     * Executes the loaded process and updates it's state and also increments CPU clock
      * accordingly.
      */
     public void execute() {
-
+        
         // Idle
         if (this.runningProcess == null) {
             System.out.println("[CPU] Idle at clock: " + Clock.showTime());
             clock.timeRun();
             return;
         }
+        
+        PrettyPrinter.print("CPU", "Running P" + runningProcess.getID());
+        
         // Process running
         this.runningProcess.setProcessState(ProcessState.RUNNING);
         
@@ -72,15 +75,22 @@ public class CPU {
         if (runningProcess.getCpuTotalTime() == this.runningProcess.getCpuRemainingTime()) {
             this.runningProcess.setResponseTime(Clock.showTime());
         }
+        
+        
+        // Run process until the context switch
+        for (int i = 0; i < this.timeToNextContextSwitch; i++) {
+            clock.timeRun();
+            this.runningProcess.changeCpuRemainingTime(
+                    this.runningProcess.getCpuRemainingTime() - 1);
 
-        // Update clock.
-        clock.timeRun();
-        this.runningProcess.changeCpuRemainingTime(
-                this.runningProcess.getCpuRemainingTime() - 1);
-
+        }
+        
         // Change state
         if (this.runningProcess.getCpuRemainingTime() == 0) {
             this.runningProcess.setProcessState(ProcessState.TERMINATED);
+            this.runningProcess.setTerminationTime(Clock.showTime());
+            PrettyPrinter.print("CPU", "Running P" + runningProcess.getID());
+            runningProcess.printProcess();
         } else {
             this.runningProcess.setProcessState(ProcessState.READY);
         }

@@ -84,7 +84,7 @@ public class CPU {
         if (this.runningProcess.getCpuRemainingTime() == 0) {
             this.runningProcess.setProcessState(ProcessState.TERMINATED);
             this.runningProcess.setTerminationTime(Clock.showTime());
-            PrettyPrinter.print("CPU", "Running P" + runningProcess.getID());
+            PrettyPrinter.print("CPU", "Terminated P" + runningProcess.getID());
             runningProcess.printProcess();
         } else {
             this.runningProcess.setProcessState(ProcessState.READY);

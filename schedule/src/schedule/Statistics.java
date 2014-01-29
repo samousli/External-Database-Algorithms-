@@ -110,7 +110,7 @@ public class Statistics {
     }
 
     /**
-     * Calculates the average response time of a process list and a terminated process
+     * Calculates the average response time of a process list and of terminated processes
      * @param ProcessList,the list with all the processes waiting
      * @param terminatedProcesses,the list with the terminated processes
      * @return the average response time = sum of response time of every process / number of processes

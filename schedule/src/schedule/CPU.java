@@ -34,11 +34,6 @@ public class CPU {
      * @param process the process that's ready to be executed.
      */
     public void addProcess(Process process) {
-        /*
-        if (this.runningProcess != null
-                && this.runningProcess.getCurrentState() == ProcessState.RUNNING) {
-            this.runningProcess.setProcessState(ProcessState.READY);
-        }*/
         this.runningProcess = process;
     }
 

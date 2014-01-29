@@ -41,59 +41,55 @@ public class RRScheduler implements Scheduler {
 
     @Override
     public boolean CPUIdle() {
-        return (this.processList.getListSize() == 0 && 
-                (currentProcess == null 
-                || currentProcess.getCurrentState() == ProcessState.TERMINATED)
-                );
+        return (this.processList.getListSize() == 0
+                && (currentProcess == null
+                || currentProcess.getCurrentState() == ProcessState.TERMINATED));
     }
-    
 
     /**
      *
      */
     public void RR() {
-               
+
         // If the queue is empty just increment the clock.
         if (CPUIdle()) {
             cpu.addProcess(null);
             cpu.execute();
             return;
         }
-        
+
         //Updates the maximum list length in RRStatistics
         this.updateMaximumListLength();
 
+        
+        Process prevProcess = currentProcess;
         currentProcess = this.processList.getProcessToRunInCPU();
-        // Doesn't remove it from the list.
-            Process prevProcess = currentProcess;
-            currentProcess = this.processList.getProcessToRunInCPU();
-            if ( prevProcess != null && !prevProcess.equals(currentProcess)) {
-                
-                contextSwitchCount++;
-                PrettyPrinter.print("RR", "Context switch! P" + prevProcess.getID() + " -> P" + currentProcess.getID());
-            }
-        
+        if (prevProcess != null && currentProcess != null && !prevProcess.equals(currentProcess)) {
+
+            contextSwitchCount++;
+            PrettyPrinter.print("RR", "Context switch! P" + prevProcess.getID() + " -> P" + currentProcess.getID());
+        }
+
         // Calculate time till next context switch
-        int timeToNextSwitch = Math.min(quantum, 
+        int timeToNextSwitch = Math.min(quantum,
                 currentProcess.getCpuRemainingTime());
-        
+
         cpu.addProcess(currentProcess);
         cpu.setTimeToNextContextSwitch(timeToNextSwitch);
-        cpu.execute();    
-            
+        cpu.execute();
+
         if (currentProcess.getCurrentState() == ProcessState.TERMINATED) {
-            
+
             this.processList.removeProcess(currentProcess);
             this.terminatedProcesses.addProcess(currentProcess);
-            
             this.updateStatistics();
+            currentProcess = null;
         }
     }
-    
 
     @Override
     public void updateStatistics() {
-        Main.RRstats.updateStatistics(this.processList.getProcessList(), 
+        Main.RRstats.updateStatistics(this.processList.getProcessList(),
                 this.terminatedProcesses.getTerminatedProcessesList());
         Main.RRstats.WriteStatistics2File();
     }

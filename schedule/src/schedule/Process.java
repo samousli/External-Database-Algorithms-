@@ -70,7 +70,7 @@ public class Process {
         System.out.println("\tCurrent state:    " + this.getCurrentState());
         System.out.println("\tResponse time:    " + this.responseTime);
         System.out.println("\tTermination time: " + this.terminationTime);
-        System.out.println("=====================================");
+        System.out.println("\t=====================================");
     }
     
     /**

@@ -103,8 +103,8 @@ public class ProcessGenerator {
     /**
      * @return generates a list of random processes
      */
-    public List<Process> generateRandomList() {
-        int count = rnd.nextInt(20) + 1;
+    public List<Process> generateRandomList(int count) {
+        //int count = rnd.nextInt(20) + 1;
         List<Process> pList = new ArrayList<>();
         Process p;
         for (int i = 0; i < count; i++) {

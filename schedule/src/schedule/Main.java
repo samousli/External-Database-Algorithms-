@@ -10,14 +10,15 @@ import java.util.logging.Logger;
  */
 public class Main {
 
-    //private static Clock clock;
     private static NewProcessTemporaryList newProcesses;
     private static ProcessGenerator processGen;
     static Statistics RRstats;
     static Statistics SJFstats;
     private static RRScheduler roundRobin;
     private static SJFScheduler shortestJobFirst;
-    private static boolean readOnlyInput; // as it is now if it exists it's read.
+    // Currently if it exists it's read because giving an 
+    // input file for no reason doesn't look like a nice feature.
+    private static boolean readOnlyInput; 
     private static boolean sleep_between_iterations;
 
     /**
@@ -52,8 +53,7 @@ public class Main {
     }
 
     /**
-     * Add processes with current arrival time to the ready list of the
-     * scheduler.
+     * Add processes with current arrival time to the ready process list.
      */
     public static void populateReadyProcessList() {
         newProcesses.sortByArrivalTime();
@@ -82,7 +82,7 @@ public class Main {
         if (readOnlyInput) {
             pList = processGen.parseProcessFile();
         } else {
-            pList = processGen.generateRandomList();
+            pList = processGen.generateRandomList(20);
         }
 
         for (Process p : pList) {
@@ -92,14 +92,14 @@ public class Main {
 
     /**
      * Main loop for round robin scheduler, runs until the completion time
-     * printing current state also pauses for 100 milliseconds at every
+     * prints state info and also pauses for 100 milliseconds at every
      * iteration.
      */
     public static void runRRSimulation() {
         System.out.println("Running round robin simulation..");
         System.out.println("    Quantum = " + roundRobin.getQuantum());
         populateNewProcessList();
-        // Continue while there are processes or CPU is busy
+        // Continue while there are processes waiting or CPU is busy
         while (newProcesses.getListSize() > 0
                 || roundRobin.CPUIdle() == false) {
 
@@ -120,15 +120,15 @@ public class Main {
     }
 
     /**
-     * Main loop for the shortest job first scheduler runs until the completion
-     * time, printing current state also pauses for 100 milliseconds at every
+     * Main loop for the shortest job first scheduler, Runs until the completion
+     * time, prints state info and also pauses for 100 milliseconds at every
      * iteration.
      */
     public static void runSJFSimulation() {
         System.out.println("Running shortest job first simulation..");
         System.out.println("    Preemptive = " + shortestJobFirst.isPreemptive());
         populateNewProcessList();
-        // Continue while there are processes or CPU is busy
+        // Continue while there are processes waiting or CPU is busy
         while (newProcesses.getListSize() > 0
                 || shortestJobFirst.CPUIdle() == false) {
 
@@ -176,7 +176,7 @@ public class Main {
 
         // Default values
         sleep_between_iterations = true;
-        boolean useRR = true;
+        boolean useRR = false;
         int quantum = 5;
         boolean useSJF = false;
         boolean preemptive = false;
@@ -193,13 +193,13 @@ public class Main {
             String arg = args[i].toLowerCase();
 
             if (arg.equals("-rr")) {
-                useSJF = false;
+                //useSJF = false;
                 useRR = true;
                 continue;
             } 
             
             if (arg.equals("-sjf")) {
-                useRR = false;
+                //useRR = false;
                 useSJF = true;
                 continue;
             } 

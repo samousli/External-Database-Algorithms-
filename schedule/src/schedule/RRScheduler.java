@@ -9,7 +9,7 @@ public class RRScheduler implements Scheduler {
     private final RRReadyProcessesList processList;
     private final TerminatedProcessesList terminatedProcesses;
     private final CPU cpu;
-    
+    private int contextSwitchCount = 0;
     private Process currentProcess = null;
 
     /**
@@ -20,7 +20,6 @@ public class RRScheduler implements Scheduler {
         this.processList = new RRReadyProcessesList();
         this.terminatedProcesses = new TerminatedProcessesList();
         this.cpu = new CPU();
-        this.cpu.setTimeToNextContextSwitch(quantum);
         this.quantum = quantum;
     }
 
@@ -47,19 +46,13 @@ public class RRScheduler implements Scheduler {
                 || currentProcess.getCurrentState() == ProcessState.TERMINATED)
                 );
     }
+    
 
     /**
      *
      */
     public void RR() {
-        
-        // Add the previously active process to the end of the queue, 
-        // ToDo: refactor properly
-        if (currentProcess != null 
-                && currentProcess.getCurrentState() == ProcessState.READY) {
-            processList.addProcess(currentProcess);
-        }
-        
+               
         // If the queue is empty just increment the clock.
         if (CPUIdle()) {
             cpu.addProcess(null);
@@ -71,27 +64,37 @@ public class RRScheduler implements Scheduler {
         this.updateMaximumListLength();
 
         currentProcess = this.processList.getProcessToRunInCPU();
+        // Doesn't remove it from the list.
+            Process prevProcess = currentProcess;
+            currentProcess = this.processList.getProcessToRunInCPU();
+            if ( prevProcess != null && !prevProcess.equals(currentProcess)) {
+                
+                contextSwitchCount++;
+                PrettyPrinter.print("RR", "Context switch! P" + prevProcess.getID() + " -> P" + currentProcess.getID());
+            }
         
-        System.out.println("[CPU] Running P" + currentProcess.getID()
-                + " (clock: " + Clock.showTime() + ")");
+        // Calculate time till next context switch
+        int timeToNextSwitch = Math.min(quantum, 
+                currentProcess.getCpuRemainingTime());
         
         cpu.addProcess(currentProcess);
+        cpu.setTimeToNextContextSwitch(timeToNextSwitch);
         cpu.execute();    
             
         if (currentProcess.getCurrentState() == ProcessState.TERMINATED) {
             
-            System.out.println("[CPU] P" + currentProcess.getID()
-                    + " Terminated (clock: " + Clock.showTime() + " )");
-            
+            this.processList.removeProcess(currentProcess);
             this.terminatedProcesses.addProcess(currentProcess);
-            currentProcess.printProcess();
+            
             this.updateStatistics();
         }
     }
+    
 
     @Override
     public void updateStatistics() {
-        Main.RRstats.updateStatistics(this.processList.getProcessList(), this.terminatedProcesses.getTerminatedProcessesList());
+        Main.RRstats.updateStatistics(this.processList.getProcessList(), 
+                this.terminatedProcesses.getTerminatedProcessesList());
         Main.RRstats.WriteStatistics2File();
     }
 

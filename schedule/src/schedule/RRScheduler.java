@@ -58,10 +58,9 @@ public class RRScheduler implements Scheduler {
             return;
         }
 
-        //Updates the maximum list length in RRStatistics
+        //Updates the maximum list length in Statistics
         this.updateMaximumListLength();
 
-        
         Process prevProcess = currentProcess;
         currentProcess = this.processList.getProcessToRunInCPU();
         if (prevProcess != null && currentProcess != null && !prevProcess.equals(currentProcess)) {
@@ -78,6 +77,7 @@ public class RRScheduler implements Scheduler {
         cpu.setTimeToNextContextSwitch(timeToNextSwitch);
         cpu.execute();
 
+        //add process to the terminated list and update the statistics
         if (currentProcess.getCurrentState() == ProcessState.TERMINATED) {
 
             this.processList.removeProcess(currentProcess);

@@ -118,7 +118,7 @@ public class Statistics {
     public float CalculateAverageResponseTime(List ProcessList, List terminatedProcesses) {
         int total_response_time = 0;
         int size = ProcessList.size() + terminatedProcesses.size();
-        Process process = null;
+        Process process;
         for (int i = 0; i < terminatedProcesses.size(); i++) {
             process = (Process) terminatedProcesses.get(i);
             total_response_time += process.getResponseTime() - process.getArrivalTime();
@@ -156,7 +156,7 @@ public class Statistics {
     public float CalculateAverageWaitingTime(List ProcessList, List terminatedProcesses) {
         int total_waiting_time = 0;
         int size = ProcessList.size() + terminatedProcesses.size();
-        Process process = null;
+        Process process;
         for (int i = 0; i < terminatedProcesses.size(); i++) {
             process = (Process) terminatedProcesses.get(i);
             total_waiting_time += process.getTerminationTime() - (process.getArrivalTime() + process.getCpuTotalTime());

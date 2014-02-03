@@ -21,7 +21,7 @@ public class Process {
     private int responseTime;
     
     /**
-     * Time the process terminated
+     * Time at which the process terminated
      */
     private int terminationTime;
     

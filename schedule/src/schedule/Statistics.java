@@ -98,13 +98,6 @@ public class Statistics {
         return totalNumberOfProcesses;
     }
 
-    /**
-     *
-     * @return the total CPU run time
-     */
-    public int getTotalRunTime() {
-        return Clock.showTime() - this.totalWaitingTime;
-    }
 
     /**
      * Calculates the average response time of a process list and of terminated

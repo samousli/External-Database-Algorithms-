@@ -50,7 +50,6 @@ public class RRScheduler implements Scheduler {
      *
      */
     public void RR() {
-
         // If the queue is empty just increment the clock.
         if (CPUIdle()) {
             cpu.addProcess(null);
@@ -58,26 +57,30 @@ public class RRScheduler implements Scheduler {
             return;
         }
 
-        //Updates the maximum list length in Statistics
-        this.updateMaximumListLength();
+        if (currentProcess != null && currentProcess.getCurrentState() == ProcessState.RUNNING) {
+            cpu.execute();
+        } else {
 
-        Process prevProcess = currentProcess;
-        currentProcess = this.processList.getProcessToRunInCPU();
-        if (prevProcess != null && currentProcess != null && !prevProcess.equals(currentProcess)) {
+            //Updates the maximum list length in Statistics
+            this.updateMaximumListLength();
 
-            contextSwitchCount++;
-            PrettyPrinter.print("RR", "Context switch! P" + prevProcess.getID() + " -> P" + currentProcess.getID());
+            Process prevProcess = currentProcess;
+            currentProcess = this.processList.getProcessToRunInCPU();
+            if (prevProcess != null && currentProcess != null && !prevProcess.equals(currentProcess)) {
+
+                contextSwitchCount++;
+                PrettyPrinter.print("RR", "Context switch! P" 
+                        + prevProcess.getID() + " -> P" + currentProcess.getID());
+            }
+
+            // Calculate time till next context switch
+            int timeToNextSwitch = Math.min(quantum,
+                    currentProcess.getCpuRemainingTime());
+
+            cpu.addProcess(currentProcess);
+            cpu.setTimeToNextContextSwitch(timeToNextSwitch);
+            cpu.execute();
         }
-
-        // Calculate time till next context switch
-        int timeToNextSwitch = Math.min(quantum,
-                currentProcess.getCpuRemainingTime());
-
-        cpu.addProcess(currentProcess);
-        cpu.setTimeToNextContextSwitch(timeToNextSwitch);
-        cpu.execute();
-
-        //add process to the terminated list and update the statistics
         if (currentProcess.getCurrentState() == ProcessState.TERMINATED) {
 
             this.processList.removeProcess(currentProcess);

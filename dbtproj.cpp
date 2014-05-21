@@ -14,8 +14,70 @@ using namespace std;
    ----------------------------------------------------------------------------------------------------------------------
 */
 void MergeSort (char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks, char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
-
-
+    FILE *outputFile = fopen(outfile,"w"); // open output file 
+    block_t blockForOutput; // block for output mode
+    int currentSizeOfBlock  = 0; // counter block size ( maximum = MAX_RECORDS_PER_BLOCK )
+    for(int i=0;i<nmem_blocks-1;i = i+2){
+        int counterOne = 0; // counter of first block
+        int counterTwo = 0; // counter of second block
+        while((counterOne < buffer[i].nreserved) && (counterTwo < buffer[i+1].nreserved)){ 
+            if(buffer[i].entries[counterOne].num <= buffer[i].entries[counterTwo].num){ // bigger value from first block or same value
+                if(currentSizeOfBlock < MAX_RECORDS_PER_BLOCK){
+                   memcpy(&blockForOutput.entries[currentSizeOfBlock],&buffer[i].entries[counterOne],sizeof(record_t));	// write the record to the block
+                   currentSizeOfBlock++; // added record_t to block_t
+                }
+                else{
+                   blockForOutput.nreserved = MAX_RECORDS_PER_BLOCK;
+                   blockForOutput.valid = true;
+                   fwrite(&blockForOutput, 1, sizeof(block_t), outputFile);	// write the block to the file
+                   currentSizeOfBlock = 0; // reset size of block 
+                }
+                counterOne++; // go to next record of first block
+            }
+            else if(buffer[i].entries[counterOne].num > buffer[i].entries[counterTwo].num){ // bigger value from second Block
+                if(currentSizeOfBlock < MAX_RECORDS_PER_BLOCK){
+                   memcpy(&blockForOutput.entries[currentSizeOfBlock],&buffer[i+1].entries[counterTwo],sizeof(record_t));	// write the record to the block
+                   currentSizeOfBlock++; //added record_t to block_t
+                }
+                else{
+                   blockForOutput.nreserved = MAX_RECORDS_PER_BLOCK;
+                   blockForOutput.valid = true;
+                   fwrite(&blockForOutput, 1, sizeof(block_t), outputFile);	// write the block to the file
+                   currentSizeOfBlock = 0;
+                }
+               counterTwo++;    // go to next record of second block 
+            }
+        }
+       if(counterOne < buffer[i].nreserved){ // not empty block (first block )
+            if(currentSizeOfBlock < MAX_RECORDS_PER_BLOCK){
+                   memcpy(&blockForOutput.entries[currentSizeOfBlock],&buffer[i].entries[counterOne],sizeof(record_t));	// write the record to the block
+                   currentSizeOfBlock++; // added record_t to block_t
+                }
+                else{
+                   blockForOutput.nreserved = MAX_RECORDS_PER_BLOCK;
+                   blockForOutput.valid = true;
+                   fwrite(&blockForOutput, 1, sizeof(block_t), outputFile);	// write the block to the file
+                   currentSizeOfBlock = 0; // reset size of block 
+                }
+                counterOne++; // go to next record of first block
+       } 
+       else if(counterTwo < buffer[i+1].nreserved){ // not empty block (second block)
+           if(currentSizeOfBlock < MAX_RECORDS_PER_BLOCK){
+                   memcpy(&blockForOutput.entries[currentSizeOfBlock],&buffer[i+1].entries[counterTwo],sizeof(record_t));	// write the record to the block
+                   currentSizeOfBlock++; //added record_t to block_t
+                }
+                else{
+                   blockForOutput.nreserved = MAX_RECORDS_PER_BLOCK;
+                   blockForOutput.valid = true;
+                   fwrite(&blockForOutput, 1, sizeof(block_t), outputFile);	// write the block to the file
+                   currentSizeOfBlock = 0;
+                }
+               counterTwo++;    // go to next record of second block 
+       }
+        
+    }
+    
+    fclose(outputFile);
 }
 
 

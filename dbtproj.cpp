@@ -1,5 +1,8 @@
 #include <iostream>
+#include <fstream>
+#include <cstdlib>
 #include "dbtproj.h"
+#include "HelpingMethods.h"
 using namespace std;
 
 /* ----------------------------------------------------------------------------------------------------------------------
@@ -14,71 +17,41 @@ using namespace std;
    ----------------------------------------------------------------------------------------------------------------------
 */
 void MergeSort (char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks, char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
-    FILE *outputFile = fopen(outfile,"w"); // open output file 
-    block_t blockForOutput; // block for output mode
-    int currentSizeOfBlock  = 0; // counter block size ( maximum = MAX_RECORDS_PER_BLOCK )
-    for(int i=0;i<nmem_blocks-1;i = i+2){
-        int counterOne = 0; // counter of first block
-        int counterTwo = 0; // counter of second block
-        while((counterOne < buffer[i].nreserved) && (counterTwo < buffer[i+1].nreserved)){ 
-            if(buffer[i].entries[counterOne].num <= buffer[i].entries[counterTwo].num){ // bigger value from first block or same value
-                if(currentSizeOfBlock < MAX_RECORDS_PER_BLOCK){
-                   memcpy(&blockForOutput.entries[currentSizeOfBlock],&buffer[i].entries[counterOne],sizeof(record_t));	// write the record to the block
-                   currentSizeOfBlock++; // added record_t to block_t
-                }
-                else{
-                   blockForOutput.nreserved = MAX_RECORDS_PER_BLOCK;
-                   blockForOutput.valid = true;
-                   fwrite(&blockForOutput, 1, sizeof(block_t), outputFile);	// write the block to the file
-                   currentSizeOfBlock = 0; // reset size of block 
-                }
-                counterOne++; // go to next record of first block
+    
+    ifstream inputFile; // stream for input file 
+    inputFile.open(infile,ios::in | ios::binary); // open input file 
+    int numOfBlocksForSplit = 0;
+    int numOfFile = 1;
+    block_t retrievedBlock; // temporary block_t for storage from retrieval 
+    while (!inputFile.eof()) { // while end-of-file has not been reached ... 
+        for(int i=0;i<nmem_blocks;i++){
+            if(inputFile.eof()){
+                retrievedBlock.valid = false;
+                
             }
-            else if(buffer[i].entries[counterOne].num > buffer[i].entries[counterTwo].num){ // bigger value from second Block
-                if(currentSizeOfBlock < MAX_RECORDS_PER_BLOCK){
-                   memcpy(&blockForOutput.entries[currentSizeOfBlock],&buffer[i+1].entries[counterTwo],sizeof(record_t));	// write the record to the block
-                   currentSizeOfBlock++; //added record_t to block_t
-                }
-                else{
-                   blockForOutput.nreserved = MAX_RECORDS_PER_BLOCK;
-                   blockForOutput.valid = true;
-                   fwrite(&blockForOutput, 1, sizeof(block_t), outputFile);	// write the block to the file
-                   currentSizeOfBlock = 0;
-                }
-               counterTwo++;    // go to next record of second block 
+            else{
+              inputFile.read((char*)&retrievedBlock,sizeof(block_t)); // read block from file 
+              std::qsort(&retrievedBlock.entries,MAX_RECORDS_PER_BLOCK,sizeof(record_t),compare);
             }
+            buffer[numOfBlocksForSplit] = retrievedBlock; // put block to buffer
+            numOfBlocksForSplit++;      
         }
-       if(counterOne < buffer[i].nreserved){ // not empty block (first block )
-            if(currentSizeOfBlock < MAX_RECORDS_PER_BLOCK){
-                   memcpy(&blockForOutput.entries[currentSizeOfBlock],&buffer[i].entries[counterOne],sizeof(record_t));	// write the record to the block
-                   currentSizeOfBlock++; // added record_t to block_t
-                }
-                else{
-                   blockForOutput.nreserved = MAX_RECORDS_PER_BLOCK;
-                   blockForOutput.valid = true;
-                   fwrite(&blockForOutput, 1, sizeof(block_t), outputFile);	// write the block to the file
-                   currentSizeOfBlock = 0; // reset size of block 
-                }
-                counterOne++; // go to next record of first block
-       } 
-       else if(counterTwo < buffer[i+1].nreserved){ // not empty block (second block)
-           if(currentSizeOfBlock < MAX_RECORDS_PER_BLOCK){
-                   memcpy(&blockForOutput.entries[currentSizeOfBlock],&buffer[i+1].entries[counterTwo],sizeof(record_t));	// write the record to the block
-                   currentSizeOfBlock++; //added record_t to block_t
-                }
-                else{
-                   blockForOutput.nreserved = MAX_RECORDS_PER_BLOCK;
-                   blockForOutput.valid = true;
-                   fwrite(&blockForOutput, 1, sizeof(block_t), outputFile);	// write the block to the file
-                   currentSizeOfBlock = 0;
-                }
-               counterTwo++;    // go to next record of second block 
-       }
+       
+        std::string outputPathString("output"); // string with output file path
+        outputPathString.append(std::to_string(numOfFile)); // append number of output file
+        numOfFile++; // next output file id 
+        outputPathString.append(".bin"); // append extension of output file 
+        char *outputPath = (char*)outputPathString.c_str(); // convert string to char array
+        SortRecords(buffer,nmem_blocks,outputPath,field); // call method with full buffer to sort records and save them to file
+        numOfBlocksForSplit = 0;
+        
+            
+            
         
     }
-    
-    fclose(outputFile);
+    inputFile.close(); // close stream
 }
+
 
 
 /* ----------------------------------------------------------------------------------------------------------------------

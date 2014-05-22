@@ -4,6 +4,7 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>HelpingMethods.h</itemPath>
       <itemPath>dbtproj.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -13,6 +14,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>HelpingMethods.cpp</itemPath>
       <itemPath>dbtproj.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
     </logicalFolder>
@@ -38,6 +40,10 @@
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="HelpingMethods.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="HelpingMethods.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="dbtproj.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="dbtproj.h" ex="false" tool="3" flavor2="0">
@@ -65,6 +71,10 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="HelpingMethods.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="HelpingMethods.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="dbtproj.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="dbtproj.h" ex="false" tool="3" flavor2="0">

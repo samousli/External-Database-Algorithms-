@@ -16,7 +16,8 @@ using namespace std;
    nios: number of IOs performed (this should be set by you)
    ----------------------------------------------------------------------------------------------------------------------
 */
-void MergeSort (char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks, char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
+void MergeSort (char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks, 
+    char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
     
     ifstream inputFile; // stream for input file 
     inputFile.open(infile,ios::in | ios::binary); // open input file 
@@ -24,6 +25,9 @@ void MergeSort (char *infile, unsigned char field, block_t *buffer, unsigned int
     int numOfFile = 1;
     block_t retrievedBlock; // temporary block_t for storage from retrieval 
     while (!inputFile.eof()) { // while end-of-file has not been reached ... 
+        
+        // Read blocks and sort each block.
+        // 
         for(int i=0;i<nmem_blocks;i++){
             if(inputFile.eof()){
                 retrievedBlock.valid = false;
@@ -38,7 +42,7 @@ void MergeSort (char *infile, unsigned char field, block_t *buffer, unsigned int
         }
        
         std::string outputPathString("output"); // string with output file path
-        outputPathString.append(std::to_string(numOfFile)); // append number of output file
+        outputPathString.append(to_string(numOfFile)); // append number of output file
         numOfFile++; // next output file id 
         outputPathString.append(".bin"); // append extension of output file 
         char *outputPath = (char*)outputPathString.c_str(); // convert string to char array
@@ -46,8 +50,6 @@ void MergeSort (char *infile, unsigned char field, block_t *buffer, unsigned int
         numOfBlocksForSplit = 0;
         
             
-            
-        
     }
     inputFile.close(); // close stream
 }

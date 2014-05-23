@@ -83,15 +83,12 @@ void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffe
 
 
 
-
-
-
 // Sah tests
 #include <queue>
 #include "ComparisonPredicates.h"
 
 
-void serialize_record(block_t block, record_t record, char *filename);
+void serialize_record(char *filename, block_t &block, record_t record);
 void write_block(char* filename, block_t *block);
 block_t read_block(char *file, uint block_id);
 void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
@@ -135,18 +132,21 @@ void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
 
     block_t min_block;
     block_t output_block;
-    uint block_id = 0, fullness = 0;
+    output_block.blockid = 0;
     record_t min_record;
 
     while (!heap.empty()) {
         // (Re)initialize output block
-        output_block.blockid = block_id;
 
         min_block = heap.top();
         heap.pop();
         min_record = min_block.entries[min_block.dummy++];
-        
-        
+
+        // Put file to the output buffer once the block fills,
+        // It will be written to the output file.
+        serialize_record(output_file, output_block, min_record);
+
+        // If the chain contains more elements add them to the heap.
         if (min_block.dummy < min_block.nreserved) {
             heap.push(min_block);
         } else if (min_block.next_blockid % chain_length != 0) {
@@ -157,10 +157,8 @@ void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
             min_block.dummy = 0;
             heap.push(min_block);
         }
-        //output_block.
 
     }
-
 }
 
 /**
@@ -189,14 +187,27 @@ block_t read_block(char *filename, uint block_id) {
 
 // Keeping streams open may boost performance but doing this for now to simplify things.
 
-void write_block(char* filename, block_t *block) {
+void write_block(char* filename, block_t block) {
     ofstream outfile;
     outfile.open(filename, ios::out | ios::binary | ios::app);
     outfile.write((char*) &block, sizeof (block_t));
     outfile.close();
 }
 
-void serialize_record(block_t block, record_t record, char *filename) {
-    if(block.dummy == block.)
+void serialize_record(char *filename, block_t &block, record_t record) {
     
+    //block.entries[block.nreserved] = record;
+    memcpy(&block.entries[block.nreserved], &record, sizeof (record_t));
+    
+    block.nreserved++;
+    
+    // If block is full, write to file.
+    if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
+        block.valid = true;
+        write_block(filename, block);
+        block.blockid++;
+        block.nreserved = 0;
+        block.valid = false;
+    }
+
 }

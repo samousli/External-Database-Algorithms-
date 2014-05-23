@@ -12,7 +12,16 @@
 
 using namespace std;
 
-typedef unsigned int uint;
+void create_test_file(std::string filename, uint nblocks);
+void print_file_contents(string filename, uint nblocks);
+void merge_sort_driver();
+
+int main(int argc, char** argv) {
+
+    merge_sort_driver();
+
+    return 0;
+}
 
 void create_test_file(std::string filename, uint nblocks) {
     // generate a file 
@@ -51,32 +60,32 @@ void print_file_contents(string filename, uint nblocks) {
     block_t block;
     record_t record;
     infile.open(filename, ios::in | ios::binary);
-
-    while (!infile.eof()) {
-        infile.read((char*) &block, sizeof (block)); // read block from file 
+    // Assuming that the file is properly formatted.
+    for (int b = 0; b < nblocks; ++b) {
+        infile.read((char*) &block, sizeof (block_t)); // read block from file 
 
         for (int r = 0; r < block.nreserved; ++r) {
             record = block.entries[r];
-            printf("this record id: %d, num: %d, str: %s\n",
-                record.recid, record.num, record.str);
+            printf("this record id: %d, num: %d, str: '%s' belongs to block %d\n",
+                record.recid, record.num, record.str, block.blockid);
         }
     }
     infile.close();
 }
 
-int merge_sort_driver() {
-    int nblocks = 1; // number of blocks in the file
+void merge_sort_driver() {
+    int nblocks = 2; // number of blocks in the file
     record_t record;
     block_t block;
     uint recid = 0;
     ifstream infile;
     ofstream outfile;
     unsigned char field = '1';
-    string file_name = "file.bin";
+    string file_name = "f.bin";
 
     // Create test input file.
     create_test_file(file_name, nblocks);
-
+    print_file_contents(file_name, nblocks);
 
     // Create a buffer with the given block count and 
     // pass them as arguments for the sorting to take place
@@ -88,19 +97,14 @@ int merge_sort_driver() {
 
     char resultsFile[] = "results.bin";
 
-    print_file_contents(file_name, nblocks);
+    
 
-    MergeSort(path, field, buffer,
-        nblocks_buffer, resultsFile,
-        sorted_segs, passes, ios);
+//    MergeSort(path, field, buffer,
+//        nblocks_buffer, resultsFile,
+//        sorted_segs, passes, ios);
 
     free(buffer);
 }
 
-int main(int argc, char** argv) {
 
-    merge_sort_driver();
-
-    return 0;
-}
 

@@ -8,6 +8,10 @@
 #ifndef HELPINGMETHODS_H
 #define	HELPINGMETHODS_H
 #include "dbtproj.h"
+
+
+typedef unsigned int uint;
+
 void SortRecords(block_t *buffer,unsigned int nmem_blocks,char *outputPath,unsigned char field);
 int FindMinimumValue(block_t *buffer,unsigned int nmem_blocks,int *positionForCheck,unsigned char field);
 int compare (const void * a, const void * b);

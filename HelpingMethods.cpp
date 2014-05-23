@@ -37,8 +37,7 @@ void SortRecords(block_t *buffer, unsigned int nmem_blocks, char *outputPath, un
         }
         if (stopProcess == 0) {
             break; // if all blocks are not valid exit . 
-        }
-        else {
+        } else {
             stopProcess = 0; // valid block found .Continue Process
         }
     }
@@ -51,15 +50,14 @@ int FindMinimumValue(block_t *buffer, unsigned int nmem_blocks, int *positionFor
     int position = -1; // position of minimum value
     int minValue = -1; //  minimum value 
     int positionOfRecord = -1;
-    
+
     for (int i = 0; i < nmem_blocks; i++) {
         if (position == -1) {
             position = i; // initialize position of minimum value 
             if (field == '0' && buffer[i].valid && buffer[i].entries[positionForCheck[i]].valid) { // case of minimum recid value
                 minValue = buffer[i].entries[positionForCheck[i]].recid; // initialize minimum value
                 positionOfRecord = positionForCheck[i];
-            }
-            else if (field == '1' && buffer[i].valid && buffer[i].entries[positionForCheck[i]].valid) { // case of minimum num value
+            } else if (field == '1' && buffer[i].valid && buffer[i].entries[positionForCheck[i]].valid) { // case of minimum num value
                 minValue = buffer[i].entries[positionForCheck[i]].num; // initialize minimum value
                 positionOfRecord = positionForCheck[i];
             }

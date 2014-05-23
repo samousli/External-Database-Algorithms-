@@ -18,7 +18,7 @@ using namespace std;
    ----------------------------------------------------------------------------------------------------------------------
  */
 void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks,
-    char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
+        char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
 
     ifstream inputFile; // stream for input file 
     inputFile.open(infile, ios::in | ios::binary); // open input file 
@@ -65,7 +65,11 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
    ----------------------------------------------------------------------------------------------------------------------
  */
 void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer,
-    unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) { }
+        unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) {
+
+    // Merge Sort!
+    // Linear scan
+}
 
 /* ----------------------------------------------------------------------------------------------------------------------
    infile1: the name of the first input file
@@ -79,7 +83,11 @@ void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer,
    ----------------------------------------------------------------------------------------------------------------------
  */
 void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffer,
-    unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) { }
+        unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) {
+
+    // Merge Sort Both!
+    // Iterate linearly and write matching pairs to the output
+}
 
 
 
@@ -89,14 +97,18 @@ void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffe
 
 
 size_t file_size(char *filename);
-void serialize_record(char *filename, block_t &block, record_t record);
+
+void serialize_record(char *filename, block_t &block, record_t record,  uint *nios);
+
 void write_block(char* filename, block_t *block);
+
 block_t read_block(char *file, uint block_id);
+
 void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
-    uint total_block_count, uint *nsorted_segs, uint *npasses, uint *nios);
+        uint total_block_count, uint *nsorted_segs, uint *npasses, uint *nios);
 
 void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_blocks,
-    char *outfile, uint *nsorted_segs, uint *npasses, uint *nios);
+        char *outfile, uint *nsorted_segs, uint *npasses, uint *nios);
 
 /**
  * 
@@ -110,24 +122,38 @@ void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_bl
  * @param nios
  */
 void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_blocks,
-    char *outfile, uint *nsorted_segs, uint *npasses, uint *nios) {
+        char *outfile, uint *nsorted_segs, uint *npasses, uint *nios) {
 
     ifstream input;
     input.open(infile, ios::in);
+    if (!input.is_open()) {
+        fprintf(stderr, "Merge sort: not a valid input file.\n");
+        return;
+    }
 
     // Find block count
-    input.seekg(0, input.end);
+    input.seekg(input.end);
     uint size = input.tellg();
     uint block_count = size / sizeof (block_t);
-    input.seekg(0, input.beg);
-
+    input.seekg(input.beg);
+    // Merge ways
     uint k = block_count / nmem_blocks;
+    //  Separate file into chunks
+    //  For each chunk
     while (!input.eof()) {
+
+        // Sort chunks
         input.read((char*) buffer, nmem_blocks * sizeof (block_t));
-        //  Separate file into chunks
-        //  For each chunk
-        //      Sort chunks
-        //      Write inplace
+        for (uint b = 0; b < nmem_blocks; ++b) {
+            block_t block = buffer[b];
+            std::qsort(block.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare);
+        }
+        // Blocks are sorted
+        // Now they have to be merged.
+        
+        
+        // Write inplace
+        
     }
 
     //  Merge on file, Load into memory on demand using fseek().
@@ -135,7 +161,13 @@ void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_bl
     //      block_t *buffer, uint buffer_size)
 }
 
+
 /**
+ *  Let P = a priority queue of the sorted lists, sorted by the smallest element in each list
+ *  While P is not empty:
+ *      Let L = remove the minimum element from P
+ *      Remove the first element from L and put it to the output
+ *      If L is not empty, add L to P
  * 
  * @param input_file
  * @param output_file
@@ -147,16 +179,10 @@ void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_bl
  * @param nios
  */
 void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
-    uint total_block_count, uint *nsorted_segs, uint *npasses, uint *nios) {
+        uint total_block_count, uint *nsorted_segs, uint *npasses, uint *nios) {
 
-    /*
-    Let P = a priority queue of the sorted lists, sorted by the smallest element in each list
-    Let O = an empty output list
-    While P is not empty:
-        Let L = remove the minimum element from P
-        Remove the first element from L and add it to O
-        If L is not empty, add L to P
-     */
+    // k_way merge means that there are k sorted segments so:
+    (*nsorted_segs) = k_way; // Can be moved to merge_sort
 
     // set Compare parameters
     setComparator(field, false);
@@ -171,6 +197,8 @@ void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
 
     // Fill the heap
     for (uint i = 0; i < k_way; ++i) {
+
+        (*nios)++;
         heap.push(read_block(input_file, chain_length * i));
     }
 
@@ -182,15 +210,17 @@ void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
 
         // Put file to the output buffer once the block fills,
         // It will be written to the output file.
-        serialize_record(output_file, output_block, min_record);
+        serialize_record(output_file, output_block, min_record, nios);
 
         // If the chain contains more elements add them to the heap.
         if (min_block.dummy < min_block.nreserved) {
             heap.push(min_block);
         } else if (min_block.next_blockid % chain_length != 0) {
+
             // if min_block.next_blockid belongs to the chain add it
             // chain check: id should be less than the first id of the next chain or the total size
             // next_block_id % M != 0 meets both criteria
+            (*nios)++;
             min_block = read_block(input_file, min_block.next_blockid);
             min_block.dummy = 0;
             heap.push(min_block);
@@ -206,7 +236,8 @@ void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
  */
 block_t read_block(char *filename, uint block_id) {
     // Find block offset.
-    // first block = 0..from 0 to size of block_t
+    // first block is stored from 0 to size of block_t
+    // ..n-th from (n - 1) * sizeof(block_t) to n * sizeof(block_t)
     // seek the distance from the beginning
     ifstream::streamoff offset = sizeof (block_t) * block_id;
     block_t block;
@@ -231,7 +262,7 @@ void write_block(char* filename, block_t block) {
     outfile.close();
 }
 
-void serialize_record(char *filename, block_t &block, record_t record) {
+void serialize_record(char *filename, block_t &block, record_t record, uint *nios) {
 
     //block.entries[block.nreserved] = record;
     memcpy(&block.entries[block.nreserved], &record, sizeof (record_t));
@@ -241,6 +272,7 @@ void serialize_record(char *filename, block_t &block, record_t record) {
     // If block is full, write to file.
     if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
         block.valid = true;
+        (*nios)++;
         write_block(filename, block);
         block.blockid++;
         block.nreserved = 0;
@@ -252,7 +284,7 @@ void serialize_record(char *filename, block_t &block, record_t record) {
 size_t file_size(char *filename) {
     ifstream file;
     file.open(filename, ios::in);
-    file.seekg(0, file.end);
+    file.seekg(file.end);
     size_t l = file.tellg();
     file.close();
     return l;

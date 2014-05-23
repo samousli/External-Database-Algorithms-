@@ -32,7 +32,7 @@ void create_test_file(std::string filename, uint nblocks) {
     // Seed the pseudo-random generator
     srand(time(NULL));
 
-    outfile.open("file.bin", ios::out | ios::binary); // open input file 
+    outfile.open(filename, ios::out | ios::binary); // open input file 
     for (int b = 0; b < nblocks; ++b) { // for each block
 
         block.blockid = b;
@@ -69,16 +69,19 @@ void print_file_contents(string filename, uint nblocks) {
         infile.read((char*) &block, sizeof (block_t)); // read block from file 
 
         for (int r = 0; r < block.nreserved; ++r) {
-            record = block.entries[r];
-            printf("this record id: %d, num: %d, str: '%s' belongs to block %d\n",
-                record.recid, record.num, record.str, block.blockid);
+            if (block.valid) {
+                record = block.entries[r];
+                printf("this record id: %d, num: %d, str: '%s' belongs to block %d\n",
+                        record.recid, record.num, record.str, block.blockid);
+            }
         }
     }
+    printf("That's all folks!\n");
     infile.close();
 }
 
 void merge_sort_driver() {
-    int nblocks = 2; // number of blocks in the file
+    int nblocks = 20; // number of blocks in the file
     record_t record;
     block_t block;
     uint recid = 0;
@@ -103,7 +106,7 @@ void merge_sort_driver() {
     char resultsFile[] = "results.bin";
     uint *sorted_segs, *passes, *ios;
 
-
+    
     //    MergeSort(path, field, buffer,
     //        nblocks_buffer, resultsFile,
     //        sorted_segs, passes, ios);

@@ -1,6 +1,6 @@
 /* 
  * File:   ComparisonPredicates.h
- * Author: avail
+ * Author: Sahin
  *
  * Created on May 23, 2014, 5:27 PM
  */

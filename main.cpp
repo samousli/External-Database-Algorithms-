@@ -95,12 +95,13 @@ void merge_sort_driver() {
     // pass them as arguments for the sorting to take place
     int nblocks_buffer = 5;
     block_t *buffer = (block_t*) malloc(nblocks_buffer * sizeof (block_t));
-    uint *sorted_segs, *passes, *ios;
+
+
     // Copy std:string to c_str
     char *path = const_cast<char *> (file_name.c_str());
 
     char resultsFile[] = "results.bin";
-
+    uint *sorted_segs, *passes, *ios;
 
 
     //    MergeSort(path, field, buffer,

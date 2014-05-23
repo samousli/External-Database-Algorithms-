@@ -64,7 +64,8 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
    nios: number of IOs performed (this should be set by you)
    ----------------------------------------------------------------------------------------------------------------------
  */
-void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) { }
+void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer,
+    unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) { }
 
 /* ----------------------------------------------------------------------------------------------------------------------
    infile1: the name of the first input file
@@ -77,7 +78,8 @@ void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer, uns
    nios: number of IOs performed (this should be set by you)
    ----------------------------------------------------------------------------------------------------------------------
  */
-void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffer, unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) { }
+void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffer,
+    unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) { }
 
 
 
@@ -85,16 +87,18 @@ void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffe
 
 
 // Sah tests
-
+#include <queue>
 #include "ComparisonPredicates.h"
 
+
+void serialize_record(block_t block, record_t record, char *filename);
 void write_block(char* filename, block_t *block);
-block_t *read_block(char *file, uint block_id);
-void merge(char *output_file, char *input_file, uint ways,  unsigned char field,
-    block_t *buffer, uint buffer_size);
+block_t read_block(char *file, uint block_id);
+void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
+    uint total_block_count, uint *nsorted_segs, uint *npasses, uint *nios);
+
 void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_blocks,
     char *outfile, uint *nsorted_segs, uint *npasses, uint *nios);
-
 
 void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_blocks,
     char *outfile, uint *nsorted_segs, uint *npasses, uint *nios) {
@@ -110,31 +114,53 @@ void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_bl
     //      block_t *buffer, uint buffer_size)
 }
 
-#include <queue>
-/*
+void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
+    uint total_block_count, uint *nsorted_segs, uint *npasses, uint *nios) {
+
+
+    /*
     Let P = a priority queue of the sorted lists, sorted by the smallest element in each list
     Let O = an empty output list
     While P is not empty:
         Let L = remove the minimum element from P
         Remove the first element from L and add it to O
         If L is not empty, add L to P
- */
+     */
 
-/**
- * 
- * @param output_file
- * @param input_file
- * @param ways
- * @param buffer
- * @param buffer_size
- */
-void merge(char *output_file, char *input_file, uint ways,  unsigned char field,
-    block_t *buffer, uint buffer_size) {
     // set Compare parameters
     setComparator(field, false);
-    
-    priority_queue<record_t, std::vector<record_t>, struct compare > my_min_heap;
-    //my_min_heap.push();
+
+    priority_queue<block_t, std::vector<block_t>, compare_block_min> heap;
+    uint chain_length = total_block_count / k_way;
+
+    block_t min_block;
+    block_t output_block;
+    uint block_id = 0, fullness = 0;
+    record_t min_record;
+
+    while (!heap.empty()) {
+        // (Re)initialize output block
+        output_block.blockid = block_id;
+
+        min_block = heap.top();
+        heap.pop();
+        min_record = min_block.entries[min_block.dummy++];
+        
+        
+        if (min_block.dummy < min_block.nreserved) {
+            heap.push(min_block);
+        } else if (min_block.next_blockid % chain_length != 0) {
+            // if min_block.next_blockid belongs to the chain add it
+            // chain check: id should be less than the first id of the next chain or the total size
+            // next_block_id % M != 0 meets both criteria
+            min_block = read_block(input_file, min_block.next_blockid);
+            min_block.dummy = 0;
+            heap.push(min_block);
+        }
+        //output_block.
+
+    }
+
 }
 
 /**
@@ -143,25 +169,26 @@ void merge(char *output_file, char *input_file, uint ways,  unsigned char field,
  * @param block_id the id of the block that should be read.
  * @return the allocated block 
  */
-block_t *read_block(char *file, uint block_id) {
+block_t read_block(char *filename, uint block_id) {
     // Find block offset.
     // first block = 0..from 0 to size of block_t
     // seek the distance from the beginning
     ifstream::streamoff offset = sizeof (block_t) * block_id;
-    block_t *block = (block_t*) malloc(sizeof (block_t));
+    block_t block;
 
     // Open file, seek position, read block and return it
     // Corresponds to 1 IO! nios++;
     ifstream infile;
-    infile.open(file, ios::in | ios::binary);
+    infile.open(filename, ios::in | ios::binary);
     infile.seekg(offset, infile.beg);
-    infile.read((char*) block, sizeof (block_t));
+    infile.read((char*) &block, sizeof (block_t));
     infile.close();
 
     return block;
 }
 
 // Keeping streams open may boost performance but doing this for now to simplify things.
+
 void write_block(char* filename, block_t *block) {
     ofstream outfile;
     outfile.open(filename, ios::out | ios::binary | ios::app);
@@ -169,3 +196,7 @@ void write_block(char* filename, block_t *block) {
     outfile.close();
 }
 
+void serialize_record(block_t block, record_t record, char *filename) {
+    if(block.dummy == block.)
+    
+}

@@ -50,6 +50,10 @@ void create_test_file(std::string filename, uint nblocks) {
         block.nreserved = MAX_RECORDS_PER_BLOCK;
         block.valid = true;
 
+        // Set next block id
+        b != nblocks - 1 ? block.next_blockid = b + 1 : block.next_blockid = -1;
+
+
         outfile.write((char*) &block, sizeof (block_t)); // write the block to the file
     }
     outfile.close();
@@ -97,11 +101,11 @@ void merge_sort_driver() {
 
     char resultsFile[] = "results.bin";
 
-    
 
-//    MergeSort(path, field, buffer,
-//        nblocks_buffer, resultsFile,
-//        sorted_segs, passes, ios);
+
+    //    MergeSort(path, field, buffer,
+    //        nblocks_buffer, resultsFile,
+    //        sorted_segs, passes, ios);
 
     free(buffer);
 }

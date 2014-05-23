@@ -33,7 +33,7 @@ typedef struct {
     bool valid;  // if set, then this block is valid
     unsigned char misc;
     unsigned int next_blockid;
-    unsigned int dummy;
+    unsigned int dummy; // Index of min element for sorting
 } block_t;
 
 

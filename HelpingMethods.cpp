@@ -96,4 +96,9 @@ int compare(const void * a, const void * b) {
 }
 
 
+//int compare(const void * a, const void * b) {
+//    return  (*(record_t*)a).num - (*(record_t*)b).num;
+//}
+
+
 //Merge

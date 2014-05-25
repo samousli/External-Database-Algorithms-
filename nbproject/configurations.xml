@@ -41,8 +41,9 @@
       </toolsSet>
       <compileType>
         <ccTool>
-          <commandlineTool>clang++</commandlineTool>
+          <commandlineTool>g++</commandlineTool>
           <commandLine>-std=c++0x</commandLine>
+          <warningLevel>2</warningLevel>
         </ccTool>
       </compileType>
       <item path="ComparisonPredicates.h" ex="false" tool="3" flavor2="0">

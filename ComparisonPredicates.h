@@ -8,19 +8,39 @@
 #ifndef COMPARISONPREDICATES_H
 #define	COMPARISONPREDICATES_H
 
+#include <cstdio>
+#include <cstring>
 #include "dbtproj.h"
 
+struct compare_block {
+    unsigned char _field;
+    bool _greater;
 
-unsigned char _field = 0; // 0 is for recid, 1 is for num, 2 is for str and 3 is for both num and str
-bool _greater = false; // If false, do descending sort
+    /**
+     * Default constructor
+     * @param field which field will be used for sorting: 0 is for recid, 1 is for num, 2 is for str and 3 is for both num and str
+     * @param greater if true, ascending sort, if false descending.
+     */
+    compare_block(unsigned char field = 1, bool greater = false)
+    : _field(field), _greater(greater) {
+    }
 
+    // Copy constructor
 
-void setComparator(unsigned char field, bool greater) {
-    _field = field;
-    _greater = greater;
-}
+    compare_block(const compare_block& other)
+    : _field(other._field), _greater(other._greater) {
+    }
 
-struct compare_block_min {
+    // Assignment operator  
+
+    compare_block& operator =(const compare_block &e) {
+        if (&e != this) {
+            _field = e._field;
+            _greater = e._greater;
+        }
+        return *this;
+    }
+
     bool operator()(const block_t& lb, const block_t& rb) {
         bool result;
         record_t l = lb.entries[lb.dummy];
@@ -43,7 +63,8 @@ struct compare_block_min {
         }
         return _greater ? result : !result;
     }
-}; 
+
+};
 
 #endif	/* COMPARISONPREDICATES_H */
 

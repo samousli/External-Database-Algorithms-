@@ -2,8 +2,13 @@
 #include <fstream>
 #include <cstdlib>
 #include <cstring>
+#include <cstddef>
+#include <queue>
+
 #include "dbtproj.h"
+#include "ComparisonPredicates.h"
 #include "HelpingMethods.h"
+
 using namespace std;
 
 /* ----------------------------------------------------------------------------------------------------------------------
@@ -92,23 +97,6 @@ void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffe
 
 
 // Sah tests
-#include <queue>
-#include "ComparisonPredicates.h"
-
-
-size_t file_size(char *filename);
-
-void serialize_record(char *filename, block_t &block, record_t record,  uint *nios);
-
-void write_block(char* filename, block_t *block);
-
-block_t read_block(char *file, uint block_id);
-
-void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
-        uint total_block_count, uint *nsorted_segs, uint *npasses, uint *nios);
-
-void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_blocks,
-        char *outfile, uint *nsorted_segs, uint *npasses, uint *nios);
 
 /**
  * 
@@ -150,17 +138,16 @@ void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_bl
         }
         // Blocks are sorted
         // Now they have to be merged.
-        
-        
+
+
         // Write inplace
-        
+
     }
 
     //  Merge on file, Load into memory on demand using fseek().
     //  merge(char *output_file, char *input_file, uint ways, 
     //      block_t *buffer, uint buffer_size)
 }
-
 
 /**
  *  Let P = a priority queue of the sorted lists, sorted by the smallest element in each list
@@ -184,10 +171,9 @@ void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
     // k_way merge means that there are k sorted segments so:
     (*nsorted_segs) = k_way; // Can be moved to merge_sort
 
-    // set Compare parameters
-    setComparator(field, false);
-
-    priority_queue<block_t, std::vector<block_t>, compare_block_min> heap;
+    priority_queue<block_t, std::vector<block_t>, compare_block>
+            heap(compare_block(field, false));
+    
     uint chain_length = total_block_count / k_way;
 
     block_t min_block;
@@ -215,8 +201,9 @@ void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
         // If the chain contains more elements add them to the heap.
         if (min_block.dummy < min_block.nreserved) {
             heap.push(min_block);
-        } else if (min_block.next_blockid % chain_length != 0) {
 
+        } else if (min_block.next_blockid % chain_length != 0) {
+            // Min block full1
             // if min_block.next_blockid belongs to the chain add it
             // chain check: id should be less than the first id of the next chain or the total size
             // next_block_id % M != 0 meets both criteria
@@ -257,14 +244,14 @@ block_t read_block(char *filename, uint block_id) {
 
 void write_block(char* filename, block_t block) {
     ofstream outfile;
-    outfile.open(filename, ios::out | ios::binary | ios::app);
+    outfile.open(filename, ios::out | ios::binary);
+    outfile.seekp(outfile.end);
     outfile.write((char*) &block, sizeof (block_t));
     outfile.close();
 }
 
-void serialize_record(char *filename, block_t &block, record_t record, uint *nios) {
+void serialize_record(char *filename, block_t &block, record_t &record, uint *nios) {
 
-    //block.entries[block.nreserved] = record;
     memcpy(&block.entries[block.nreserved], &record, sizeof (record_t));
 
     block.nreserved++;

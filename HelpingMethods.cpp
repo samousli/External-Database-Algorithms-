@@ -18,7 +18,8 @@ using namespace std;
 void SortRecords(block_t *buffer, unsigned int nmem_blocks, char *outputPath, unsigned char field) {
     block_t block;
     record_t record;
-    int size_Of_Blocks = nmem_blocks*MAX_RECORDS_PER_BLOCK;
+    std::ofstream outfile;
+    outfile.open(outputPath,ios::out | ios::binary);
     int positionForCheck[nmem_blocks]; // array that points each record of block for check
     int stopProcess = 0; // flag for Termination
     for (int i = 0; i < nmem_blocks; i++) {
@@ -26,25 +27,23 @@ void SortRecords(block_t *buffer, unsigned int nmem_blocks, char *outputPath, un
     }
     while(true){
        std::pair<int,int> minimumBlock = FindMinimumValue(buffer,nmem_blocks,positionForCheck,field);
-       cout<<minimumBlock.first<<" "<<minimumBlock.second<<endl;
        stopProcess++;
-       if(minimumBlock.first == -1 || stopProcess >=size_Of_Blocks){
-           cout<<minimumBlock.first<<endl;
+       if(minimumBlock.first == -1 ){ // All blocks are visited . Stop !!
            break;
        }
-       if(minimumBlock.second <= MAX_RECORDS_PER_BLOCK-1){
-         record = buffer[minimumBlock.first].entries[minimumBlock.second];
-         cout<<record.recid<<" "<<record.num<<endl;
-         Serialize_Record(outputPath,block,record);
+       if(minimumBlock.second <= MAX_RECORDS_PER_BLOCK){
+         record = buffer[minimumBlock.first].entries[minimumBlock.second]; // store record 
+         Serialize_Record(outfile,block,record); // write record to block 
        }
        
        
        
     }
+    outfile.close();
 }
 
 //Method finds minimum value of records  . Returns block position of minimum record value
-
+//and position minimum record value from records array
 std::pair<int,int> FindMinimumValue(block_t *buffer, unsigned int nmem_blocks, int *positionForCheck, unsigned char field) {
     int position = -1; // position of minimum value
     int minValue = -1; //  minimum value 
@@ -74,7 +73,7 @@ std::pair<int,int> FindMinimumValue(block_t *buffer, unsigned int nmem_blocks, i
     }
     if(position != -1){
       positionForCheck[position]++;
-      if(positionForCheck[position] >= MAX_RECORDS_PER_BLOCK-1){
+      if(positionForCheck[position] >= MAX_RECORDS_PER_BLOCK){
         buffer[position].valid = false;
       }
     }
@@ -83,24 +82,20 @@ std::pair<int,int> FindMinimumValue(block_t *buffer, unsigned int nmem_blocks, i
 
 // Keeping streams open may boost performance but doing this for now to simplify things.
 
-void Write_Block(char* filename, block_t &block) {
-    ofstream outfile;
-    outfile.open(filename, ios::out | ios::binary | ios::app);
+void Write_Block(std::ofstream& outfile, block_t block) {
+    
     outfile.write((char*) &block, sizeof (block_t));
-    outfile.close();
 }
 
-void Serialize_Record(char *filename, block_t &block, record_t record) {
-    //block.entries[block.nreserved] = record;
+void Serialize_Record(std::ofstream& outfile, block_t &block, record_t record) {
+   // block.entries[block.nreserved] = record;
     memcpy(&block.entries[block.nreserved], &record, sizeof (record_t));
-    cout<<"lets see : "<<block.nreserved<<" "<<block.entries[block.nreserved].recid<<" "<<block.entries[block.nreserved].num<<endl;
     block.nreserved++;
-
     // If block is full, write to file.
     if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
         block.valid = true;
-        Write_Block(filename, block);
-        block.blockid++;
+        Write_Block(outfile, block);        
+        block.blockid ++;
         block.nreserved = 0;
         block.valid = false;
     }

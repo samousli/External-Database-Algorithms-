@@ -16,64 +16,53 @@ using namespace std;
 //Method sorts records from buffer and saves them to file
 
 void SortRecords(block_t *buffer, unsigned int nmem_blocks, char *outputPath, unsigned char field) {
-    ofstream outfile; // file that saves sorted records 
-    outfile.open(outputPath, ios::out | ios::binary); // open output file 
+    block_t block;
+    record_t record;
+    int size_Of_Blocks = nmem_blocks*MAX_RECORDS_PER_BLOCK;
     int positionForCheck[nmem_blocks]; // array that points each record of block for check
     int stopProcess = 0; // flag for Termination
     for (int i = 0; i < nmem_blocks; i++) {
         positionForCheck[i] = 0; // initialize array to zero (first record of each block)
     }
-    while (true) {
-        int positionOfMinimum = FindMinimumValue(buffer, nmem_blocks, positionForCheck, field); // count block position of minimum record value
-        outfile.write((char*) &buffer[positionOfMinimum].entries[positionForCheck[positionOfMinimum]], sizeof (record_t)); // write record to file 
-        positionForCheck[positionOfMinimum]++;
-        if (positionForCheck[positionOfMinimum] == MAX_RECORDS_PER_BLOCK) {
-            buffer[positionOfMinimum].valid = false; // end of block . Change valid to false
-        }
-        for (int i = 0; i < nmem_blocks; i++) {
-            if (buffer[i].valid) {
-                stopProcess++; // found valid block 
-            }
-        }
-        if (stopProcess == 0) {
-            break; // if all blocks are not valid exit . 
-        }
-        else {
-            stopProcess = 0; // valid block found .Continue Process
-        }
+    while(true){
+       std::pair<int,int> minimumBlock = FindMinimumValue(buffer,nmem_blocks,positionForCheck,field);
+       cout<<minimumBlock.first<<" "<<minimumBlock.second<<endl;
+       stopProcess++;
+       if(minimumBlock.first == -1 || stopProcess >=size_Of_Blocks){
+           cout<<minimumBlock.first<<endl;
+           break;
+       }
+       if(minimumBlock.second <= MAX_RECORDS_PER_BLOCK-1){
+         record = buffer[minimumBlock.first].entries[minimumBlock.second];
+         cout<<record.recid<<" "<<record.num<<endl;
+         Serialize_Record(outputPath,block,record);
+       }
+       
+       
+       
     }
-    outfile.close(); // close output file stream
 }
 
 //Method finds minimum value of records  . Returns block position of minimum record value
 
-int FindMinimumValue(block_t *buffer, unsigned int nmem_blocks, int *positionForCheck, unsigned char field) {
+std::pair<int,int> FindMinimumValue(block_t *buffer, unsigned int nmem_blocks, int *positionForCheck, unsigned char field) {
     int position = -1; // position of minimum value
     int minValue = -1; //  minimum value 
     int positionOfRecord = -1;
     
     for (int i = 0; i < nmem_blocks; i++) {
         if (position == -1) {
-            position = i; // initialize position of minimum value 
-            if (field == '0' && buffer[i].valid && buffer[i].entries[positionForCheck[i]].valid) { // case of minimum recid value
-                minValue = buffer[i].entries[positionForCheck[i]].recid; // initialize minimum value
-                positionOfRecord = positionForCheck[i];
-            }
-            else if (field == '1' && buffer[i].valid && buffer[i].entries[positionForCheck[i]].valid) { // case of minimum num value
+            
+            if (field == '1' && buffer[i].valid ) { // case of minimum num value
+                position = i;
                 minValue = buffer[i].entries[positionForCheck[i]].num; // initialize minimum value
                 positionOfRecord = positionForCheck[i];
             }
 
         } else {
-            if (field == '0' && buffer[i].valid) { // case of minimum recid value 
-                if (buffer[i].entries[positionForCheck[i]].recid < minValue && buffer[i].entries[positionForCheck[i]].valid) { // found smaller value than minimum .Change it
-                    minValue = buffer[i].entries[positionForCheck[i]].recid;
-                    position = i;
-                    positionOfRecord = positionForCheck[i];
-
-                }
-            } else if (field == '1' && buffer[i].valid) { // case of minimum num value
-                if (buffer[i].entries[positionForCheck[i]].num < minValue && buffer[i].entries[positionForCheck[i]].valid) { // found smaller value than minimum .Change it
+            
+            if (field == '1' && buffer[i].valid) { // case of minimum num value
+                if (buffer[i].entries[positionForCheck[i]].num < minValue ) { // found smaller value than minimum .Change it
                     minValue = buffer[i].entries[positionForCheck[i]].num;
                     position = i;
                     positionOfRecord = positionForCheck[i];
@@ -83,9 +72,40 @@ int FindMinimumValue(block_t *buffer, unsigned int nmem_blocks, int *positionFor
 
         }
     }
-    buffer[position].entries[positionOfRecord].valid = false; // make record valid = false . 
-    return position;
+    if(position != -1){
+      positionForCheck[position]++;
+      if(positionForCheck[position] >= MAX_RECORDS_PER_BLOCK-1){
+        buffer[position].valid = false;
+      }
+    }
+    return std::make_pair(position,positionOfRecord);
 }
+
+// Keeping streams open may boost performance but doing this for now to simplify things.
+
+void Write_Block(char* filename, block_t &block) {
+    ofstream outfile;
+    outfile.open(filename, ios::out | ios::binary | ios::app);
+    outfile.write((char*) &block, sizeof (block_t));
+    outfile.close();
+}
+
+void Serialize_Record(char *filename, block_t &block, record_t record) {
+    //block.entries[block.nreserved] = record;
+    memcpy(&block.entries[block.nreserved], &record, sizeof (record_t));
+    cout<<"lets see : "<<block.nreserved<<" "<<block.entries[block.nreserved].recid<<" "<<block.entries[block.nreserved].num<<endl;
+    block.nreserved++;
+
+    // If block is full, write to file.
+    if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
+        block.valid = true;
+        Write_Block(filename, block);
+        block.blockid++;
+        block.nreserved = 0;
+        block.valid = false;
+    }
+}
+
 //comparator for num compare  (sorting block before Final sorting)
 
 int compare(const void * a, const void * b) {

@@ -67,7 +67,7 @@ void print_file_contents(string filename, uint nblocks) {
     // Assuming that the file is properly formatted.
     for (int b = 0; b < nblocks; ++b) {
         infile.read((char*) &block, sizeof (block_t)); // read block from file 
-
+        cout<<"size : "<<block.nreserved<<endl;
         for (int r = 0; r < block.nreserved; ++r) {
             record = block.entries[r];
             printf("this record id: %d, num: %d, str: '%s' belongs to block %d\n",
@@ -78,18 +78,18 @@ void print_file_contents(string filename, uint nblocks) {
 }
 
 void merge_sort_driver() {
-    int nblocks = 2; // number of blocks in the file
+    int nblocks = 10; // number of blocks in the file
     record_t record;
     block_t block;
     uint recid = 0;
     ifstream infile;
     ofstream outfile;
     unsigned char field = '1';
-    string file_name = "f.bin";
+    string file_name = "file.bin";
 
     // Create test input file.
     create_test_file(file_name, nblocks);
-    print_file_contents(file_name, nblocks);
+   // print_file_contents(file_name, nblocks);
 
     // Create a buffer with the given block count and 
     // pass them as arguments for the sorting to take place
@@ -103,11 +103,13 @@ void merge_sort_driver() {
     char resultsFile[] = "results.bin";
     uint *sorted_segs, *passes, *ios;
 
+    cout<<"---------"<<endl;
+       MergeSort(path, field, buffer,
+            nblocks_buffer, resultsFile,
+            sorted_segs, passes, ios);
+         cout<<"FUCK --------- zatsssss"<<endl;
 
-    //    MergeSort(path, field, buffer,
-    //        nblocks_buffer, resultsFile,
-    //        sorted_segs, passes, ios);
-
+    print_file_contents("output1.bin",nblocks_buffer);
     free(buffer);
 }
 

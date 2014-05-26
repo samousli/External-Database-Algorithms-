@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   ComparisonPredicates.h
  * Author: Sahin
  *
@@ -22,16 +22,16 @@ struct block_comparator {
      * @param greater if true, ascending sort, if false descending.
      */
     block_comparator(unsigned char field = 1, bool greater = false)
-    : _field(field), _greater(greater) {
+        : _field(field), _greater(greater) {
     }
 
     // Copy constructor
 
     block_comparator(const block_comparator& other)
-    : _field(other._field), _greater(other._greater) {
+        : _field(other._field), _greater(other._greater) {
     }
 
-    // Assignment operator  
+    // Assignment operator
 
     block_comparator& operator =(const block_comparator &e) {
         if (&e != this) {
@@ -46,20 +46,20 @@ struct block_comparator {
         record_t l = lb.entries[lb.dummy];
         record_t r = rb.entries[rb.dummy];
         switch (_field) {
-            case 0:
-                result = l.recid > r.recid;
-                break;
-            case 1:
-                result = l.num > r.num;
-                break;
-            case 2:
-                result = strcmp(l.str, r.str) > 0;
-                break;
-            case 3:
-                if (l.num > r.num) result = true;
-                else if (l.num == r.num) result = strcmp(l.str, r.str) > 0;
-                else result = false;
-                break;
+        case 0:
+            result = l.recid > r.recid;
+            break;
+        case 1:
+            result = l.num > r.num;
+            break;
+        case 2:
+            result = strcmp(l.str, r.str) > 0;
+            break;
+        case 3:
+            if (l.num > r.num) result = true;
+            else if (l.num == r.num) result = strcmp(l.str, r.str) > 0;
+            else result = false;
+            break;
         }
         return _greater ? result : !result;
     }
@@ -76,16 +76,16 @@ struct record_comparator {
      * @param greater if true, ascending sort, if false descending.
      */
     record_comparator(unsigned char field = 1, bool greater = false)
-    : _field(field), _greater(greater) {
+        : _field(field), _greater(greater) {
     }
 
     // Copy constructor
 
     record_comparator(const record_comparator& other)
-    : _field(other._field), _greater(other._greater) {
+        : _field(other._field), _greater(other._greater) {
     }
 
-    // Assignment operator  
+    // Assignment operator
 
     record_comparator& operator =(const record_comparator &e) {
         if (&e != this) {
@@ -98,20 +98,20 @@ struct record_comparator {
     bool operator()(const record_t& l, const record_t& r) {
         bool result;
         switch (_field) {
-            case 0:
-                result = l.recid > r.recid;
-                break;
-            case 1:
-                result = l.num > r.num;
-                break;
-            case 2:
-                result = strcmp(l.str, r.str) > 0;
-                break;
-            case 3:
-                if (l.num > r.num) result = true;
-                else if (l.num == r.num) result = strcmp(l.str, r.str) > 0;
-                else result = false;
-                break;
+        case 0:
+            result = l.recid > r.recid;
+            break;
+        case 1:
+            result = l.num > r.num;
+            break;
+        case 2:
+            result = strcmp(l.str, r.str) > 0;
+            break;
+        case 3:
+            if (l.num > r.num) result = true;
+            else if (l.num == r.num) result = strcmp(l.str, r.str) > 0;
+            else result = false;
+            break;
         }
         return _greater ? result : !result;
     }

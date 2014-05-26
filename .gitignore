@@ -1,6 +1,4 @@
 /build/
 /dist/
+/nbproject/private/
 *.bin
-/schedule/nbproject/private/
-/schedule/build/
-/schedule/dist/

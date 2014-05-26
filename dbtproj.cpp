@@ -8,6 +8,8 @@
 #include "dbtproj.h"
 #include "ComparisonPredicates.h"
 #include "HelpingMethods.h"
+#include "MergeSortImpl.h"
+#include "Tests.h"
 
 using namespace std;
 
@@ -23,61 +25,74 @@ using namespace std;
    ----------------------------------------------------------------------------------------------------------------------
  */
 void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks,
-    char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
-    ifstream input( infile, ios::binary | ios::ate); // open input file 
-    int numOfBlocks = input.tellg()/sizeof(block_t); // get number of blocks in file 
+        char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
+    ifstream input(infile, ios::binary | ios::ate); // open input file
+    int numOfBlocks = input.tellg() / sizeof (block_t); // get number of blocks in file
     input.close();
-    ifstream inputFile; // stream for input file 
-    inputFile.open(infile, ios::in | ios::binary); // open input file 
+    ifstream inputFile; // stream for input file
+    inputFile.open(infile, ios::in | ios::binary); // open input file
     int numOfBlocksForSplit = 0;
     int retrievedBlocks = 0;
     int numOfFile = 1;
-    block_t retrievedBlock; // temporary block_t for storage from retrieval 
+    block_t retrievedBlock; // temporary block_t for storage from retrieval
     record_t record;
-    while(retrievedBlocks < numOfBlocks){
-        cout<<"yes fucker !!!!!"<<endl;
+    while (retrievedBlocks < numOfBlocks) {
+        cout << "yes fucker !!!!!" << endl;
         // Read blocks and sort each block.
-        // 
+        //
         for (int i = 0; i < nmem_blocks; i++) {
-          if(retrievedBlocks < numOfBlocks){
-            inputFile.read((char*) &retrievedBlock, sizeof (block_t)); // read block from file 
-            retrievedBlocks++;
-            if(field == '0'){ // sort each block by recid . field = 0
-              std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare);
+            if (retrievedBlocks < numOfBlocks) {
+                inputFile.read((char*) &retrievedBlock, sizeof (block_t)); // read block from file
+                retrievedBlocks++;
+                if (field == '0') { // sort each block by recid . field = 0
+                    std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare);
+                } else if (field == '1' || field == '3') { // sort each block by num . field = 1 or field = 3
+                    std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare1);
+                } else if (field == '2') { // sort each block by str  . field = 2
+                    std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare2);
+                }
+                for (int r = 0; r < retrievedBlock.nreserved; ++r) {
+                    record = retrievedBlock.entries[r];
+                    printf("this record id: %d, num: %d, str: '%s' belongs to block %d\n",
+                            record.recid, record.num, record.str, retrievedBlock.blockid);
+                }
+                cout << "----------" << endl;
+                buffer[numOfBlocksForSplit] = retrievedBlock; // put block to buffer
+                numOfBlocksForSplit++;
+            } else { // empty block . Make it valid = false
+                buffer[numOfBlocksForSplit].valid = false;
+                numOfBlocksForSplit++;
             }
-            else if(field == '1' || field == '3'){ // sort each block by num . field = 1 or field = 3
-              std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare1);
-            }
-            else if(field == '2'){ // sort each block by str  . field = 2
-              std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t),compare2);
-            }
-            for (int r = 0; r < retrievedBlock.nreserved; ++r) {
-              record = retrievedBlock.entries[r];
-            printf("this record id: %d, num: %d, str: '%s' belongs to block %d\n",
-                record.recid, record.num, record.str, retrievedBlock.blockid);
-            }
-            cout<<"----------"<<endl;
-            buffer[numOfBlocksForSplit] = retrievedBlock; // put block to buffer
-            numOfBlocksForSplit++;
-          }
-          else{ // empty block . Make it valid = false 
-              buffer[numOfBlocksForSplit].valid = false; 
-              numOfBlocksForSplit++;
-          }
         }
-        cout<<"### END ----- "<<endl;
+        cout << "### END ----- " << endl;
         std::string outputPathString("output"); // string with output file path
         outputPathString.append(to_string(numOfFile)); // append number of output file
-        numOfFile++; // next output file id 
-        outputPathString.append(".bin"); // append extension of output file 
+        numOfFile++; // next output file id
+        outputPathString.append(".bin"); // append extension of output file
         char *outputPath = (char*) outputPathString.c_str(); // convert string to char array
         SortRecords(buffer, nmem_blocks, outputPath, field); // call method with full buffer to sort records and save them to file
-      
+
         numOfBlocksForSplit = 0;
-    
     }
+
+
     inputFile.close(); // close stream
-    
+
+    char temp_output[] = "output1.bin";
+
+    print_file_contents(temp_output, numOfBlocks);
+    string s;
+    cin >> s;
+
+    free(buffer);
+    buffer = NULL;
+
+    if (numOfBlocks <= nmem_blocks) {
+        rename(temp_output, outfile);
+        return;
+    }
+    file_merge(temp_output, outfile, nmem_blocks, field, numOfBlocks,
+            nsorted_segs, npasses, nios);
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------

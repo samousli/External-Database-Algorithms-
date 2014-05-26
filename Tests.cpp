@@ -1,7 +1,7 @@
-/* 
+/*
  * File:   Tests.cpp
  * Author: avail
- * 
+ *
  * Created on May 25, 2014, 11:20 PM
  */
 
@@ -25,7 +25,7 @@
 using namespace std;
 
 void merge_sort_driver() {
-    int nblocks = 8; // number of blocks in the file
+    int nblocks = 2; // number of blocks in the file
     int nmem_blocks = 2;
     char input_file[] = "input.bin";
     char output_file[] = "output.bin";
@@ -33,24 +33,25 @@ void merge_sort_driver() {
     // Create test input file.
     create_test_file(input_file, nblocks);
 
-    // Create a buffer with the given block count and 
+    // Create a buffer with the given block count and
     // pass them as arguments for the sorting to take place
-    
     block_t *buffer = (block_t*) calloc(nmem_blocks, sizeof (block_t));
 
-
     uint *sorted_segs = (uint*) calloc(1, sizeof (uint)),
-            *passes = (uint*) calloc(1, sizeof (uint)),
-            *ios = (uint*) calloc(1, sizeof (uint));
+          *passes = (uint*) calloc(1, sizeof (uint)),
+           *ios = (uint*) calloc(1, sizeof (uint));
 
-    
     merge_sort(input_file, 1, buffer,
-            nmem_blocks, output_file,
-            sorted_segs, passes, ios);
+               nmem_blocks, output_file,
+               sorted_segs, passes, ios);
 
-    print_file_contents(output_file, 1);
+    print_file_contents(output_file, nblocks);
 
-    free(buffer);
+    cout << "Sorted segments: " << *sorted_segs << endl
+         << "IO's: " << *ios << endl
+         << "Passes: " << *passes << endl;
+
+    //free(buffer);
     free(sorted_segs);
     free(ios);
     free(passes);
@@ -58,7 +59,7 @@ void merge_sort_driver() {
 
 
 void create_test_file(char *filename, uint nblocks) {
-    // generate a file 
+    // generate a file
     ofstream outfile;
     block_t block;
     record_t record;
@@ -66,7 +67,7 @@ void create_test_file(char *filename, uint nblocks) {
     // Seed the pseudo-random generator
     srand(time(NULL));
 
-    outfile.open(filename, ios::out | ios::binary); // open input file 
+    outfile.open(filename, ios::out | ios::binary); // open input file
     for (uint b = 0; b < nblocks; ++b) { // for each block
 
         block.blockid = b;
@@ -99,23 +100,27 @@ void print_file_contents(char *filename, uint nblocks) {
     block_t block;
     record_t record;
     infile.open(filename, ios::in | ios::binary);
+    int invalid_blocks = 0, invalid_records = 0 ;
     // Assuming that the file is properly formatted.
     for (uint b = 0; b < nblocks; ++b) {
-        infile.read((char*) &block, sizeof (block_t)); // read block from file 
+        infile.read((char*) &block, sizeof (block_t)); // read block from file
         if (block.valid) {
             for (uint r = 0; r < block.nreserved; ++r) {
                 if (record.valid) {
                     record = block.entries[r];
                     printf("Record id: %d, num: %d, str: '%s' belongs to block %d\n",
-                            record.recid, record.num, record.str, block.blockid);
-                }
+                           record.recid, record.num, record.str, block.blockid);
+                } else
+                    ++invalid_records;
+
             }
         } else {
-            cerr << "Invalid block!" << endl;
+            ++invalid_blocks;
         }
 
     }
-    printf("That's all folks!\n");
+    printf("Invalid records: %d\n", invalid_records);
+    printf("Invalid blocks: %d\n", invalid_blocks);
     infile.close();
 }
 
@@ -130,23 +135,23 @@ void heap_test(char *filename, uint nblocks) {
     infile.open(filename, ios::in | ios::binary);
     // Assuming that the file is properly formatted.
     for (uint b = 0; b < nblocks; ++b) {
-        infile.read((char*) &block, sizeof (block_t)); // read block from file 
+        infile.read((char*) &block, sizeof (block_t)); // read block from file
         blocks.push_back(block);
     }
     infile.close();
 
-    
+
     priority_queue<block_t, vector<block_t>, block_comparator> pq(block_comparator(1, true));
     // Sort each block
     for (uint i = 0; i < nblocks; ++i) {
         sort(blocks[i].entries, blocks[i].entries + blocks[i].nreserved, record_comparator(1, false));
-        
+
         // Debug
         for (uint j = 0; j < blocks[i].nreserved; ++j)
             printf("%d\n", blocks[i].entries[j].num);
         string tm;
         cin >> tm;
-        
+
         // Add the sorted block to queue for merging
         pq.push(blocks[i]);
     }
@@ -159,7 +164,7 @@ void heap_test(char *filename, uint nblocks) {
         b.dummy++;
 
         printf("this record id: %d, num: %d, str: '%s'\n",
-                r.recid, r.num, r.str);
+               r.recid, r.num, r.str);
 
 
         if (b.dummy < b.nreserved)
@@ -168,9 +173,11 @@ void heap_test(char *filename, uint nblocks) {
 }
 
 void print_block_data(block_t &block) {
-    cout << "Block ID: " << block.blockid << endl 
-            << "Validity: " << block.valid << endl 
-            << "Reserved: " << block.nreserved << endl 
-            << "Next Block ID: " << block.next_blockid << endl
-            << "Dummy Var: " << block.dummy << endl;
+    cout << "Block ID: " << block.blockid << endl
+         << "Validity: " << block.valid << endl
+         << "Reserved: " << block.nreserved << endl
+         << "Next Block ID: " << block.next_blockid << endl
+         << "Dummy Var: " << block.dummy << endl;
 }
+
+

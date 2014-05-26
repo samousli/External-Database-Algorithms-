@@ -37,7 +37,15 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
           if(retrievedBlocks < numOfBlocks){
             inputFile.read((char*) &retrievedBlock, sizeof (block_t)); // read block from file 
             retrievedBlocks++;
-            std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare);
+            if(field == '0'){ // sort each block by recid . field = 0
+              std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare);
+            }
+            else if(field == '1' || field == '3'){ // sort each block by num . field = 1 or field = 3
+              std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare1);
+            }
+            else if(field == '2'){ // sort each block by str  . field = 2
+              std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t),compare2);
+            }
             for (int r = 0; r < retrievedBlock.nreserved; ++r) {
               record = retrievedBlock.entries[r];
             printf("this record id: %d, num: %d, str: '%s' belongs to block %d\n",
@@ -47,6 +55,10 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
             buffer[numOfBlocksForSplit] = retrievedBlock; // put block to buffer
             numOfBlocksForSplit++;
           }
+          else{ // empty block . Make it valid = false 
+              buffer[numOfBlocksForSplit].valid = false; 
+              numOfBlocksForSplit++;
+          }
         }
         cout<<"### END ----- "<<endl;
         std::string outputPathString("output"); // string with output file path
@@ -54,7 +66,6 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
         numOfFile++; // next output file id 
         outputPathString.append(".bin"); // append extension of output file 
         char *outputPath = (char*) outputPathString.c_str(); // convert string to char array
-
         SortRecords(buffer, nmem_blocks, outputPath, field); // call method with full buffer to sort records and save them to file
       
         numOfBlocksForSplit = 0;

@@ -48,32 +48,82 @@ std::pair<int,int> FindMinimumValue(block_t *buffer, unsigned int nmem_blocks, i
     int position = -1; // position of minimum value
     int minValue = -1; //  minimum value 
     int positionOfRecord = -1;
+    char minvalue[STR_LENGTH];
     
     for (int i = 0; i < nmem_blocks; i++) {
         if (position == -1) {
-            
-            if (field == '1' && buffer[i].valid ) { // case of minimum num value
+            if(field == '0' && buffer[i].valid){ // case of minimum recid value
+                position = i;
+                minValue = buffer[i].entries[positionForCheck[i]].recid; // initialize minimum value
+                positionOfRecord = positionForCheck[i];            
+            }
+            else if (field == '1' && buffer[i].valid ) { // case of minimum num value
                 position = i;
                 minValue = buffer[i].entries[positionForCheck[i]].num; // initialize minimum value
                 positionOfRecord = positionForCheck[i];
             }
+            else if(field == '2' && buffer[i].valid){ // case of minimum str value 
+                position = i;
+                strcpy(minvalue,buffer[i].entries[positionForCheck[i]].str); // initialize minimum value
+                positionOfRecord = positionForCheck[i];
+            }
+            else if(field == '3' && buffer[i].valid){ // case of minimum num - str value 
+                position = i;
+                minValue = buffer[i].entries[positionForCheck[i]].num; // initialize minimum value
+                strcpy(minvalue , buffer[i].entries[positionForCheck[i]].str);
+                positionOfRecord = positionForCheck[i];
+            }
+            
 
         } else {
-            
-            if (field == '1' && buffer[i].valid) { // case of minimum num value
+            if(field == '0' && buffer[i].valid){
+                if (buffer[i].entries[positionForCheck[i]].recid < minValue ) { // found smaller value than minimum .Change it
+                    minValue = buffer[i].entries[positionForCheck[i]].recid;
+                    position = i;
+                    positionOfRecord = positionForCheck[i];
+
+                }
+            }
+            else if (field == '1'&& buffer[i].valid) { // case of minimum num value
                 if (buffer[i].entries[positionForCheck[i]].num < minValue ) { // found smaller value than minimum .Change it
                     minValue = buffer[i].entries[positionForCheck[i]].num;
                     position = i;
                     positionOfRecord = positionForCheck[i];
 
                 }
+                
             }
+            else if(field == '2' && buffer[i].valid){ // case of minimum str value 
+                if (strcmp(buffer[i].entries[positionForCheck[i]].str , minvalue ) < 0)  { // found smaller value than minimum .Change it
+                    strcpy(minvalue , buffer[i].entries[positionForCheck[i]].str);
+                    position = i;
+                    positionOfRecord = positionForCheck[i];
+
+                }
+            }
+            else if(field == '3' && buffer[i].valid){ // case of minimum num - str
+                 if (buffer[i].entries[positionForCheck[i]].num < minValue ) { // found smaller value than minimum .Change it
+                    minValue = buffer[i].entries[positionForCheck[i]].num;
+                    position = i;
+                    positionOfRecord = positionForCheck[i];
+
+                }
+                 else if(buffer[i].entries[positionForCheck[i]].num == minValue){ // found same num value with minimum value . Sort by str value
+                        if (strcmp(buffer[i].entries[positionForCheck[i]].str , minvalue ) < 0)  { // found smaller value than minimum .Change it
+                           strcpy(minvalue , buffer[i].entries[positionForCheck[i]].str);
+                           position = i;
+                           positionOfRecord = positionForCheck[i];
+                           minValue = buffer[i].entries[positionForCheck[i]].num;
+                        }
+                }
+            }
+            
 
         }
     }
-    if(position != -1){
-      positionForCheck[position]++;
-      if(positionForCheck[position] >= MAX_RECORDS_PER_BLOCK){
+    if(position != -1){ // found position of minimum value
+      positionForCheck[position]++; // go to next record of minimum found for next compare
+      if(positionForCheck[position] >= MAX_RECORDS_PER_BLOCK){  // all records visited . valid = false
         buffer[position].valid = false;
       }
     }
@@ -103,7 +153,7 @@ void Serialize_Record(std::ofstream& outfile, block_t &block, record_t record) {
 
 //comparator for num compare  (sorting block before Final sorting)
 
-int compare(const void * a, const void * b) {
+int compare1(const void * a, const void * b) {
     record_t *r1 = (record_t*) a;
     record_t *r2 = (record_t*) b;
     int r1value = r1->num;
@@ -111,6 +161,25 @@ int compare(const void * a, const void * b) {
 
     return (r1value - r2value);
 }
+//comparator for recid compare  (sorting block before Final sorting)
 
+int compare(const void * a, const void * b) {
+    record_t *r1 = (record_t*) a;
+    record_t *r2 = (record_t*) b;
+    int r1value = r1->recid;
+    int r2value = r2->recid;
+
+    return (r1value - r2value);
+}
+//comparator for str compare  (sorting block before Final sorting)
+
+int compare2(const void * a, const void * b) {
+    record_t *r1 = (record_t*) a;
+    record_t *r2 = (record_t*) b;
+    char *r1value = r1->str;
+    char *r2value = r2->str;
+
+    return strcmp(r1value , r2value);
+}
 
 //Merge

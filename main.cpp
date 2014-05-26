@@ -31,17 +31,21 @@ void create_test_file(std::string filename, uint nblocks) {
     uint recid = 0;
     // Seed the pseudo-random generator
     srand(time(NULL));
-
     outfile.open("file.bin", ios::out | ios::binary); // open input file 
     for (int b = 0; b < nblocks; ++b) { // for each block
 
         block.blockid = b;
         for (int r = 0; r < MAX_RECORDS_PER_BLOCK; ++r) { // for each record
-
             // prepare a record
             record.recid = recid++;
             record.num = rand() % 1000;
-            strcpy(record.str, "hello"); // put the same string to all records
+            if(r < MAX_RECORDS_PER_BLOCK/2){
+              strcpy(record.str, "hello"); // put the same string to all records
+            }
+            else{
+                 strcpy(record.str, "hella"); // put the same string to all records
+
+            }
             record.valid = true;
 
             memcpy(&block.entries[r], &record, sizeof (record_t)); // copy record to block
@@ -84,7 +88,7 @@ void merge_sort_driver() {
     uint recid = 0;
     ifstream infile;
     ofstream outfile;
-    unsigned char field = '1';
+    unsigned char field = '2';
     string file_name = "file.bin";
 
     // Create test input file.

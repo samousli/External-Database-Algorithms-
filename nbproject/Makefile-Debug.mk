@@ -37,6 +37,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/HelpingMethods.o \
 	${OBJECTDIR}/MergeSortImpl.o \
+	${OBJECTDIR}/Tests.o \
 	${OBJECTDIR}/dbtproj.o \
 	${OBJECTDIR}/main.o
 
@@ -74,6 +75,11 @@ ${OBJECTDIR}/MergeSortImpl.o: MergeSortImpl.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/MergeSortImpl.o MergeSortImpl.cpp
+
+${OBJECTDIR}/Tests.o: Tests.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Tests.o Tests.cpp
 
 ${OBJECTDIR}/dbtproj.o: dbtproj.cpp 
 	${MKDIR} -p ${OBJECTDIR}

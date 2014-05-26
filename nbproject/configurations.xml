@@ -6,6 +6,8 @@
                    projectFiles="true">
       <itemPath>ComparisonPredicates.h</itemPath>
       <itemPath>HelpingMethods.h</itemPath>
+      <itemPath>MergeSortImpl.h</itemPath>
+      <itemPath>Tests.h</itemPath>
       <itemPath>dbtproj.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -16,6 +18,8 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>HelpingMethods.cpp</itemPath>
+      <itemPath>MergeSortImpl.cpp</itemPath>
+      <itemPath>Tests.cpp</itemPath>
       <itemPath>dbtproj.cpp</itemPath>
       <itemPath>main.cpp</itemPath>
     </logicalFolder>
@@ -56,6 +60,10 @@
       </item>
       <item path="MergeSortImpl.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Tests.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Tests.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="dbtproj.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="dbtproj.h" ex="false" tool="3" flavor2="0">
@@ -92,6 +100,10 @@
       <item path="MergeSortImpl.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="MergeSortImpl.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Tests.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Tests.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="dbtproj.cpp" ex="false" tool="1" flavor2="0">
       </item>

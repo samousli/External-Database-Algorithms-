@@ -8,20 +8,25 @@
 #ifndef MERGESORTIMPL_H
 #define	MERGESORTIMPL_H
 
+#include "dbtproj.h"
+#include <iostream>
 
-void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_blocks,
-        char *outfile, uint *nsorted_segs, uint *npasses, uint *nios);
+typedef unsigned int uint;
 
-void mem_merge_sort(block_t *buffer, uint nblocks, unsigned char field, char *outfile, uint *nios);
+void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nmem_blocks,
+        char *output_file, uint *nsorted_segs, uint *npasses, uint *nios);
 
-void serialize_record(char *filename, block_t &block, record_t &record, uint *nios);
+void mem_merge(std::ofstream &output, block_t *buffer, uint nblocks,
+        unsigned char field, uint *nios);
 
-void write_block(char* filename, block_t &block);
-
-block_t read_block(char *file, uint block_id);
-
-void file_merge(char *input_file, char *output_file, unsigned char field, uint k_way,
+void file_merge(std::ifstream &input, std::ofstream &output, block_t *buffer, 
+        uint buffer_size,unsigned char field, uint ways,
         uint total_block_count, uint *nsorted_segs, uint *npasses, uint *nios);
+
+void serialize_record(std::ofstream & outfile, block_t &block, record_t &record, uint *nios);
+
+block_t read_block(std::ifstream &infile, uint block_id);
+
 
 
 #endif	/* MERGESORTIMPL_H */

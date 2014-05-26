@@ -81,17 +81,4 @@ void EliminateDuplicates (char *infile, unsigned char field, block_t *buffer, un
 void MergeJoin (char *infile1, char *infile2, unsigned char field, block_t *buffer, unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios);
 
 
-typedef unsigned int uint;
-void serialize_record(char *filename, block_t &block, record_t &record,  uint *nios);
-
-void write_block(char* filename, block_t *block);
-
-block_t read_block(char *file, uint block_id);
-
-void merge(char *input_file, char *output_file, unsigned char field, uint k_way,
-        uint total_block_count, uint *nsorted_segs, uint *npasses, uint *nios);
-
-void merge_sort(char *infile, unsigned char field, block_t *buffer, uint nmem_blocks,
-        char *outfile, uint *nsorted_segs, uint *npasses, uint *nios);
-
 #endif

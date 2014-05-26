@@ -30,7 +30,8 @@ void SortRecords(block_t *buffer, unsigned int nmem_blocks, char *outputPath, un
         positionForCheck[i] = 0; // initialize array to zero (first record of each block)
     }
     while (true) {
-        std::pair<int, int> minimumBlock = FindMinimumValue(buffer, nmem_blocks, positionForCheck, field);
+        std::pair<int, int> minimumBlock = FindMinimumValue(buffer, nmem_blocks,
+                positionForCheck, field);
         cout << minimumBlock.first << " " << minimumBlock.second << endl;
         stopProcess++;
         if (minimumBlock.first == -1 || stopProcess >= size_Of_Blocks) {

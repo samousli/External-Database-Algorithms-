@@ -6,6 +6,7 @@
  */
 
 #include "HelpingMethods.h"
+#include "Tests.h"
 #include <iostream>
 #include "dbtproj.h"
 #include <fstream>
@@ -19,6 +20,11 @@ using namespace std;
 
 void SortRecords(block_t *buffer, unsigned int nmem_blocks, ofstream& outputfile, unsigned char field) {
     block_t block;
+    block.blockid = buffer[0].blockid;
+    block.dummy = 0;
+    block.nreserved = 0;
+    block.next_blockid = block.blockid + 1;
+
     record_t record;
     int positionForCheck[nmem_blocks]; // array that points each record of block for check
     int stopProcess = 0; // flag for Termination
@@ -35,8 +41,6 @@ void SortRecords(block_t *buffer, unsigned int nmem_blocks, ofstream& outputfile
             record = buffer[minimumBlock.first].entries[minimumBlock.second]; // store record
             Serialize_Record(outputfile,block,record); // write record to block
         }
-
-
 
     }
 }
@@ -122,13 +126,6 @@ std::pair<int,int> FindMinimumValue(block_t *buffer, unsigned int nmem_blocks, i
     return std::make_pair(position,positionOfRecord);
 }
 
-// Keeping streams open may boost performance but doing this for now to simplify things.
-
-void Write_Block(std::ofstream& outfile, block_t block) {
-
-    outfile.write((char*) &block, sizeof (block_t));
-}
-
 void Serialize_Record(std::ofstream& outfile, block_t &block, record_t record) {
     // block.entries[block.nreserved] = record;
     memcpy(&block.entries[block.nreserved], &record, sizeof (record_t));
@@ -136,7 +133,7 @@ void Serialize_Record(std::ofstream& outfile, block_t &block, record_t record) {
     // If block is full, write to file.
     if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
         block.valid = true;
-        Write_Block(outfile, block);
+        outfile.write((char*) &block, sizeof (block_t));
         block.blockid ++;
         block.nreserved = 0;
         block.valid = false;

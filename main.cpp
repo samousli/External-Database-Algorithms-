@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     //char input_path[] = "input.bin";
     //create_test_file(input_path, 4);
     //heap_test(input_path, 4);
-    
+
     //merge_sort_driver();
     MergeSortDriver();
 
@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
 }
 
 void MergeSortDriver() {
-    int nblocks = 4; // number of blocks in the file
+    int nblocks = 11; // number of blocks in the file
     ifstream infile;
     ofstream outfile;
     unsigned char field = '1';
@@ -47,7 +47,7 @@ void MergeSortDriver() {
               sorted_segs, passes, ios);
     cout<<"FUCK --------- zatsssss"<<endl;
 
-   // print_file_contents("output1.bin",nblocks_buffer);
+    print_file_contents(resultsFile, nblocks_buffer);
     //free(buffer);
 }
 

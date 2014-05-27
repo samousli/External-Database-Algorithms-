@@ -16,7 +16,7 @@
 using namespace std;
 
 void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nmem_blocks,
-        char *output_file, uint *nsorted_segs, uint *npasses, uint *nios) {
+                char *output_file, uint *nsorted_segs, uint *npasses, uint *nios) {
 
     // Temp file to hold the initial pass data.
     char tmp_file[] = "temp.bin";
@@ -54,7 +54,7 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
 
     input.close();
     tmp_out.close();
-    
+
     print_file_contents(tmp_file, block_count);
     string s;
     cin >> s;
@@ -64,7 +64,7 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
         return;
     }
     file_merge(tmp_file, output_file, nmem_blocks, field, block_count,
-            nsorted_segs, npasses, nios);
+               nsorted_segs, npasses, nios);
 }
 
 /**
@@ -75,10 +75,8 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
  *      If L is not empty, add L to P
  */
 void file_merge(char *input_file, char *output_file,
-        uint nmem_blocks, unsigned char field, uint block_count,
-        uint *nsorted_segs, uint *npasses, uint *nios) {
-
-    priority_queue<block_t, std::vector<block_t>, block_comparator> pq(block_comparator(field, true));
+                uint nmem_blocks, unsigned char field, uint block_count,
+                uint *nsorted_segs, uint *npasses, uint *nios) {
 
     // length of each input sequence in blocks.
     // At max nmem_blocks as only they are sequentially sorted.
@@ -97,9 +95,9 @@ void file_merge(char *input_file, char *output_file,
     uint sorted_seq_len = nmem_blocks;
 
     cout << "Total block count: " << block_count << endl
-            << "Blocks in memory: " << nmem_blocks << endl
-            << "Chain length: " << sorted_seq_len << endl
-            << ways << "-way merge" << endl;
+         << "Blocks in memory: " << nmem_blocks << endl
+         << "Chain length: " << sorted_seq_len << endl
+         << ways << "-way merge" << endl;
 
     (*nsorted_segs) = ways;
 
@@ -108,38 +106,52 @@ void file_merge(char *input_file, char *output_file,
     ifstream input;
     ofstream output;
 
-    uint init_block_id = 0;
+
     bool output_file_to_output = true;
+    // For each pass until everything is fully sorted
     while (sorted_seq_len < block_count) {
         // Files should swap each time
         // And if in the the temp file is the final output, it should be renamed.
         // Can't read and write simultaneously from and to a single file
         // in a care free manner as the file could corrupt unless great care is taken.
+
+        uint init_block_id = 0;
+
+        uint ways_req = ceil(block_count / (float) sorted_seq_len);
+        ways = ways > ways_req ? ways_req : ways;
+
         if (output_file_to_output) {
             input.open(input_file, ios::in | ios::binary);
-            output.open(output_file, ios::trunc | ios::binary);
+            output.open(output_file, ios::out | ios::binary);
         } else {
             input.open(output_file, ios::in | ios::binary);
-            output.open(input_file, ios::trunc | ios::binary);
+            output.open(input_file, ios::out | ios::binary);
         }
-        // Next time the input will be the output
-        output_file_to_output = !output_file_to_output;
+
+        // Initialize output block
+        block_t output_block;
+        output_block.nreserved = 0;
+        output_block.blockid = init_block_id;
+        output_block.next_blockid = init_block_id + 1;
+
+        // For each sequence
 
         while (init_block_id < block_count) {
 
-            // Initialize output block
-            block_t output_block;
-            output_block.nreserved = 0;
-            output_block.blockid = init_block_id;
-            output_block.next_blockid = init_block_id + 1;
+            priority_queue<block_t, std::vector<block_t>, block_comparator> pq(block_comparator(field, true));
 
             // Read data and populate the priority queue
-            for (uint i = init_block_id; i < init_block_id + ways; ++i) {
+            for (uint i = init_block_id; i < init_block_id + ways*sorted_seq_len; i+= sorted_seq_len) {
                 ++(*nios);
-                b = read_block(input, sorted_seq_len * i);
+                cout << "Get block: " << i << endl;
+                b = read_block(input, i);
+                cout << "Read block: " << b.blockid << endl;
+                b.next_blockid = i + 1;
                 b.dummy = 0;
                 pq.push(b);
             }
+
+            //
 
             // Merge
             while (!pq.empty()) {
@@ -147,55 +159,49 @@ void file_merge(char *input_file, char *output_file,
                 r = b.entries[b.dummy];
                 pq.pop();
                 ++b.dummy;
-
+                //print_block_data(b);
+                //cout << "Record ID: " << r.recid << "\tNum: " << r.num << "\tValid: " << r.valid << endl;
                 serialize_record(output, output_block, r, nios);
 
                 // If the chain contains more elements add them to the heap.
                 if (b.dummy < b.nreserved) {
                     pq.push(b);
 
+                    // Min block iterated through
+                    // if the next block belongs to the sorted sequence add it to the queue
                 } else if (b.next_blockid % sorted_seq_len != 0) {
-                    // Min block full
-                    // if the next block id belongs to the sorted sequence add it to the queue
-                    // chain check: id should be less than the first id of the next chain or the total size
-                    // next_block_id % M != 0 meets both criteria
                     ++(*nios);
-                    block_t new_b = read_block(input, b.next_blockid);
-                    new_b.dummy = 0;
-                    pq.push(new_b);
+                    cout << "Queue block: " << b.next_blockid << " from block: " << b.blockid <<  endl;
+                    b = read_block(input, b.next_blockid);
+                    //print_block_data(b);
+                    pq.push(b);
                 }
             }
 
-            // Output remaining records
-            if (output_block.nreserved != 0) {
-                output_block.valid = true;
-                output_block.dummy = 0;
-                output.write((char*) &output_block, sizeof (block_t));
-            }
-
             init_block_id += ways * sorted_seq_len;
+            cout << "Next init block: " << init_block_id << endl;
+
         }
+        // End of the round of passes, increase seq_len and reiterate
+
         sorted_seq_len *= ways;
-        uint ways_req = ceil(block_count / (float) sorted_seq_len);
-        ways = ways > ways_req ? ways_req : ways;
-        if (ways == 1) {
-            cerr << "Ways equals 1..omg" << endl;
-            break;
-        }
         input.close();
         output.close();
-        string s;
-        cout << "Input:" << endl;
-        print_file_contents(input_file, block_count);
-        cin >> s;
-        cout << "Output:" << endl;
-        print_file_contents(output_file, block_count);
-        cin >> s;
 
+//        if (output_file_to_output) {
+//            print_file_contents(output_file, 0);
+//        } else {
+//            print_file_contents(input_file, 0);
+//        }
+        // Next time the current output will be the input
+        output_file_to_output = !output_file_to_output;
+        string s;
+        cin >> s;
     }
 
+
     // If temp is the output,
-    if (output_file_to_output) {
+    if (!output_file_to_output) {
         remove(input_file);
     } else {
         remove(output_file);
@@ -207,7 +213,7 @@ void file_merge(char *input_file, char *output_file,
  * Memory resident n-way merge sort.
  */
 void mem_merge(ofstream &output, block_t *buffer, uint nblocks,
-        unsigned char field, uint *nios) {
+               unsigned char field, uint *nios) {
 
     // Initialize output block
     block_t output_block;
@@ -253,23 +259,31 @@ block_t read_block(ifstream &input, uint block_id) {
     // seek the distance from the beginning
     ifstream::streamoff offset = sizeof (block_t) * (block_id);
     block_t block;
-
+    input.seekg(0, input.end);
+    int size = input.tellg();
     input.seekg(offset, input.beg);
-    if (!input.eof())
+    if (offset < size)
         input.read((char*) &block, sizeof (block_t));
-    else
+    else {
         cerr << "Bad block_id" << endl;
+        string s;
+        cin >> s;
+    }
+    block.next_blockid = block_id + 1;
+    block.dummy = 0;
     return block;
 }
 
 void serialize_record(ofstream& outfile, block_t &block, record_t &record, uint *nios) {
 
-    block.entries[block.nreserved++] = record;
+    //block.entries[block.nreserved++] = record;
+    memcpy(&block.entries[block.nreserved], &record, sizeof(record_t));
+    ++block.nreserved;
     // If block is full, write to file.
     if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
         block.valid = true;
         block.dummy = 0;
-        print_block_data(block);
+        //print_block_data(block);
         outfile.write((char*) &block, sizeof (block_t));
         ++block.blockid;
         ++block.next_blockid;

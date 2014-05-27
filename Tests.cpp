@@ -86,7 +86,7 @@ void create_test_file(char *filename, uint nblocks) {
         block.valid = true;
 
         // Set next block id
-        b + 1 != nblocks ? block.next_blockid = b + 1 : block.next_blockid = 0;
+        block.next_blockid = b + 1;
 
 
         outfile.write((char*) &block, sizeof (block_t)); // write the block to the file
@@ -99,35 +99,25 @@ void print_file_contents(char *filename, uint nblocks) {
     ifstream infile;
     block_t block;
     record_t record;
+    record_t prev_rec;
     infile.open(filename, ios::in | ios::binary);
-    
+
     infile.seekg(0, infile.end);
     int block_count = infile.tellg() / sizeof(block_t);
     infile.seekg(0, infile.beg);
     printf("Size matches block count: %d\n", nblocks == block_count);
-    
-    int invalid_blocks = 0, invalid_records = 0 ;
+
+    int invalid_blocks = 0;
     // Assuming that the file is properly formatted.
     for (uint b = 0; b < block_count; ++b) {
         infile.read((char*) &block, sizeof (block_t)); // read block from file
         if (block.valid) {
-            for (uint r = 0; r < block.nreserved; ++r) {
-               // if (record.valid) {
-                    record = block.entries[r];
-                    printf("Record id: %d, num: %d, str: '%s' belongs to block %d\n",
-                           record.recid, record.num, record.str, block.blockid);
-               // } else
-                    ++invalid_records;
-
-            }
+            print_block_data(block);
         } else {
             ++invalid_blocks;
         }
     }
-    
-    infile.seekg(0, infile.end);
-    int block_count = infile.tellg() / sizeof(block_t);
-    printf("Invalid records: %d\n", invalid_records);
+
     printf("Invalid blocks: %d\n", invalid_blocks);
     printf("Block count: %d\n", block_count);
     infile.close();
@@ -182,11 +172,25 @@ void heap_test(char *filename, uint nblocks) {
 }
 
 void print_block_data(block_t &block) {
-    cout << "Block ID: " << block.blockid << endl
-         << "Validity: " << block.valid << endl
-         << "Reserved: " << block.nreserved << endl
-         << "Next Block ID: " << block.next_blockid << endl
-         << "Dummy Var: " << block.dummy << endl;
+    bool sorted = true;
+    int invalid_records = 0;
+    int first, last;
+    record_t record, prev_rec;
+    for (uint r = 0; r < block.nreserved; ++r) {
+        record = block.entries[r];
+        if (!record.valid)
+            ++invalid_records;
+        if (r != 0 && record.num < prev_rec.num) {
+            sorted = false;
+            break;
+        }
+        prev_rec = record;
+    }
+    first = block.entries[0].num;
+    last = block.entries[99].num;
+    printf("Block id: %d\tSorted: %d\tValues: (%d, %d)\n", block.blockid, sorted, first, last);
+    cout << "Nreserved: " << block.nreserved << "\tDummy: "
+         << block.dummy << "\tNext block id: " << block.next_blockid << "\tInvalid records: " << invalid_records << endl;
 }
 
 

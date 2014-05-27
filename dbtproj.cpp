@@ -27,6 +27,7 @@ using namespace std;
 void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks,
         char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
     ifstream input(infile, ios::binary | ios::ate); // open input file
+    ofstream output("output1.bin",ios::out | ios::binary);
     int numOfBlocks = input.tellg() / sizeof (block_t); // get number of blocks in file
     input.close();
     ifstream inputFile; // stream for input file
@@ -65,19 +66,19 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
             }
         }
         cout << "### END ----- " << endl;
-        std::string outputPathString("output"); // string with output file path
-        outputPathString.append(to_string(numOfFile)); // append number of output file
-        numOfFile++; // next output file id
-        outputPathString.append(".bin"); // append extension of output file
-        char *outputPath = (char*) outputPathString.c_str(); // convert string to char array
-        SortRecords(buffer, nmem_blocks, outputPath, field); // call method with full buffer to sort records and save them to file
+       // std::string outputPathString("output1.bin"); // string with output file path
+        //outputPathString.append(to_string(numOfFile)); // append number of output file
+        //numOfFile++; // next output file id
+       // outputPathString.append(".bin"); // append extension of output file
+        //char *outputPath = (char*) outputPathString.c_str(); // convert string to char array
+        SortRecords(buffer, nmem_blocks, output, field); // call method with full buffer to sort records and save them to file
 
         numOfBlocksForSplit = 0;
     }
 
 
     inputFile.close(); // close stream
-
+    output.close();
     char temp_output[] = "output1.bin";
 
     print_file_contents(temp_output, numOfBlocks);

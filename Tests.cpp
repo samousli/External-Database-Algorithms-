@@ -106,21 +106,24 @@ void print_file_contents(char *filename, uint nblocks) {
         infile.read((char*) &block, sizeof (block_t)); // read block from file
         if (block.valid) {
             for (uint r = 0; r < block.nreserved; ++r) {
-                if (record.valid) {
+               // if (record.valid) {
                     record = block.entries[r];
                     printf("Record id: %d, num: %d, str: '%s' belongs to block %d\n",
                            record.recid, record.num, record.str, block.blockid);
-                } else
+               // } else
                     ++invalid_records;
 
             }
         } else {
             ++invalid_blocks;
         }
-
     }
+    
+    infile.seekg(0, infile.end);
+    int block_count = infile.tellg() / sizeof(block_t);
     printf("Invalid records: %d\n", invalid_records);
     printf("Invalid blocks: %d\n", invalid_blocks);
+    printf("Block count: %d\n", block_count);
     infile.close();
 }
 

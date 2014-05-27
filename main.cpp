@@ -47,7 +47,7 @@ void MergeSortDriver() {
               sorted_segs, passes, ios);
     cout<<"FUCK --------- zatsssss"<<endl;
 
-    print_file_contents("output.bin",nblocks_buffer);
+   // print_file_contents("output1.bin",nblocks_buffer);
     //free(buffer);
 }
 

@@ -17,11 +17,9 @@ using namespace std;
 
 //Method sorts records from buffer and saves them to file
 
-void SortRecords(block_t *buffer, unsigned int nmem_blocks, char *outputPath, unsigned char field) {
+void SortRecords(block_t *buffer, unsigned int nmem_blocks, ofstream& outputfile, unsigned char field) {
     block_t block;
     record_t record;
-    std::ofstream outfile;
-    outfile.open(outputPath,ios::out | ios::binary);
     int positionForCheck[nmem_blocks]; // array that points each record of block for check
     int stopProcess = 0; // flag for Termination
     for (int i = 0; i < nmem_blocks; i++) {
@@ -35,13 +33,12 @@ void SortRecords(block_t *buffer, unsigned int nmem_blocks, char *outputPath, un
         }
         if(minimumBlock.second <= MAX_RECORDS_PER_BLOCK) {
             record = buffer[minimumBlock.first].entries[minimumBlock.second]; // store record
-            Serialize_Record(outfile,block,record); // write record to block
+            Serialize_Record(outputfile,block,record); // write record to block
         }
 
 
 
     }
-    outfile.close();
 }
 
 //Method finds minimum value of records  . Returns block position of minimum record value

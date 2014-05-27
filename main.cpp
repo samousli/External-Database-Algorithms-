@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     //char input_path[] = "input.bin";
     //create_test_file(input_path, 4);
     //heap_test(input_path, 4);
-
+    
     //merge_sort_driver();
     MergeSortDriver();
 
@@ -47,7 +47,7 @@ void MergeSortDriver() {
               sorted_segs, passes, ios);
     cout<<"FUCK --------- zatsssss"<<endl;
 
-    print_file_contents("output.bin",nblocks_buffer);
+    print_file_contents(resultsFile, nblocks_buffer);
     //free(buffer);
 }
 

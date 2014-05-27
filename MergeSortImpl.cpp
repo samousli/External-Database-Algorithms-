@@ -53,6 +53,10 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
 
     input.close();
     tmp_out.close();
+    
+    print_file_contents(tmp_file, block_count);
+    string s;
+    cin >> s;
 
     if (block_count <= nmem_blocks) {
         rename(tmp_file, output_file);

@@ -143,15 +143,13 @@ void file_merge(char *input_file, char *output_file,
             // Read data and populate the priority queue
             for (uint i = init_block_id; i < init_block_id + ways*sorted_seq_len; i+= sorted_seq_len) {
                 ++(*nios);
-                cout << "Get block: " << i << endl;
+                //cout << "Get block: " << i << endl;
                 b = read_block(input, i);
-                cout << "Read block: " << b.blockid << endl;
+                //cout << "Read block: " << b.blockid << endl;
                 b.next_blockid = i + 1;
                 b.dummy = 0;
                 pq.push(b);
             }
-
-            //
 
             // Merge
             while (!pq.empty()) {
@@ -171,7 +169,7 @@ void file_merge(char *input_file, char *output_file,
                     // if the next block belongs to the sorted sequence add it to the queue
                 } else if (b.next_blockid % sorted_seq_len != 0) {
                     ++(*nios);
-                    cout << "Queue block: " << b.next_blockid << " from block: " << b.blockid <<  endl;
+                    //cout << "Queue block: " << b.next_blockid << " from block: " << b.blockid <<  endl;
                     b = read_block(input, b.next_blockid);
                     //print_block_data(b);
                     pq.push(b);
@@ -179,8 +177,8 @@ void file_merge(char *input_file, char *output_file,
             }
 
             init_block_id += ways * sorted_seq_len;
-            cout << "Next init block: " << init_block_id << endl;
-
+            //cout << "Next init block: " << init_block_id << endl;
+            cout << "Full pass" << endl;
         }
         // End of the round of passes, increase seq_len and reiterate
 
@@ -188,19 +186,13 @@ void file_merge(char *input_file, char *output_file,
         input.close();
         output.close();
 
-//        if (output_file_to_output) {
-//            print_file_contents(output_file, 0);
-//        } else {
-//            print_file_contents(input_file, 0);
-//        }
         // Next time the current output will be the input
         output_file_to_output = !output_file_to_output;
-        string s;
-        cin >> s;
     }
 
 
-    // If temp is the output,
+    // If temp is the output, remove the other file and rename temp.
+    // Else just remove the temp file.
     if (!output_file_to_output) {
         remove(input_file);
     } else {
@@ -265,9 +257,7 @@ block_t read_block(ifstream &input, uint block_id) {
     if (offset < size)
         input.read((char*) &block, sizeof (block_t));
     else {
-        cerr << "Bad block_id" << endl;
-        string s;
-        cin >> s;
+        cerr << "Bad block id" << endl;
     }
     block.next_blockid = block_id + 1;
     block.dummy = 0;
@@ -276,7 +266,6 @@ block_t read_block(ifstream &input, uint block_id) {
 
 void serialize_record(ofstream& outfile, block_t &block, record_t &record, uint *nios) {
 
-    //block.entries[block.nreserved++] = record;
     memcpy(&block.entries[block.nreserved], &record, sizeof(record_t));
     ++block.nreserved;
     // If block is full, write to file.

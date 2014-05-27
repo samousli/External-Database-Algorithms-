@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   Tests.h
  * Author: avail
  *
@@ -21,6 +21,8 @@ void heap_test(char *filename, uint nblocks);
 void merge_sort_driver();
 
 void print_block_data(block_t &block);
+
+char *is_sorted(char *filename);
 
 #endif	/* TESTS_H */
 

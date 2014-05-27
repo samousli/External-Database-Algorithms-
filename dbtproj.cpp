@@ -78,7 +78,6 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
     output.close();
 
 
-
     free(buffer);
     buffer = NULL;
 
@@ -86,10 +85,6 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
         rename(temp_output_file, outfile);
         return;
     }
-
-    print_file_contents(temp_output_file, 0);
-    string s;
-    cin >> s;
 
     //cout << "Number of blocks: " << numOfBlocks << endl;
     file_merge(temp_output_file, outfile, nmem_blocks, 1, numOfBlocks,

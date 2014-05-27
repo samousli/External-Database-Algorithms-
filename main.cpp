@@ -17,11 +17,13 @@ int main(int argc, char** argv) {
     //merge_sort_driver();
     MergeSortDriver();
 
+    //cout << (sizeof(block_t) * 1024 * 256) / (1024*1024) << endl;
+    //cout << (13 * 1024 * 256) / (1024) << endl;
     return 0;
 }
 
 void MergeSortDriver() {
-    int nblocks = 11; // number of blocks in the file
+    int nblocks = 1024 * 16; // number of blocks in the file
     ifstream infile;
     ofstream outfile;
     unsigned char field = '1';
@@ -32,7 +34,7 @@ void MergeSortDriver() {
 
     // Create a buffer with the given block count and
     // pass them as arguments for the sorting to take place
-    int nblocks_buffer = 2;
+    int nblocks_buffer = 32;
     block_t *buffer = (block_t*) malloc(nblocks_buffer * sizeof (block_t));
 
 
@@ -47,7 +49,8 @@ void MergeSortDriver() {
               sorted_segs, passes, ios);
     cout<<"FUCK --------- zatsssss"<<endl;
 
-    print_file_contents(resultsFile, nblocks_buffer);
+
+    cout << "Is sorted? " << is_sorted(resultsFile) << endl;
     //free(buffer);
 }
 

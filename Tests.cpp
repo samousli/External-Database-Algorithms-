@@ -193,4 +193,34 @@ void print_block_data(block_t &block) {
          << block.dummy << "\tNext block id: " << block.next_blockid << "\tInvalid records: " << invalid_records << endl;
 }
 
+char *is_sorted(char *filename) {
+
+    ifstream infile(filename, ios::in | ios::binary);
+
+    infile.seekg(0, infile.end);
+    int block_count = infile.tellg() / sizeof(block_t);
+    infile.seekg(0, infile.beg);
+    printf("Block count: %d\n", block_count);
+    block_t block;
+    record_t pr, nr;
+    bool sorted = true;
+    // Assuming that the file is properly formatted.
+    for (int b = 0; b < block_count; ++b) {
+        infile.read((char*) &block, sizeof (block_t)); // read block from file
+        for (uint r = 0; r < MAX_RECORDS_PER_BLOCK; ++r) {
+            nr = block.entries[r];
+            if (b != 0 && r != 0 && nr.num < pr.num) {
+                sorted = false;
+                break;
+            }
+            pr = nr;
+            if(!sorted) break;
+        }
+    }
+
+    infile.close();
+    string s;
+    if(sorted) s = "TRUE!"; else s = "FALSE!";
+    return (char*)s.c_str();
+}
 

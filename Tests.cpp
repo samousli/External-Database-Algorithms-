@@ -20,13 +20,15 @@
 #include <time.h>
 #include <queue>
 #include <algorithm>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 
 using namespace std;
 
 void merge_sort_driver() {
-    int nblocks = 2; // number of blocks in the file
-    int nmem_blocks = 2;
+    int nblocks = 16; // number of blocks in the file
+    int nmem_blocks = 16 ;
     char input_file[] = "input.bin";
     char output_file[] = "output.bin";
 
@@ -35,26 +37,24 @@ void merge_sort_driver() {
 
     // Create a buffer with the given block count and
     // pass them as arguments for the sorting to take place
-    block_t *buffer = (block_t*) calloc(nmem_blocks, sizeof (block_t));
+    block_t *buffer = new block_t[nmem_blocks];
 
-    uint *sorted_segs = (uint*) calloc(1, sizeof (uint)),
-          *passes = (uint*) calloc(1, sizeof (uint)),
-           *ios = (uint*) calloc(1, sizeof (uint));
+    uint *sorted_segs = new uint(0),
+    *passes = new uint(0),
+    *ios = new uint(0);
 
     merge_sort(input_file, 1, buffer,
                nmem_blocks, output_file,
                sorted_segs, passes, ios);
 
-    print_file_contents(output_file, nblocks);
-
+    cout << "Is sorted? " << is_sorted(output_file) << endl;
     cout << "Sorted segments: " << *sorted_segs << endl
          << "IO's: " << *ios << endl
          << "Passes: " << *passes << endl;
 
-    //free(buffer);
-    free(sorted_segs);
-    free(ios);
-    free(passes);
+    delete sorted_segs;
+    delete passes;
+    delete ios;
 }
 
 
@@ -75,7 +75,7 @@ void create_test_file(char *filename, uint nblocks) {
 
             // prepare a record
             record.recid = recid++;
-            record.num = rand() % 1000;
+            record.num = rand() % 10000;
             strcpy(record.str, "hello\0"); // put the same string to all records
             record.valid = true;
 
@@ -98,12 +98,10 @@ void create_test_file(char *filename, uint nblocks) {
 void print_file_contents(char *filename, uint nblocks) {
     ifstream infile;
     block_t block;
-    record_t record;
-    record_t prev_rec;
     infile.open(filename, ios::in | ios::binary);
 
     infile.seekg(0, infile.end);
-    int block_count = infile.tellg() / sizeof(block_t);
+    uint block_count = infile.tellg() / sizeof(block_t);
     infile.seekg(0, infile.beg);
     printf("Size matches block count: %d\n", nblocks == block_count);
 
@@ -141,6 +139,8 @@ void heap_test(char *filename, uint nblocks) {
 
 
     priority_queue<block_t, vector<block_t>, block_comparator> pq(block_comparator(1, true));
+
+
     // Sort each block
     for (uint i = 0; i < nblocks; ++i) {
         sort(blocks[i].entries, blocks[i].entries + blocks[i].nreserved, record_comparator(1, false));
@@ -174,7 +174,7 @@ void heap_test(char *filename, uint nblocks) {
 void print_block_data(block_t &block) {
     bool sorted = true;
     int invalid_records = 0;
-    int first, last;
+    uint first, last;
     record_t record, prev_rec;
     for (uint r = 0; r < block.nreserved; ++r) {
         record = block.entries[r];
@@ -198,9 +198,8 @@ char *is_sorted(char *filename) {
     ifstream infile(filename, ios::in | ios::binary);
 
     infile.seekg(0, infile.end);
-    int block_count = infile.tellg() / sizeof(block_t);
+    uint block_count = infile.tellg() / sizeof(block_t);
     infile.seekg(0, infile.beg);
-    printf("Block count: %d\n", block_count);
     block_t block;
     record_t pr, nr;
     bool sorted = true;
@@ -220,7 +219,27 @@ char *is_sorted(char *filename) {
 
     infile.close();
     string s;
-    if(sorted) s = "TRUE!"; else s = "FALSE!";
+    if(sorted) s = "TRUE!";
+    else s = "FALSE!";
     return (char*)s.c_str();
 }
 
+
+long file_block_count(char *file) {
+    ifstream s(file, ios::in | ios::ate);
+    long c = s.tellg() / sizeof(block_t);
+    s.close();
+    return c;
+}
+
+
+double get_cpu_time(void) {
+    timeval tim;
+    rusage ru;
+    getrusage(RUSAGE_SELF, &ru);
+    tim=ru.ru_utime;
+    double t=(double)tim.tv_sec + (double)tim.tv_usec / 1000000.0;
+    tim=ru.ru_stime;
+    t+=(double)tim.tv_sec + (double)tim.tv_usec / 1000000.0;
+    return t;
+}

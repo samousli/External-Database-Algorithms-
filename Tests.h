@@ -24,5 +24,10 @@ void print_block_data(block_t &block);
 
 char *is_sorted(char *filename);
 
+long file_block_count(char *file);
+
+double get_cpu_time(void);
+
+
 #endif	/* TESTS_H */
 

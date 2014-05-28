@@ -25,7 +25,7 @@ using namespace std;
    ----------------------------------------------------------------------------------------------------------------------
  */
 void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks,
-        char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
+               char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
     ifstream input(infile, ios::binary | ios::ate); // open input file
     char temp_output_file[] = "temp.bin";
     ofstream output(temp_output_file,ios::out | ios::binary);
@@ -53,12 +53,12 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
                 } else if (field == '2') { // sort each block by str  . field = 2
                     std::qsort(&retrievedBlock.entries, MAX_RECORDS_PER_BLOCK, sizeof (record_t), compare2);
                 }
-                for (int r = 0; r < retrievedBlock.nreserved; ++r) {
-                    record = retrievedBlock.entries[r];
-//                    printf("this record id: %d, num: %d, str: '%s' belongs to block %d\n",
-//                            record.recid, record.num, record.str, retrievedBlock.blockid);
-                }
-                cout << "----------" << endl;
+                //for (int r = 0; r < retrievedBlock.nreserved; ++r) {
+                //     record = retrievedBlock.entries[r];
+                //                    printf("this record id: %d, num: %d, str: '%s' belongs to block %d\n",
+                //                            record.recid, record.num, record.str, retrievedBlock.blockid);
+                //}
+                //cout << "----------" << endl;
                 buffer[numOfBlocksForSplit] = retrievedBlock; // put block to buffer
                 numOfBlocksForSplit++;
             } else { // empty block . Make it valid = false
@@ -66,7 +66,7 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
                 numOfBlocksForSplit++;
             }
         }
-        cout << "### END ----- " << endl;
+        //cout << "### END ----- " << endl;
 
         SortRecords(buffer, nmem_blocks, output, field); // call method with full buffer to sort records and save them to file
 
@@ -78,18 +78,15 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
     output.close();
 
 
-    free(buffer);
-    buffer = NULL;
-
     if (numOfBlocks <= nmem_blocks) {
         rename(temp_output_file, outfile);
         return;
     }
 
     //cout << "Number of blocks: " << numOfBlocks << endl;
-    file_merge(temp_output_file, outfile, nmem_blocks, 1, numOfBlocks,
-            nsorted_segs, npasses, nios);
-     remove(temp_output_file);
+    file_merge(temp_output_file, outfile, buffer, nmem_blocks, 1, numOfBlocks,
+               nsorted_segs, npasses, nios);
+    remove(temp_output_file);
 }
 
 /* ----------------------------------------------------------------------------------------------------------------------
@@ -103,7 +100,7 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
    ----------------------------------------------------------------------------------------------------------------------
  */
 void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer,
-        unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) {
+                         unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) {
 
     // Merge Sort!
     // Linear scan
@@ -121,7 +118,7 @@ void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer,
    ----------------------------------------------------------------------------------------------------------------------
  */
 void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffer,
-        unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) {
+               unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) {
 
     // Merge Sort Both!
     // Iterate linearly and write matching pairs to the output

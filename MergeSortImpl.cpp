@@ -11,6 +11,8 @@
 #include <cstdio>
 #include <queue>
 #include <algorithm>
+#include <array>
+#include <iterator>
 #include <math.h>
 
 using namespace std;
@@ -35,7 +37,7 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
     input.seekg(0, input.beg);
 
     //  Fill the buffer and sort the blocks inside
-    while (!input.eof()) {
+    for (uint i = 0; i < block_count; i += nmem_blocks) {
         // Read into buffer
         input.read((char*) buffer, nmem_blocks * sizeof (block_t));
         ++(*nios);
@@ -44,26 +46,18 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
         ++(*npasses);
     }
 
-    // Using a C style buffer becomes impractical.
-    // C++ style containers such as vector will store data in heap automatically
-    // The only difference being that the address space may not match the buffers
-    // initial space. Such find tuned control over the execution does not seem to be
-    // a requirement of the assignment though.
-    free(buffer);
-    buffer = NULL;
-
     input.close();
     tmp_out.close();
 
-    print_file_contents(tmp_file, block_count);
+    print_file_contents(tmp_file, 0);
     string s;
     cin >> s;
-
     if (block_count <= nmem_blocks) {
         rename(tmp_file, output_file);
         return;
     }
-    file_merge(tmp_file, output_file, nmem_blocks, field, block_count,
+
+    file_merge(tmp_file, output_file, buffer, nmem_blocks, field, block_count,
                nsorted_segs, npasses, nios);
 }
 
@@ -74,7 +68,7 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
  *      Remove the first element from L and put it to the output
  *      If L is not empty, add L to P
  */
-void file_merge(char *input_file, char *output_file,
+void file_merge(char *input_file, char *output_file, block_t *buffer,
                 uint nmem_blocks, unsigned char field, uint block_count,
                 uint *nsorted_segs, uint *npasses, uint *nios) {
 
@@ -99,27 +93,26 @@ void file_merge(char *input_file, char *output_file,
          << "Chain length: " << sorted_seq_len << endl
          << ways << "-way merge" << endl;
 
-    (*nsorted_segs) = ways;
-
     block_t b;
     record_t r;
     ifstream input;
     ofstream output;
+    block_comparator comp = block_comparator(field, true);
 
 
     bool output_file_to_output = true;
-    // For each pass until everything is fully sorted
+
     while (sorted_seq_len < block_count) {
-        // Files should swap each time
-        // And if in the the temp file is the final output, it should be renamed.
-        // Can't read and write simultaneously from and to a single file
-        // in a care free manner as the file could corrupt unless great care is taken.
 
         uint init_block_id = 0;
 
         uint ways_req = ceil(block_count / (float) sorted_seq_len);
         ways = ways > ways_req ? ways_req : ways;
 
+        // Files should swap each time
+        // And if in the the temp file is the final output, it should be renamed.
+        // Can't read and write simultaneously from and to a single file
+        // in a care free manner as the file could corrupt unless great care is taken.
         if (output_file_to_output) {
             input.open(input_file, ios::in | ios::binary);
             output.open(output_file, ios::out | ios::binary);
@@ -135,61 +128,63 @@ void file_merge(char *input_file, char *output_file,
         output_block.next_blockid = init_block_id + 1;
 
         // For each sequence
-
         while (init_block_id < block_count) {
 
-            priority_queue<block_t, std::vector<block_t>, block_comparator> pq(block_comparator(field, true));
-
-            // Read data and populate the priority queue
+            //priority_queue<block_t, std::vector<block_t>, block_comparator> pq(block_comparator(field, true));
+            int heap_size = 0;  // Last element index
+            // Read data and populate the heap
             for (uint i = init_block_id; i < init_block_id + ways*sorted_seq_len; i+= sorted_seq_len) {
-                ++(*nios);
-                //cout << "Get block: " << i << endl;
                 b = read_block(input, i);
-                //cout << "Read block: " << b.blockid << endl;
                 b.next_blockid = i + 1;
                 b.dummy = 0;
-                pq.push(b);
+                memcpy(&buffer[heap_size++], &b, sizeof(block_t));
+                //cout << "Correct input: " << (b.blockid == i)
+                //     << "\tAsked for: " << i
+                //     << "\tGot: " << b.blockid << endl;
+                ++(*nios);
             }
+            make_heap(&buffer[0], &buffer[heap_size], comp) ;
 
             // Merge
-            while (!pq.empty()) {
-                b = pq.top();
-                r = b.entries[b.dummy];
-                pq.pop();
-                ++b.dummy;
-                //print_block_data(b);
-                //cout << "Record ID: " << r.recid << "\tNum: " << r.num << "\tValid: " << r.valid << endl;
+            while (heap_size > 0) {
+                pop_heap(&buffer[0], &buffer[heap_size--], comp);
+                memcpy(&b, &buffer[heap_size], sizeof(block_t));
+                r = b.entries[b.dummy++];
+
                 serialize_record(output, output_block, r, nios);
 
-                // If the chain contains more elements add them to the heap.
+                // If the sequence contains more elements add them to the heap.
                 if (b.dummy < b.nreserved) {
-                    pq.push(b);
+                    memcpy(&buffer[heap_size++], &b, sizeof(block_t));
+                    push_heap(&buffer[0], &buffer[heap_size], comp);
 
-                    // Min block iterated through
-                    // if the next block belongs to the sorted sequence add it to the queue
                 } else if (b.next_blockid % sorted_seq_len != 0) {
+                    int i = b.next_blockid;
+                    memcpy(&buffer[heap_size++], &b, sizeof(block_t));
+                    push_heap(&buffer[0], &buffer[heap_size], comp);
                     ++(*nios);
-                    //cout << "Queue block: " << b.next_blockid << " from block: " << b.blockid <<  endl;
-                    b = read_block(input, b.next_blockid);
-                    //print_block_data(b);
-                    pq.push(b);
                 }
+            }
+            if (output_block.nreserved != 0) {
+                cerr << "HOLA?" << endl;
+                string s;
+                cin >> s;
             }
 
             init_block_id += ways * sorted_seq_len;
-            //cout << "Next init block: " << init_block_id << endl;
-            cout << "Full pass" << endl;
         }
         // End of the round of passes, increase seq_len and reiterate
 
         sorted_seq_len *= ways;
+
         input.close();
         output.close();
 
         // Next time the current output will be the input
         output_file_to_output = !output_file_to_output;
-    }
 
+        cout << "Full pass" << endl;
+    }
 
     // If temp is the output, remove the other file and rename temp.
     // Else just remove the temp file.
@@ -214,36 +209,34 @@ void mem_merge(ofstream &output, block_t *buffer, uint nblocks,
     output_block.blockid = buffer[0].blockid;
     output_block.next_blockid = output_block.blockid + 1;
 
-    // Use priority queue to extract the minimum elements
-    priority_queue<block_t, vector<block_t>, block_comparator> pq(block_comparator(field, true));
+    record_t r;
+    block_t *b;
+    block_comparator comp = block_comparator(field, true);
+    record_comparator rcomp = record_comparator(field, false);
 
     // Sort each block and fill the queue with the results
+    int heap_size = nblocks - 1;
     for (uint i = 0; i < nblocks; ++i) {
-        if (!buffer[i].valid) cerr << "INVALID BLOCK!";
-        sort(buffer[i].entries, buffer[i].entries + buffer[i].nreserved, record_comparator(field, false));
-        pq.push(buffer[i]);
+        record_t *first = &buffer[i].entries[0],
+                  *last = &buffer[i].entries[buffer[i].nreserved-1];
+        sort(first, last, rcomp);
     }
 
-    // Merge
-    while (!pq.empty()) {
-        block_t b = pq.top();
-        record_t r = b.entries[b.dummy];
-        pq.pop();
-        ++b.dummy;
+    make_heap(&buffer[0], &buffer[heap_size], comp) ;
 
+    // Merge
+    while (heap_size > 0) {
+        pop_heap(&buffer[0], &buffer[heap_size--], comp);
+        b = &buffer[heap_size];  // Just a syntactic shortcut
+        memcpy(&r, &b->entries[b->dummy++], sizeof(record_t));
         serialize_record(output, output_block, r, nios);
 
-        if (b.dummy < b.nreserved)
-            pq.push(b);
+        if (b->dummy < b->nreserved)
+            push_heap(&buffer[0], &buffer[++heap_size], comp);
     }
 }
 
-/**
- *
- * @param file input file name.
- * @param block_id the id of the block that should be read.
- * @return the allocated block
- */
+
 block_t read_block(ifstream &input, uint block_id) {
     // Find block offset.
     // first block is stored from 0 to size of block_t
@@ -258,6 +251,10 @@ block_t read_block(ifstream &input, uint block_id) {
         input.read((char*) &block, sizeof (block_t));
     else {
         cerr << "Bad block id" << endl;
+        cerr << "Block count: " << size / sizeof(block_t) << endl;
+        print_block_data(block);
+        string s;
+        cin >> s;
     }
     block.next_blockid = block_id + 1;
     block.dummy = 0;
@@ -272,7 +269,6 @@ void serialize_record(ofstream& outfile, block_t &block, record_t &record, uint 
     if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
         block.valid = true;
         block.dummy = 0;
-        //print_block_data(block);
         outfile.write((char*) &block, sizeof (block_t));
         ++block.blockid;
         ++block.next_blockid;

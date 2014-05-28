@@ -19,8 +19,8 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
 void mem_merge(std::ofstream &output, block_t *buffer, uint nblocks,
                unsigned char field, uint *nios);
 
-void file_merge(char *input_file, char *output_file,
-                uint nmem_blocks, unsigned char field, uint total_block_count,
+void file_merge(char *input_file, char *output_file, block_t *buffer,
+                uint nmem_blocks, unsigned char field, uint block_count,
                 uint *nsorted_segs, uint *npasses, uint *nios);
 
 void serialize_record(std::ofstream & outfile, block_t &block, record_t &record, uint *nios);

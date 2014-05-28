@@ -5,6 +5,7 @@
 #include "Tests.h"
 #include "Tests.h"
 
+
 using namespace std;
 
 void MergeSortDriver();
@@ -13,17 +14,20 @@ int main(int argc, char** argv) {
     //char input_path[] = "input.bin";
     //create_test_file(input_path, 4);
     //heap_test(input_path, 4);
-
-    //merge_sort_driver();
+    double sah = get_cpu_time();
+    merge_sort_driver();
+    sah = get_cpu_time() - sah;
+    double har = get_cpu_time();
     MergeSortDriver();
-
-    //cout << (sizeof(block_t) * 1024 * 256) / (1024*1024) << endl;
-    //cout << (13 * 1024 * 256) / (1024) << endl;
+    har = get_cpu_time() - har;
+    cout << "Sah: " << sah << " seconds" << endl
+         << "Har: " << har << " seconds" << endl;
     return 0;
 }
 
 void MergeSortDriver() {
-    int nblocks = 1024 * 16; // number of blocks in the file
+    int nblocks = 1024;
+    int nblocks_buffer = 1024;
     ifstream infile;
     ofstream outfile;
     unsigned char field = '1';
@@ -34,14 +38,14 @@ void MergeSortDriver() {
 
     // Create a buffer with the given block count and
     // pass them as arguments for the sorting to take place
-    int nblocks_buffer = 32;
-    block_t *buffer = (block_t*) malloc(nblocks_buffer * sizeof (block_t));
+
+    block_t *buffer = new block_t[nblocks_buffer];
 
 
     char resultsFile[] = "results.bin";
-    uint *sorted_segs = (uint*) calloc(1, sizeof (uint)),
-          *passes = (uint*) calloc(1, sizeof (uint)),
-           *ios = (uint*) calloc(1, sizeof (uint));
+    uint *sorted_segs = new uint(0),
+    *passes = new uint(0),
+    *ios = new uint(0);
 
     cout<<"---------"<<endl;
     MergeSort(file_name, field, buffer,

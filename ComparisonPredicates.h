@@ -8,7 +8,7 @@
 #ifndef COMPARISONPREDICATES_H
 #define	COMPARISONPREDICATES_H
 
-#include <cstdio>
+#include <iostream>
 #include <cstring>
 #include "dbtproj.h"
 
@@ -56,10 +56,13 @@ struct block_comparator {
             result = strcmp(l.str, r.str) > 0;
             break;
         case 3:
-            if (l.num > r.num) result = true;
-            else if (l.num == r.num) result = strcmp(l.str, r.str) > 0;
+            if (l.num >= r.num) result = true;
+            else if (l.num == r.num) result = strcmp(l.str, r.str) >= 0;
             else result = false;
             break;
+        default:
+            result = false;
+            std::cerr << "Undefined behavior" << std::endl;
         }
         return _greater ? result : !result;
     }
@@ -112,6 +115,9 @@ struct record_comparator {
             else if (l.num == r.num) result = strcmp(l.str, r.str) > 0;
             else result = false;
             break;
+        default:
+            result = false;
+            std::cerr << "Undefined behavior" << std::endl;
         }
         return _greater ? result : !result;
     }

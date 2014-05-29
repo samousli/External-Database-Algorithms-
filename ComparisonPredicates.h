@@ -43,6 +43,7 @@ struct block_comparator {
 
     bool operator()(const block_t& lb, const block_t& rb) {
         bool result;
+        if (lb.dummy > 99 || rb.dummy > 99) std::cerr << "FUCK ME !" << std::endl;
         record_t l = lb.entries[lb.dummy];
         record_t r = rb.entries[rb.dummy];
         switch (_field) {

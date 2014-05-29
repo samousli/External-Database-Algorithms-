@@ -9,25 +9,31 @@
 using namespace std;
 
 void MergeSortDriver();
+void benchmark();
 
 int main(int argc, char** argv) {
     //char input_path[] = "input.bin";
     //create_test_file(input_path, 4);
     //heap_test(input_path, 4);
+    //print_file_contents("output.bin", 0);
+    merge_sort_driver(1 << 2, 1 << 1);
+    //MergeSortDriver();
+    return 0;
+}
+
+void benchmark() {
     double sah = get_cpu_time();
-    merge_sort_driver();
+    merge_sort_driver(1 << 14, 1 << 14);
     sah = get_cpu_time() - sah;
     double har = get_cpu_time();
     MergeSortDriver();
     har = get_cpu_time() - har;
     cout << "Sah: " << sah << " seconds" << endl
          << "Har: " << har << " seconds" << endl;
-    return 0;
 }
-
 void MergeSortDriver() {
-    int nblocks = 1024;
-    int nblocks_buffer = 1024;
+    int nblocks = 4;
+    int nblocks_buffer = 2;
     ifstream infile;
     ofstream outfile;
     unsigned char field = '1';
@@ -55,7 +61,7 @@ void MergeSortDriver() {
 
 
     cout << "Is sorted? " << is_sorted(resultsFile) << endl;
-    //free(buffer);
+    delete[] buffer;
 }
 
 

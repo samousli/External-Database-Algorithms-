@@ -26,9 +26,10 @@
 
 using namespace std;
 
-void merge_sort_driver() {
-    int nblocks = 16; // number of blocks in the file
-    int nmem_blocks = 16 ;
+void merge_sort_driver(uint total, uint mem) {
+    int nblocks = total; // number of blocks in the file
+    int nmem_blocks = mem;
+    cout << nblocks << endl;
     char input_file[] = "input.bin";
     char output_file[] = "output.bin";
 
@@ -38,7 +39,7 @@ void merge_sort_driver() {
     // Create a buffer with the given block count and
     // pass them as arguments for the sorting to take place
     block_t *buffer = new block_t[nmem_blocks];
-
+    //block_t *buffer =(block_t*) calloc(nmem_blocks, sizeof(block_t));
     uint *sorted_segs = new uint(0),
     *passes = new uint(0),
     *ios = new uint(0);
@@ -52,6 +53,7 @@ void merge_sort_driver() {
          << "IO's: " << *ios << endl
          << "Passes: " << *passes << endl;
 
+    delete[] buffer;
     delete sorted_segs;
     delete passes;
     delete ios;
@@ -88,10 +90,8 @@ void create_test_file(char *filename, uint nblocks) {
         // Set next block id
         block.next_blockid = b + 1;
 
-
         outfile.write((char*) &block, sizeof (block_t)); // write the block to the file
     }
-
     outfile.close();
 }
 
@@ -101,14 +101,17 @@ void print_file_contents(char *filename, uint nblocks) {
     infile.open(filename, ios::in | ios::binary);
 
     infile.seekg(0, infile.end);
-    uint block_count = infile.tellg() / sizeof(block_t);
+    uint block_count = (uint)infile.tellg() / sizeof(block_t);
     infile.seekg(0, infile.beg);
-    printf("Size matches block count: %d\n", nblocks == block_count);
+   // printf("Size matches block count: %d\n", nblocks == block_count);
 
     int invalid_blocks = 0;
     // Assuming that the file is properly formatted.
     for (uint b = 0; b < block_count; ++b) {
-        infile.read((char*) &block, sizeof (block_t)); // read block from file
+        //infile.read((char*) &block, sizeof (block_t)); // read block from file
+        uint *x = (uint*)calloc(1, sizeof(uint));
+        read_block(infile, b, block, x);
+        free(x);
         if (block.valid) {
             print_block_data(block);
         } else {
@@ -116,9 +119,11 @@ void print_file_contents(char *filename, uint nblocks) {
         }
     }
 
+
+    infile.close();
     printf("Invalid blocks: %d\n", invalid_blocks);
     printf("Block count: %d\n", block_count);
-    infile.close();
+    cout << "Is sorted?" << is_sorted(filename) << endl;
 }
 
 
@@ -193,23 +198,24 @@ void print_block_data(block_t &block) {
          << block.dummy << "\tNext block id: " << block.next_blockid << "\tInvalid records: " << invalid_records << endl;
 }
 
-char *is_sorted(char *filename) {
+string is_sorted(char *filename) {
 
     ifstream infile(filename, ios::in | ios::binary);
 
     infile.seekg(0, infile.end);
-    uint block_count = infile.tellg() / sizeof(block_t);
+    uint block_count = (uint) infile.tellg() / sizeof(block_t);
     infile.seekg(0, infile.beg);
     block_t block;
     record_t pr, nr;
     bool sorted = true;
     // Assuming that the file is properly formatted.
-    for (int b = 0; b < block_count; ++b) {
+    for (uint b = 0; b < block_count; ++b) {
         infile.read((char*) &block, sizeof (block_t)); // read block from file
         for (uint r = 0; r < MAX_RECORDS_PER_BLOCK; ++r) {
             nr = block.entries[r];
             if (b != 0 && r != 0 && nr.num < pr.num) {
                 sorted = false;
+                // << nr.num << " had to be greater than " << pr.num << endl;
                 break;
             }
             pr = nr;
@@ -218,16 +224,13 @@ char *is_sorted(char *filename) {
     }
 
     infile.close();
-    string s;
-    if(sorted) s = "TRUE!";
-    else s = "FALSE!";
-    return (char*)s.c_str();
+    return sorted ? "True" : "False";
 }
 
 
-long file_block_count(char *file) {
+uint file_block_count(char *file) {
     ifstream s(file, ios::in | ios::ate);
-    long c = s.tellg() / sizeof(block_t);
+    uint c = (uint) s.tellg() / sizeof(block_t);
     s.close();
     return c;
 }

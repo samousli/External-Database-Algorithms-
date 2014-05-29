@@ -37,7 +37,7 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
     int numOfBlocksForSplit = 0;
     int retrievedBlocks = 0;
     block_t retrievedBlock; // temporary block_t for storage from retrieval
-    record_t record;
+    //record_t record;
     while (retrievedBlocks < numOfBlocks) {
         //out << "yes fucker !!!!!" << endl;
         // Read blocks and sort each block.

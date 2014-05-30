@@ -24,9 +24,12 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
                 uint nmem_blocks, unsigned char field, uint block_count,
                 uint *nsorted_segs, uint *npasses, uint *nios);
 
+void merge_step(ifstream &input, ofstream &output, block_t *buffer, block_t &output_block,
+                uint ways, uint init_block_id, uint sorted_seq_len, unsigned char field, uint *nios);
+
 void serialize_record(ofstream &outfile, block_t &block, record_t &record, uint *nios);
 
-void read_block(ifstream &input, uint block_id, block_t &output_block, uint *nios);
+void read_block(ifstream &input, uint block_id, block_t *output_block, uint *nios);
 
 
 

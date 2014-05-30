@@ -53,6 +53,8 @@ void merge_sort_driver(uint total, uint mem) {
          << "IO's: " << *ios << endl
          << "Passes: " << *passes << endl;
 
+    //print_file_contents(output_file);
+
     delete[] buffer;
     delete sorted_segs;
     delete passes;
@@ -77,7 +79,7 @@ void create_test_file(char *filename, uint nblocks) {
 
             // prepare a record
             record.recid = recid++;
-            record.num = rand() % 10000;
+            record.num = rand() % 1000000;
             strcpy(record.str, "hello\0"); // put the same string to all records
             record.valid = true;
 
@@ -110,7 +112,7 @@ void print_file_contents(char *filename, uint nblocks) {
     for (uint b = 0; b < block_count; ++b) {
         //infile.read((char*) &block, sizeof (block_t)); // read block from file
         uint *x = (uint*)calloc(1, sizeof(uint));
-        read_block(infile, b, block, x);
+        read_block(infile, b, &block, x);
         free(x);
         if (block.valid) {
             print_block_data(block);

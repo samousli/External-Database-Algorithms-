@@ -49,13 +49,6 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
     input.close();
     tmp_out.close();
 
-    print_file_contents(tmp_file, 0);
-    cout << "Sort done." << endl;
-
-    // To avoid overflow while debugging.
-//delete []buffer;
-    //buffer = new block_t[nmem_blocks + 1];
-
     if (block_count <= nmem_blocks) {
         rename(tmp_file, output_file);
         return;
@@ -81,11 +74,8 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
          << "Chain length: " << sorted_seq_len << endl
          << ways << "-way merge" << endl;
 
-    block_t *b;
-    record_t r;
     ifstream input;
     ofstream output;
-    block_comparator comp = block_comparator(field, true);
     bool output_file_to_output = true;
 
     while (sorted_seq_len < block_count) {
@@ -94,11 +84,6 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
         // Ways required for merge
         uint ways_req = ceil(block_count / (float) sorted_seq_len);
         ways = ways > ways_req ? ways_req : ways;
-
-        cout << "New round ahoy! Input:" << endl;
-        //print_file_contents(input_file);
-        cout << "Alas the output:" << endl;
-        //print_file_contents(output_file);
 
         // Files should swap each time
         // And if in the the temp file is the final output, it should be renamed.
@@ -120,34 +105,9 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
         output_block.next_blockid = init_block_id + 1;
 
         while (init_block_id < block_count) {
-            int heap_size = 0;  // Last element index
-            // Read data and populate the heap
-            // runs ways times
-            for (uint id = init_block_id;
-                    id < init_block_id + ways*sorted_seq_len;
-                    id+= sorted_seq_len) {
-                cout << "Reading: " << id << endl;
-                read_block(input, id, buffer[heap_size++], nios);
-            }
-            make_heap(buffer, &buffer[heap_size] + 1, comp);
 
-            // Merge
-            while (heap_size >= 0) {
-                pop_heap(buffer, &buffer[heap_size] + 1, comp);
-                b = &buffer[heap_size];  // Just a syntactic shortcut
-                r = b->entries[b->dummy++];
-                serialize_record(output, output_block, r, nios);
-
-                if (b->dummy < b->nreserved) {
-                    push_heap(buffer, &buffer[heap_size] + 1, comp);
-                } else if (b->next_blockid % sorted_seq_len != 0) {
-                    cout << "Queuing: " << b->next_blockid << endl;
-                    int i = b->next_blockid;
-                    read_block(input, i, buffer[heap_size], nios);
-                    push_heap(buffer, &buffer[heap_size] + 1, comp);
-                } else
-                    --heap_size;
-            }
+            merge_step(input, output, buffer, output_block,
+                       ways, init_block_id, sorted_seq_len, field, nios);
             init_block_id += ways * sorted_seq_len;
         }
         // End of the round of passes, increase seq_len and reiterate
@@ -156,11 +116,8 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
 
         input.close();
         output.close();
-
         // Next time the current output will be the input
         output_file_to_output = !output_file_to_output;
-
-        cout << "Full pass" << endl;
     }
 
     // If temp is the output, remove the other file and rename temp.
@@ -170,6 +127,42 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
     } else {
         remove(output_file);
         rename(input_file, output_file);
+    }
+}
+
+void merge_step(ifstream &input, ofstream &output, block_t *buffer, block_t &output_block,
+                uint ways, uint init_block_id, uint sorted_seq_len, unsigned char field, uint *nios) {
+    // Read data and populate the heap
+    // runs ways times
+    record_t r;
+    block_t *b;
+    block_comparator comp = block_comparator(field, true);
+
+    int heap_size = -1;  // Last element index
+    for (uint id = init_block_id;
+            id < init_block_id + ways*sorted_seq_len;
+            id+= sorted_seq_len) {
+        //cout << "Reading: " << id << endl;
+        read_block(input, id, &buffer[++heap_size], nios);
+    }
+    make_heap(buffer, &buffer[heap_size] + 1, comp);
+
+    // Merge
+    while (heap_size >= 0) {
+        pop_heap(buffer, &buffer[heap_size] + 1, comp);
+        b = &buffer[heap_size];  // Just a syntactic shortcut
+        r = b->entries[b->dummy++];
+        serialize_record(output, output_block, r, nios);
+
+        if (b->dummy < b->nreserved) {
+            push_heap(buffer, &buffer[heap_size] + 1, comp);
+        } else if (b->next_blockid % sorted_seq_len != 0) {
+            //cout << "Queuing: " << b->next_blockid << endl;
+            int i = b->next_blockid;
+            read_block(input, i, &buffer[heap_size], nios);
+            push_heap(buffer, &buffer[heap_size] + 1, comp);
+        } else
+            --heap_size;
     }
 }
 
@@ -216,28 +209,27 @@ void mem_merge(ofstream &output, block_t *buffer, uint nblocks,
 }
 
 
-void read_block(ifstream &input, uint block_id, block_t &output_block, uint *nios) {
+void read_block(ifstream &input, uint block_id, block_t *output_block, uint *nios) {
     ifstream::streamoff offset = sizeof (block_t) * (block_id);
     input.seekg(0, input.end);
     uint size = input.tellg();
-    cout << "Offset: " << offset << "\tSize: " << size << endl;
+    //cout << "Offset: " << offset << "\tSize: " << size << endl;
     if (offset <= size) {
         input.seekg(offset, input.beg);
-        input.read((char*) &output_block, sizeof(block_t));
+        input.read((char*) output_block, sizeof(block_t));
+        output_block->dummy = 0;
+        output_block->next_blockid = block_id + 1;
         ++(*nios);
-        output_block.next_blockid = block_id + 1;
-        output_block.dummy = 0;
     } else {
-        cerr << "Index out of range file range. " << block_id << endl;
+        //cerr << "Index out of range file range. " << block_id << endl;
     }
 }
 
 void serialize_record(ofstream &outfile, block_t &block, record_t &record, uint *nios) {
 
-    memcpy(&block.entries[block.nreserved], &record, sizeof(record_t));
-
+    block.entries[block.nreserved++] = record;
     // If block is full, write to file.
-    if (++block.nreserved == MAX_RECORDS_PER_BLOCK) {
+    if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
         block.valid = true;
         block.dummy = 0;
         outfile.write((char*) &block, sizeof (block_t));

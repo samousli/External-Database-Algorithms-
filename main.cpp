@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     //heap_test(input_path, 4);
     //print_file_contents("output.bin", 0);
     double sah = get_cpu_time();
-    merge_sort_driver(1 << 14, 1 << 5);
+    merge_sort_driver(1 << 12, 1 << 8);
     sah = get_cpu_time() - sah;
     cout << "Time: " << sah << " seconds" << endl;
     //MergeSortDriver();

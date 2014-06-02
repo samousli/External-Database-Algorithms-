@@ -7,7 +7,6 @@
 
 #include "Tests.h"
 #include "ComparisonPredicates.h"
-#include "HelpingMethods.h"
 #include "MergeSortImpl.h"
 
 #include <cstdlib>
@@ -26,12 +25,12 @@
 
 using namespace std;
 
-void merge_sort_driver(uint total, uint mem) {
-    int nblocks = total; // number of blocks in the file
-    int nmem_blocks = mem;
+void merge_sort_driver(uint total, uint mem,char *input_file,char *output_file) {
+    int nblocks = 1024; // number of blocks in the file
+    int nmem_blocks =32;
     cout << nblocks << endl;
-    char input_file[] = "input.bin";
-    char output_file[] = "output.bin";
+   // char input_file[] = "input.bin";
+   // char output_file[] = "sorted.bin";
 
     // Create test input file.
     create_test_file(input_file, nblocks);
@@ -44,11 +43,11 @@ void merge_sort_driver(uint total, uint mem) {
     *passes = new uint(0),
     *ios = new uint(0);
 
-    merge_sort(input_file, 1, buffer,
+    merge_sort(input_file,1, buffer,
                nmem_blocks, output_file,
                sorted_segs, passes, ios);
 
-    cout << "Is sorted? " << is_sorted(output_file) << endl;
+    cout << "Is sorted? " << is_sorted(output_file,1) << endl;
     cout << "Sorted segments: " << *sorted_segs << endl
          << "IO's: " << *ios << endl
          << "Passes: " << *passes << endl;
@@ -125,7 +124,7 @@ void print_file_contents(char *filename, uint nblocks) {
     infile.close();
     printf("Invalid blocks: %d\n", invalid_blocks);
     printf("Block count: %d\n", block_count);
-    cout << "Is sorted?" << is_sorted(filename) << endl;
+    cout << "Is sorted?" << is_sorted(filename,1) << endl;
 }
 
 
@@ -200,7 +199,7 @@ void print_block_data(block_t &block) {
          << block.dummy << "\tNext block id: " << block.next_blockid << "\tInvalid records: " << invalid_records << endl;
 }
 
-string is_sorted(char *filename) {
+bool is_sorted(char *filename,unsigned char field) {
 
     ifstream infile(filename, ios::in | ios::binary);
 
@@ -213,12 +212,29 @@ string is_sorted(char *filename) {
     // Assuming that the file is properly formatted.
     for (uint b = 0; b < block_count; ++b) {
         infile.read((char*) &block, sizeof (block_t)); // read block from file
-        for (uint r = 0; r < MAX_RECORDS_PER_BLOCK; ++r) {
+        int end  = block.nreserved; // end of each block 
+        for (uint r = 0; r < end ; ++r) {
             nr = block.entries[r];
-            if (b != 0 && r != 0 && nr.num < pr.num) {
-                sorted = false;
+            if (b != 0 && r != 0) {
+                if(field == '0'){ // comparator = recid
+                    if(nr.recid < pr.recid){
+                        sorted = false;
+                        break;
+                    }
+                }
+                else if(field == '1'){ // comparator = num 
+                   if(nr.num < pr.num){
+                        sorted = false;
+                        break;
+                    }
+                }
+                else if(field == '2'){ // comparator = str 
+                    if(strcmp(nr.str,pr.str) == -1){
+                        sorted = false;
+                        break;
+                    }
+                }
                 // << nr.num << " had to be greater than " << pr.num << endl;
-                break;
             }
             pr = nr;
             if(!sorted) break;
@@ -226,7 +242,7 @@ string is_sorted(char *filename) {
     }
 
     infile.close();
-    return sorted ? "True" : "False";
+    return sorted ;
 }
 
 

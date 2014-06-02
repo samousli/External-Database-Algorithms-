@@ -192,6 +192,7 @@ void mem_merge(ofstream &output, block_t *buffer, uint nblocks,
         // does not overflow: [first, last)
         sort(first, last, rcomp);
     }
+
     make_heap(buffer, &buffer[heap_size] + 1, comp) ;
 
     // Merge
@@ -228,6 +229,7 @@ void read_block(ifstream &input, uint block_id, block_t *output_block, uint *nio
 void serialize_record(ofstream &outfile, block_t &block, record_t &record, uint *nios) {
 
     block.entries[block.nreserved++] = record;
+
     // If block is full, write to file.
     if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
         block.valid = true;

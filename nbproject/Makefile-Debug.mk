@@ -14,14 +14,14 @@ GREP=grep
 NM=nm
 CCADMIN=CCadmin
 RANLIB=ranlib
-CC=clang
+CC=gcc
 CCC=g++
 CXX=g++
 FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=CLang-Linux-x86
+CND_PLATFORM=GNU-Linux-x86
 CND_DLIB_EXT=so
 CND_CONF=Debug
 CND_DISTDIR=dist
@@ -35,7 +35,6 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
-	${OBJECTDIR}/HelpingMethods.o \
 	${OBJECTDIR}/MergeSortImpl.o \
 	${OBJECTDIR}/Tests.o \
 	${OBJECTDIR}/dbtproj.o \
@@ -65,11 +64,6 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/database-storage-implementations: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/database-storage-implementations ${OBJECTFILES} ${LDLIBSOPTIONS}
-
-${OBJECTDIR}/HelpingMethods.o: HelpingMethods.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/HelpingMethods.o HelpingMethods.cpp
 
 ${OBJECTDIR}/MergeSortImpl.o: MergeSortImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}

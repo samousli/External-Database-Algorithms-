@@ -19,11 +19,11 @@ void print_file_contents(char *filename, uint nblocks = 0);
 
 void heap_test(char *filename, uint nblocks);
 
-void merge_sort_driver(uint total, uint mem);
+void merge_sort_driver(uint total, uint mem,char *input_file,char *output_file);
 
 void print_block_data(block_t &block);
 
-std::string is_sorted(char *filename);
+bool is_sorted(char *filename,unsigned char field);
 
 uint file_block_count(char *file);
 

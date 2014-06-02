@@ -63,14 +63,13 @@ void merge_sort_driver(uint total, uint mem,char *input_file,char *output_file) 
 
 void create_test_file(char *filename, uint nblocks) {
     // generate a file
-    ofstream outfile;
+    ofstream outfile(filename, ios::out | ios::binary);
     block_t block;
     record_t record;
     uint recid = 0;
     // Seed the pseudo-random generator
     srand(time(NULL));
 
-    outfile.open(filename, ios::out | ios::binary); // open input file
     for (uint b = 0; b < nblocks; ++b) { // for each block
 
         block.blockid = b;

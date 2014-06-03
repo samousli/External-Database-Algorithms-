@@ -28,6 +28,7 @@ bool is_sorted(char *filename,unsigned char field);
 uint file_block_count(char *file);
 
 double get_cpu_time(void);
+bool test_duplicates (char *infile,int nblocks);
 
 
 #endif	/* TESTS_H */

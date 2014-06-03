@@ -26,8 +26,8 @@
 using namespace std;
 
 void merge_sort_driver(uint total, uint mem,char *input_file,char *output_file) {
-    int nblocks = 1024; // number of blocks in the file
-    int nmem_blocks =32;
+    int nblocks = 100; // number of blocks in the file
+    int nmem_blocks =5;
     cout << nblocks << endl;
    // char input_file[] = "input.bin";
    // char output_file[] = "sorted.bin";
@@ -47,12 +47,12 @@ void merge_sort_driver(uint total, uint mem,char *input_file,char *output_file) 
                nmem_blocks, output_file,
                sorted_segs, passes, ios);
 
-    cout << "Is sorted? " << is_sorted(output_file,1) << endl;
-    cout << "Sorted segments: " << *sorted_segs << endl
-         << "IO's: " << *ios << endl
-         << "Passes: " << *passes << endl;
+   // cout << "Is sorted? " << is_sorted(output_file,1) << endl;
+  //  cout << "Sorted segments: " << *sorted_segs << endl
+    //     << "IO's: " << *ios << endl
+      //   << "Passes: " << *passes << endl;
 
-    //print_file_contents(output_file);
+   // print_file_contents(output_file);
 
     delete[] buffer;
     delete sorted_segs;
@@ -103,7 +103,8 @@ void print_file_contents(char *filename, uint nblocks) {
     infile.seekg(0, infile.end);
     uint block_count = (uint)infile.tellg() / sizeof(block_t);
     infile.seekg(0, infile.beg);
-   // printf("Size matches block count: %d\n", nblocks == block_count);
+  //  nblocks = block_count;
+    printf("Size matches block count: %d\n", block_count);
 
     int invalid_blocks = 0;
     // Assuming that the file is properly formatted.
@@ -125,7 +126,31 @@ void print_file_contents(char *filename, uint nblocks) {
     printf("Block count: %d\n", block_count);
     cout << "Is sorted?" << is_sorted(filename,1) << endl;
 }
-
+bool test_duplicates (char *infile,int nblocks){
+    block_t block;
+    record_t record;
+    record_t nextRecord;
+    ifstream input(infile,ios::in | ios::binary);
+    for(int i=0;i<nblocks;i++){ // for each block
+        input.read((char*)&block,sizeof(block_t)); // read block
+        for(int y=0;y<block.nreserved;y++){ // for each record 
+            if(i == 0 && y == 0){ // if first record initialize record variable 
+                record = block.entries[0];
+            }
+            else{ // not first record 
+                nextRecord = block.entries[y];
+                if(record.num == nextRecord.num){ // duplicate founded . return false 
+                    return false; 
+                }
+                else{
+                    record = nextRecord; // initialize current record 
+                }
+                    
+            }
+        }
+    }
+    return true; // Duplicates elinimated 
+}
 
 
 void heap_test(char *filename, uint nblocks) {
@@ -215,19 +240,19 @@ bool is_sorted(char *filename,unsigned char field) {
         for (uint r = 0; r < end ; ++r) {
             nr = block.entries[r];
             if (b != 0 && r != 0) {
-                if(field == '0'){ // comparator = recid
+                if(field == 0){ // comparator = recid
                     if(nr.recid < pr.recid){
                         sorted = false;
                         break;
                     }
                 }
-                else if(field == '1'){ // comparator = num 
+                else if(field == 1){ // comparator = num 
                    if(nr.num < pr.num){
                         sorted = false;
                         break;
                     }
                 }
-                else if(field == '2'){ // comparator = str 
+                else if(field == 2){ // comparator = str 
                     if(strcmp(nr.str,pr.str) == -1){
                         sorted = false;
                         break;

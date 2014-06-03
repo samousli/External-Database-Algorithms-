@@ -43,6 +43,7 @@ void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer,
                          unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) {
     uint *sorted_segs = new uint(0),
     *passes = new uint(0);
+    nunique = new uint(0);
     ifstream input("sorted.bin",ios::in | ios::binary); // temporary sorted file 
     ofstream output(outfile,ios::out | ios::binary); // output file 
     if(!input.good()){ // file not exists . Sort file and then elinimate duplicates 
@@ -58,40 +59,52 @@ void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer,
     currentBlock.blockid = 0; // initialize block id to zero 
     currentBlock.valid = false; // initialize valid to false 
     currentBlock.nreserved = 0; // initialize nreserved to zero 
+    
+    record_t currentRecord; // stores current Record for examination 
+    currentRecord = buffer[0].entries[0]; // initialize current Record 
+    int startIteration = 1 ; //start iteration from second record 
+    serialize_record(output,currentBlock,currentRecord,nios); 
+    ++(*nunique); // found unique record 
     for (uint i = 0; i < block_count; i += nmem_blocks) { // read blocks while reached buffer size
-        record_t currentRecord; // stores current Record for examination 
-        
         // Read into buffer
         uint read_count = nmem_blocks < block_count - i ? nmem_blocks : block_count - i;
         input.read((char*) buffer, read_count * sizeof (block_t));
         ++(*nios);
         
         for(int y=0;y<nmem_blocks;y++){ // iterate buffer 
-            for(int k=0;k<MAX_RECORDS_PER_BLOCK;k++){ // for each block iterate records 
-                if(y== 0 && k == 0) { // we just started . Record is unique . Write it to file 
-                    currentRecord = buffer[y].entries[k]; // initialize current Record 
-                    serialize_record(output,currentBlock,currentRecord,nios); 
-                    ++(*nunique); // found unique record 
-                }
-                else{
+            for(int k=startIteration;k<MAX_RECORDS_PER_BLOCK;k++){ // for each block iterate records 
                     record_t nextRecord = buffer[y].entries[k]; // temporary storage of next record 
                     if(currentRecord.num != nextRecord.num){ // if record 
                         currentRecord = nextRecord;
+                      //  cout<<currentRecord.num<<endl;
                         serialize_record(output,currentBlock,currentRecord,nios);
                         ++(*nunique); // found unique record 
                     }
-                }
+                
             }
+            startIteration = 0; // start from first record 
         }
     }
     if(currentBlock.nreserved != 0 ){ // last block that is not filled with Maximum Records . Write it
-       output.write((char*) &currentBlock, sizeof (block_t));
+        currentBlock.valid = true;
+        output.write((char*) &currentBlock, sizeof (block_t));
+        ++(*nios);
     }
+    input.close();
     output.close();
+    
     cout << "Is sorted? " << is_sorted(outfile,1) << endl;
     cout << "Sorted segments: " << *sorted_segs << endl
          << "IO's: " << *nios << endl
          << "Unique Records: " << *nunique << endl;
+    input.open(outfile,ios::in | ios::binary);
+     // Find file size
+    input.seekg(0, input.end);
+    uint block_count1 = input.tellg() / sizeof (block_t); // get number of blocks in file
+    input.seekg(0, input.beg);
+    bool duplicates = test_duplicates (outfile,block_count1);
+    cout<<"Elinimated Duplicates ?? "<<duplicates<<endl;
+
     
     
 }

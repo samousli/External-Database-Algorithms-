@@ -10,6 +10,7 @@
 
 #include "dbtproj.h"
 #include <iostream>
+#include <queue>
 
 typedef unsigned int uint;
 using namespace std;
@@ -25,9 +26,9 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
                 uint *nsorted_segs, uint *npasses, uint *nios);
 
 void merge_step(ifstream &input, ofstream &output, block_t *buffer, block_t &output_block,
-                uint ways, uint init_block_id, uint sorted_seq_len, unsigned char field, uint *nios);
+                uint ways, uint init_block_id, uint block_count, uint sorted_seq_len, unsigned char field, uint *nios);
 
-void serialize_record(ofstream &outfile, block_t &block, record_t &record, uint *nios);
+int serialize_record(ofstream &outfile, block_t &block, record_t &record, uint *nios);
 
 void read_block(ifstream &input, uint block_id, block_t *output_block, uint *nios);
 

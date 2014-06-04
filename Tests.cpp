@@ -26,8 +26,8 @@
 using namespace std;
 
 void merge_sort_driver(uint total, uint mem,char *input_file,char *output_file) {
-    int nblocks = 100; // number of blocks in the file
-    int nmem_blocks =5;
+    int nblocks = 1024; // number of blocks in the file
+    int nmem_blocks =32;
     cout << nblocks << endl;
    // char input_file[] = "input.bin";
    // char output_file[] = "sorted.bin";
@@ -53,7 +53,7 @@ void merge_sort_driver(uint total, uint mem,char *input_file,char *output_file) 
       //   << "Passes: " << *passes << endl;
 
    // print_file_contents(output_file);
-
+    
     delete[] buffer;
     delete sorted_segs;
     delete passes;
@@ -126,7 +126,7 @@ void print_file_contents(char *filename, uint nblocks) {
     printf("Block count: %d\n", block_count);
     cout << "Is sorted?" << is_sorted(filename,1) << endl;
 }
-bool test_duplicates (char *infile,int nblocks){
+bool test_duplicates (char *infile,int nblocks,unsigned char field){
     block_t block;
     record_t record;
     record_t nextRecord;
@@ -139,7 +139,8 @@ bool test_duplicates (char *infile,int nblocks){
             }
             else{ // not first record 
                 nextRecord = block.entries[y];
-                if(record.num == nextRecord.num){ // duplicate founded . return false 
+                int compare = compareField(record,nextRecord,field);
+                if(compare == 0){ // duplicate founded . return false 
                     return false; 
                 }
                 else{
@@ -287,4 +288,28 @@ double get_cpu_time(void) {
     tim=ru.ru_stime;
     t+=(double)tim.tv_sec + (double)tim.tv_usec / 1000000.0;
     return t;
+}
+int compareField(record_t rec1,record_t rec2,unsigned char field){
+    switch(field){
+        case 0 :
+            if(rec1.recid > rec2.num) return 1;
+            else if(rec1.recid == rec2.recid) return 0;
+            else return -1; 
+        case 1 :
+            if(rec1.num > rec2.num) return 1;
+            else if(rec1.num == rec2.num) return 0;
+            else return -1;
+        case 2 :
+            if(strcmp(rec1.str,rec2.str) == 1) return 1;
+            else if(strcmp(rec1.str,rec2.str) == 0) return 0;
+            else return -1;
+        case 3 : 
+            if(rec1.num > rec2.num) return 1;
+            else if(rec1.num == rec2.num)
+                if(strcmp(rec1.str,rec2.str) == 1) return 1;
+                else if(strcmp(rec1.str,rec2.str) == 0) return 0;
+                else return -1;
+            else return -1;
+    }
+            
 }

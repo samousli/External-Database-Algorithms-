@@ -129,5 +129,6 @@ struct record_comparator {
 
 };
 
+
 #endif	/* COMPARISONPREDICATES_H */
 

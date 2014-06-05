@@ -152,13 +152,13 @@ void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffe
     while((*firstIterator) < first_block_count && (*secondIterator) < second_block_count){
         int compare = compareField(firstRecord,secondRecord,field); // compare records 
         if(compare == -1){// first record value is smaller than second record value  
-           int result =  retrieveRecord(&firstBlock,&firstRecord,input1,field,nios,firstIterator);
+           int result =  retrieveRecord(&firstBlock,&firstRecord,input1,nios,firstIterator);
            if(result == 0 ){ // file eof 
                break;
            }
         } 
         else if(compare == 1){ // first record value is bigger than second record value  
-            int result =  retrieveRecord(&secondBlock,&secondRecord,input2,field,nios,secondIterator);
+            int result =  retrieveRecord(&secondBlock,&secondRecord,input2,nios,secondIterator);
             if(result == 0 ){// file eof
                break;
             }
@@ -171,7 +171,7 @@ void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffe
             ++(*nres);
             record_t compareRecord = firstRecord; // temporary record to examine if there are other same values to write 
             do{ //while loop to examine for same values 
-              int result =  retrieveRecord(&firstBlock,&firstRecord,input1,field,nios,firstIterator);
+              int result =  retrieveRecord(&firstBlock,&firstRecord,input1,nios,firstIterator);
               if(result == 0 ){// file eof
                 break;
               }
@@ -184,7 +184,7 @@ void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffe
                   ++(*nres);
               }
               
-              int result1 =  retrieveRecord(&secondBlock,&secondRecord,input2,field,nios,secondIterator);
+              int result1 =  retrieveRecord(&secondBlock,&secondRecord,input2,nios,secondIterator);
               if(result1 == 0 ){// file eof
                 break;
               }

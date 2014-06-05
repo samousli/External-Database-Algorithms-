@@ -336,7 +336,7 @@ int compareField(record_t rec1,record_t rec2,unsigned char field){
             else return -1;
     }
 }
-   int retrieveRecord(block_t *block,record_t *record,ifstream &input,unsigned char field,unsigned int *nios,unsigned int *iterator){
+   int retrieveRecord(block_t *block,record_t *record,ifstream &input,unsigned int *nios,unsigned int *iterator){
          if(block->dummy < block->nreserved){ 
                 *record = block->entries[block->dummy++]; // go to next record 
             }

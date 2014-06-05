@@ -27,7 +27,7 @@ using namespace std;
 
 void merge_sort_driver(uint total, uint mem,char *input_file,char *output_file) {
     int nblocks = 1024; // number of blocks in the file
-    int nmem_blocks =32;
+    int nmem_blocks = 32;
     cout << nblocks << endl;
    // char input_file[] = "input.bin";
    // char output_file[] = "sorted.bin";
@@ -289,6 +289,30 @@ double get_cpu_time(void) {
     t+=(double)tim.tv_sec + (double)tim.tv_usec / 1000000.0;
     return t;
 }
+
+int testRecordsForDuplicates(int startIteration,block_t *buffer,int read_count,record_t currentRecord,
+                             block_t currentBlock,ofstream &output,unsigned int *nunique,unsigned int *nios,unsigned char field){
+    
+    for(int y=0;y<read_count;y++){ // iterate buffer 
+            for(int k=startIteration;k<buffer[y].nreserved;k++){ // for each block iterate records 
+                    record_t nextRecord = buffer[y].entries[buffer[y].dummy++]; // temporary storage of next record 
+                    int compare = compareField(currentRecord,nextRecord,field);
+                    if(compare == -1 || compare == 1){ // if records are not equal 
+                        if(compare == 1){
+                            cout<<"Error with File Sorting . Founded record value bigger than next record value .Exit !! "<<endl;
+                            return 0;
+                        }
+                        currentRecord = nextRecord; // make current record the next record that retrieved before 
+                        serialize_record(output,currentBlock,currentRecord,nios);
+                        ++(*nunique); // found unique record 
+                    }
+                
+            }
+            startIteration = 0; // start from first record 
+        }
+    return 1;
+}
+
 int compareField(record_t rec1,record_t rec2,unsigned char field){
     switch(field){
         case 0 :
@@ -311,5 +335,19 @@ int compareField(record_t rec1,record_t rec2,unsigned char field){
                 else return -1;
             else return -1;
     }
-            
+}
+   int retrieveRecord(block_t *block,record_t *record,ifstream &input,unsigned char field,unsigned int *nios,unsigned int *iterator){
+         if(block->dummy < block->nreserved){ 
+                *record = block->entries[block->dummy++]; // go to next record 
+            }
+            else { // change block from file 
+                if(input.eof()){
+                    return 0 ; // if end of file , break;
+                }
+                input.read((char*)block,sizeof(block_t));
+                *record = block->entries[block->dummy++];
+                ++(*nios);
+            }
+         ++(*iterator);
+      return 1;      
 }

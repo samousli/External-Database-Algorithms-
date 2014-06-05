@@ -10,8 +10,10 @@
 
 #include "dbtproj.h"
 #include <iostream>
+#include <iostream>
 
 typedef unsigned int uint;
+using namespace std;
 
 void create_test_file(char *filename, uint nblocks);
 
@@ -30,7 +32,9 @@ uint file_block_count(char *file);
 double get_cpu_time(void);
 bool test_duplicates (char *infile,int nblocks,unsigned char field);
 int compareField(record_t rec1,record_t rec2,unsigned char field);
-
+int testRecordsForDuplicates(int startIteration,block_t *buffer,int read_count,record_t currentRecord,
+                             block_t currentBlock,ofstream &output,unsigned int *nunique,unsigned int *nios,unsigned char field);
+ int retrieveRecord(block_t *block,record_t *record,ifstream &input,unsigned char field,unsigned int *nios,unsigned int *iterator);
 
 
 #endif	/* TESTS_H */

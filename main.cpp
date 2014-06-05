@@ -22,21 +22,22 @@ int main(int argc, char** argv) {
     sah = get_cpu_time() - sah;
     cout << "Time: " << sah << " seconds" << endl;
     block_t *buffer;
-    int nmem_blocks =4;
+    int nmem_blocks =32;
     buffer = new block_t[nmem_blocks];
     uint *sorted_segs = new uint(0),
     *passes = new uint(0),
+    *nres = new uint(0),
     *ios = new uint(0);
     
     
 
-   // EliminateDuplicates("input.bin",1,buffer,nmem_blocks,"output.bin",sorted_segs,ios);
-     // print_file_contents("output.bin");
+  // EliminateDuplicates("input.bin",1,buffer,nmem_blocks,"output.bin",sorted_segs,ios);
+    //  print_file_contents("output.bin");
 
    // remove("sorted.bin");
    // remove("input.bin");
     
-    MergeJoin("input1.bin","input2.bin",1,buffer,nmem_blocks,"output.bin", passes , ios);
+    MergeJoin("input1.bin","input2.bin",1,buffer,nmem_blocks,"output.bin", nres , ios);
     print_file_contents("output.bin");
 
     return 0;

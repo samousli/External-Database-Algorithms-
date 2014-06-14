@@ -31,13 +31,13 @@ int main(int argc, char** argv) {
     
     
 
-  // EliminateDuplicates("input.bin",1,buffer,nmem_blocks,"output.bin",sorted_segs,ios);
-    //  print_file_contents("output.bin");
+   EliminateDuplicates("input.bin",1,buffer,nmem_blocks,"output.bin",sorted_segs,ios);
+   print_file_contents("output.bin");
 
    // remove("sorted.bin");
    // remove("input.bin");
     
-    MergeJoin("input1.bin","input2.bin",1,buffer,nmem_blocks,"output.bin", nres , ios);
+    //MergeJoin("input1.bin","input2.bin",1,buffer,nmem_blocks,"output.bin", nres , ios);
     print_file_contents("output.bin");
 
     return 0;

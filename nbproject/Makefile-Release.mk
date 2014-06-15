@@ -15,8 +15,8 @@ NM=nm
 CCADMIN=CCadmin
 RANLIB=ranlib
 CC=gcc
-CCC=g++-4.8
-CXX=g++-4.8
+CCC=g++
+CXX=g++
 FC=gfortran
 AS=as
 
@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/MergeJoinImpl.o \
 	${OBJECTDIR}/MergeSortImpl.o \
 	${OBJECTDIR}/Tests.o \
 	${OBJECTDIR}/dbtproj.o \
@@ -64,6 +65,11 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/database-storage-implementations: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/database-storage-implementations ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/MergeJoinImpl.o: MergeJoinImpl.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/MergeJoinImpl.o MergeJoinImpl.cpp
 
 ${OBJECTDIR}/MergeSortImpl.o: MergeSortImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}

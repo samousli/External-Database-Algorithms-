@@ -35,6 +35,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/EliminateDuplicatesImpl.o \
 	${OBJECTDIR}/MergeJoinImpl.o \
 	${OBJECTDIR}/MergeSortImpl.o \
 	${OBJECTDIR}/Tests.o \
@@ -65,6 +66,11 @@ LDLIBSOPTIONS=
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/database-storage-implementations: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/database-storage-implementations ${OBJECTFILES} ${LDLIBSOPTIONS}
+
+${OBJECTDIR}/EliminateDuplicatesImpl.o: EliminateDuplicatesImpl.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/EliminateDuplicatesImpl.o EliminateDuplicatesImpl.cpp
 
 ${OBJECTDIR}/MergeJoinImpl.o: MergeJoinImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}

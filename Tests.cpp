@@ -123,7 +123,7 @@ void print_file_contents(char *filename, uint nblocks) {
     infile.close();
     printf("Invalid blocks: %d\n", invalid_blocks);
     printf("Block count: %d\n", block_count);
-    cout << "Is sorted?" << is_sorted(filename, 1) << endl;
+   // cout << "Is sorted?" << is_sorted(filename, 1) << endl;
 }
 
 bool test_duplicates(char *infile, int nblocks, unsigned char field) {
@@ -273,26 +273,4 @@ double get_cpu_time(void) {
     return t;
 }
 
-int testRecordsForDuplicates(int startIteration, block_t *buffer, int read_count, record_t currentRecord,
-        block_t currentBlock, ofstream &output, unsigned int *nunique, unsigned int *nios, unsigned char field) {
-
-    for (int y = 0; y < read_count; y++) { // iterate buffer 
-        for (int k = startIteration; k < buffer[y].nreserved; k++) { // for each block iterate records 
-            record_t nextRecord = buffer[y].entries[buffer[y].dummy++]; // temporary storage of next record 
-            int compare = compareField(currentRecord, nextRecord, field);
-            if (compare == -1 || compare == 1) { // if records are not equal 
-                if (compare == 1) {
-                    cout << "Error with File Sorting . Founded record value bigger than next record value .Exit !! " << endl;
-                    return 0;
-                }
-                currentRecord = nextRecord; // make current record the next record that retrieved before 
-                serialize_record(output, currentBlock, currentRecord, nios);
-                ++(*nunique); // found unique record 
-            }
-
-        }
-        startIteration = 0; // start from first record 
-    }
-    return 1;
-}
 

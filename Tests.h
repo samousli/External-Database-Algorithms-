@@ -32,9 +32,7 @@ double get_cpu_time(void);
 
 bool test_duplicates(char *infile, int nblocks, unsigned char field);
 
-int testRecordsForDuplicates(int startIteration, block_t *buffer, int read_count,
-        record_t currentRecord, block_t currentBlock, ofstream &output,
-        unsigned int *nunique, unsigned int *nios, unsigned char field);
+
 
 
 #endif	/* TESTS_H */

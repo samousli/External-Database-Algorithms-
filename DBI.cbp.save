@@ -41,9 +41,12 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="ComparisonPredicates.cpp" />
 		<Unit filename="ComparisonPredicates.h" />
 		<Unit filename="EliminateDuplicatesImpl.cpp" />
 		<Unit filename="EliminateDuplicatesImpl.h" />
+		<Unit filename="HashJoinImpl.cpp" />
+		<Unit filename="HashJoinImpl.h" />
 		<Unit filename="MergeJoinImpl.cpp" />
 		<Unit filename="MergeJoinImpl.h" />
 		<Unit filename="MergeSortImpl.cpp" />

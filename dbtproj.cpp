@@ -1,8 +1,9 @@
 #include "dbtproj.h"
-#include "EliminateDuplicatesImpl.h"
 #include "ComparisonPredicates.h"
 #include "MergeSortImpl.h"
+#include "EliminateDuplicatesImpl.h"
 #include "MergeJoinImpl.h"
+#include "HashJoinImpl.h"
 #include "Tests.h"
 
 #include <iostream>

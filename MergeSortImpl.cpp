@@ -18,7 +18,7 @@
 using namespace std;
 
 void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nmem_blocks,
-        char *output_file, uint *nsorted_segs, uint *npasses, uint *nios) {
+                char *output_file, uint *nsorted_segs, uint *npasses, uint *nios) {
 
     // Temp file to hold the initial pass data.
     char tmp_file[] = "temp.bin";
@@ -45,7 +45,7 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
 
         // Sort the buffer
         mem_merge(tmp_out, buffer, read_len, field, nios);
-        ++(*npasses);
+        ++(*nsorted_segs);
     }
 
     input.close();
@@ -56,16 +56,16 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
     if (block_count <= nmem_blocks)
         rename(tmp_file, output_file);
     else
-        file_merge(tmp_file, output_file, buffer, nmem_blocks, field, block_count,
-            nsorted_segs, npasses, nios);
+        file_merge(tmp_file, output_file, buffer, nmem_blocks,
+                   field, block_count, nsorted_segs, npasses, nios);
 }
 
 /**
 
 */
 void file_merge(char *input_file, char *output_file, block_t *buffer,
-        uint nmem_blocks, unsigned char field, uint block_count,
-        uint *nsorted_segs, uint *npasses, uint *nios) {
+                uint nmem_blocks, unsigned char field, uint block_count,
+                uint *nsorted_segs, uint *npasses, uint *nios) {
 
     // k way merge, in other words number of sorted segments produced.
     uint ways = ceil(block_count / (float) nmem_blocks);
@@ -73,7 +73,7 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
     ways = ways > nmem_blocks ? nmem_blocks : ways;
     uint segment_len = nmem_blocks;
     cout << "Total block count: " << block_count << endl
-            << "Segment length: " << segment_len << endl;
+         << "Segment length: " << segment_len << endl;
     ifstream input;
     ofstream output;
     bool output_file_to_output = true;
@@ -102,6 +102,7 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
 
         // Initialize output block
         block_t output_block;
+        memset(&output_block, 0, sizeof(block_t));
         output_block.nreserved = 0;
         output_block.blockid = init_block_id;
         output_block.next_blockid = init_block_id + 1;
@@ -109,13 +110,15 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
         // Merge all the sorted segments that fit into memory
         while (init_block_id < block_count) {
             merge_step(input, output, buffer, output_block,
-                    ways, init_block_id, block_count, segment_len, field, nios);
+                       ways, init_block_id, block_count, segment_len, field, nios);
 
             init_block_id += ways * segment_len;
+            ++(*nsorted_segs);
         }
         // End of the round of passes, increase seq_len and reiterate
 
         segment_len *= ways;
+        ++(*npasses);
         //  segment_len *= 2;
         input.close();
         output.close();
@@ -135,11 +138,13 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
 }
 
 void merge_step(ifstream &input, ofstream &output, block_t *buffer, block_t &output_block,
-        uint ways, uint init_block_id, uint block_count, uint sorted_seq_len,
-        unsigned char field, uint *nios) {
+                uint ways, uint init_block_id, uint block_count, uint sorted_seq_len,
+                unsigned char field, uint *nios) {
 
 
     record_t r;
+    memset(&r, 0, sizeof(record_t));
+
     block_t *b;
     block_comparator comp = block_comparator(field, true);
 
@@ -165,7 +170,7 @@ void merge_step(ifstream &input, ofstream &output, block_t *buffer, block_t &out
         if (b->dummy < b->nreserved) {
             push_heap(buffer, &buffer[heap_size] + 1, comp);
         } else if (b->next_blockid < block_count
-                && b->next_blockid % sorted_seq_len != 0) {
+                   && b->next_blockid % sorted_seq_len != 0) {
 
             // cout << "Queuing: " << b->next_blockid << endl;
             int i = b->next_blockid;
@@ -182,13 +187,16 @@ void merge_step(ifstream &input, ofstream &output, block_t *buffer, block_t &out
 void mem_merge(ofstream &output, block_t *buffer, uint nblocks, unsigned char field, uint *nios) {
     // Initialize output block
     block_t output_block;
+    record_t rec;
+
+    memset(&output_block, 0, sizeof(block_t));
+    memset(&rec, 0, sizeof(record_t));
 
     output_block.nreserved = 0;
     output_block.dummy = 0;
     output_block.blockid = buffer[0].blockid;
     output_block.next_blockid = output_block.blockid + 1;
 
-    record_t r;
     block_t *b;
     block_comparator comp = block_comparator(field, true);
     record_comparator rcomp = record_comparator(field, false);
@@ -198,7 +206,7 @@ void mem_merge(ofstream &output, block_t *buffer, uint nblocks, unsigned char fi
     heap_size = nblocks - 1;
     for (uint i = 0; i < nblocks; ++i) {
         record_t *first = &buffer[i].entries[0],
-                *last = &buffer[i].entries[buffer[i].nreserved - 1] + 1;
+                  *last = &buffer[i].entries[buffer[i].nreserved - 1] + 1;
         // does not overflow: [first, last)
         sort(first, last, rcomp);
     }
@@ -210,8 +218,8 @@ void mem_merge(ofstream &output, block_t *buffer, uint nblocks, unsigned char fi
         pop_heap(buffer, &buffer[heap_size] + 1, comp);
         b = &buffer[heap_size]; // Just a syntactic shortcut
 
-        r = b->entries[b->dummy++];
-        serialize_record(output, output_block, r, nios);
+        rec = b->entries[b->dummy++];
+        serialize_record(output, output_block, rec, nios);
 
         if (b->dummy < b->nreserved) {
             push_heap(buffer, &buffer[heap_size] + 1, comp);
@@ -233,7 +241,7 @@ void read_block(ifstream &input, uint block_id, block_t *output_block, uint *nio
 
 bool serialize_record(ofstream &outfile, block_t &block, record_t &record, uint *nios) {
 
-    block.entries[block.nreserved++] = record;
+    memcpy(&block.entries[block.nreserved++], &record, sizeof(record_t));
 
     // If block is full, write to file.
     if (block.nreserved == MAX_RECORDS_PER_BLOCK) {

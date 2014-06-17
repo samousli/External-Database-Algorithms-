@@ -51,6 +51,7 @@ bool record_comparator::operator()(const record_t& l, const record_t& r) {
         result = l.recid > r.recid;
         break;
     case 1:
+
         result = l.num > r.num;
         break;
     case 2:

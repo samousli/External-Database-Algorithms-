@@ -16,32 +16,11 @@ int main(int argc, char** argv) {
 
     double sah = get_cpu_time();
 
-  //  merge_sort_driver(9412, 64);
-   // create_test_file("input1.bin",9412); // create test file 
-   // create_test_file("input2.bin",9412); // create test file 
-    
+    eliminate_duplicates_driver(10,2);
+    //merge_sort_driver(9412, 64);
+
     sah = get_cpu_time() - sah;
     cout << "Time: " << sah << " seconds" << endl;
-
-
-
-    block_t *buffer;
-    int nmem_blocks = 64;
-   buffer = new block_t[nmem_blocks];
-   uint *sorted_segs = new uint(0),
-            *passes = new uint(0),
-            *nres = new uint(0),
-            *ios = new uint(0);
-
-
-//     EliminateDuplicates("input1.bin",1,buffer,nmem_blocks,"output.bin",sorted_segs,ios);
-    // print_file_contents("output.bin");
-
-    // remove("sorted.bin");
-    // remove("input.bin");
-
-   //MergeJoin("input1.bin","input2.bin",0,buffer,nmem_blocks,"output.bin", nres , ios);
-   // print_file_contents("output.bin");
 
     return 0;
 }
@@ -53,7 +32,3 @@ void benchmark() {
     cout << "Sah: " << sah << " seconds" << endl;
 
 }
-
-
-
-

@@ -35,7 +35,9 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 
 # Object Files
 OBJECTFILES= \
+	${OBJECTDIR}/ComparisonPredicates.o \
 	${OBJECTDIR}/EliminateDuplicatesImpl.o \
+	${OBJECTDIR}/HashJoinImpl.o \
 	${OBJECTDIR}/MergeJoinImpl.o \
 	${OBJECTDIR}/MergeSortImpl.o \
 	${OBJECTDIR}/Tests.o \
@@ -67,10 +69,20 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/database-storage-implementations: ${O
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
 	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/database-storage-implementations ${OBJECTFILES} ${LDLIBSOPTIONS}
 
+${OBJECTDIR}/ComparisonPredicates.o: ComparisonPredicates.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ComparisonPredicates.o ComparisonPredicates.cpp
+
 ${OBJECTDIR}/EliminateDuplicatesImpl.o: EliminateDuplicatesImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/EliminateDuplicatesImpl.o EliminateDuplicatesImpl.cpp
+
+${OBJECTDIR}/HashJoinImpl.o: HashJoinImpl.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -Wall -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/HashJoinImpl.o HashJoinImpl.cpp
 
 ${OBJECTDIR}/MergeJoinImpl.o: MergeJoinImpl.cpp 
 	${MKDIR} -p ${OBJECTDIR}

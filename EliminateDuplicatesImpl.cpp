@@ -1,13 +1,14 @@
-/* 
+/*
  * File:   EliminateDuplicatesImpl.cpp
  * Author: geohar
- * 
+ *
  * Created on June 15, 2014, 7:25 PM
  */
 
 #include "EliminateDuplicatesImpl.h"
-#include "Tests.h"
+#include "ComparisonPredicates.h"
 #include "MergeSortImpl.h"
+#include "Tests.h"
 #include "dbtproj.h"
 #include <cstdio>
 #include <cstdlib>
@@ -15,6 +16,7 @@
 #include <fstream>
 #include <cstring>
 
+using namespace std;
 
 /* ----------------------------------------------------------------------------------------------------------------------
    infile: the name of the input file
@@ -27,44 +29,52 @@
    ----------------------------------------------------------------------------------------------------------------------
  */
 void eliminateDuplicatesImpl(char *infile, unsigned char field, block_t *buffer,
-        unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios){
-    
+                             unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) {
+
     uint *sorted_segs = new uint(0),
-            *passes = new uint(0);
-    nunique = new uint(0);
-    nios = new uint(0);
+    *passes = new uint(0);
     uint read_count;
 
     char sortedfile[] = "sorted.bin";    // Needs random name
 
-    ifstream input(sortedfile, ios::in | ios::binary); // temporary sorted file
+    ifstream input;//(sortedfile, ios::in | ios::binary); // temporary sorted file
     ofstream output(outfile, ios::out | ios::binary); // output file
 
-    if (!input.good()) { // file not exists . Sort file and then elinimate duplicates
-        merge_sort(infile, field, buffer, nmem_blocks,sortedfile, sorted_segs, passes, nios);
+    // File does not exist. Sort file and then eliminate duplicates
+    if (!is_sorted(infile, field)) {
+
+        merge_sort(infile, field, buffer, nmem_blocks, sortedfile, sorted_segs, passes, nios);
+        input.open(sortedfile, ios::in | ios::binary);
+    } else {
+        input.open(infile, ios::in | ios::binary);
     }
-    input.close();
-    
-    uint block_count = file_block_count(sortedfile);
-    input.open(sortedfile, ios::in | ios::binary);
 
-    block_t currentBlock; // current retrievedBlock
-    currentBlock.blockid = 0; // initialize block id to zero
-    currentBlock.valid = false; // initialize valid to false
-    currentBlock.nreserved = 0; // initialize nreserved to zero
-    record_t currentRecord; // stores current Record for examination
 
-    input.read((char*) buffer, nmem_blocks * sizeof (block_t));
+    input.seekg(0, input.end);
+    uint block_count = (uint) input.tellg() / sizeof (block_t);
+    input.seekg(0, input.beg);
+
+    // current retrieved block
+    block_t outputBlock;
+    outputBlock.blockid = 0;
+    outputBlock.valid = false;
+    outputBlock.nreserved = 0;
+
+    // stores current Record for examination
+    record_t currentRecord;
+
+    input.read((char*) buffer, (int) nmem_blocks * sizeof (block_t));
     ++(*nios);
 
     currentRecord = buffer[0].entries[buffer[0].dummy++];
-    serialize_record(output, currentBlock, currentRecord, nios);
+    serialize_record(output, outputBlock, currentRecord, nios);
     ++(*nunique); // found unique record
-    ++(*nios);
-    
+
     read_count = nmem_blocks;
     for (uint i = nmem_blocks; i <= block_count; i += read_count) { // read blocks while reached buffer size
-        int result = testRecordsForDuplicates(buffer, read_count, currentRecord, currentBlock, output, nunique, nios, field);
+
+        int result = testRecordsForDuplicates(buffer, read_count, currentRecord,
+                                              outputBlock, output, nunique, nios, field);
         if (result == 0) {
             return; // problem
         }
@@ -75,74 +85,41 @@ void eliminateDuplicatesImpl(char *infile, unsigned char field, block_t *buffer,
             ++(*nios);
         }
     }
-    if (currentBlock.nreserved != 0 && currentBlock.nreserved != 1) { // last block that is not filled with Maximum Records . Write it
-        currentBlock.valid = true;
-        output.write((char*) &currentBlock, sizeof (block_t));
+    if (outputBlock.nreserved != 0 && outputBlock.nreserved != 1) { // last block that is not filled with Maximum Records . Write it
+        outputBlock.valid = true;
+        output.write((char*) &outputBlock, sizeof (block_t));
         ++(*nios);
     }
     input.close();
     output.close();
 
-    cout << "Is sorted? " << is_sorted(outfile,field) << endl;
-    cout << "Sorted segments: " << *sorted_segs << endl
-            << "IO's: " << *nios << endl
-            << "Unique Records: " << *nunique << endl;
-    uint block_count_output = file_block_count(outfile);
-    cout<<"block_count : "<<block_count_output<<endl;
-    bool duplicates = test_duplicates(outfile, block_count_output, field);
-    cout << "Elinimated Duplicates ?? " << duplicates << endl;
 }
 
-
 int testRecordsForDuplicates(block_t *buffer, int read_count, record_t currentRecord,
-        block_t currentBlock, ofstream &output, unsigned int *nunique, unsigned int *nios, unsigned char field) {
-    for (int y = 0; y < read_count; y++) { // iterate buffer 
-        while(buffer[y].dummy < buffer[y].nreserved){
-            record_t nextRecord = buffer[y].entries[buffer[y].dummy++]; // temporary storage of next record 
+                             block_t currentBlock, ofstream &output, unsigned int *nunique,
+                             unsigned int *nios, unsigned char field) {
+
+    for (int y = 0; y < read_count; y++) { // iterate buffer
+        while(buffer[y].dummy < buffer[y].nreserved) {
+
+            record_t nextRecord = buffer[y].entries[buffer[y].dummy++]; // temporary storage of next record
             int compare = compareRecords(currentRecord, nextRecord, field);
-            currentRecord = nextRecord; // make current record the next record that retrieved before 
-            if (compare == -1 || compare == 1) { // if records are not equal 
+
+            if (compare == -1 || compare == 1) { // if records are not equal
                 if (compare == 1) {
-                    cout << "Error with File Sorting . Founded record value bigger than next record value .Exit !! " << endl;
+                    cout << "Error with File Sorting. "
+                         << "Found record value bigger than next record value .Exit !! " << endl;
                     return 0;
                 }
-                
+
                 serialize_record(output, currentBlock, currentRecord, nios);
-                ++(*nunique); // found unique record 
-                ++(*nios); // 
+                ++(*nunique); // found unique record
             }
-
-
+            // make current record the next record that retrieved before
+            currentRecord = nextRecord;
         }
     }
     return 1;
 }
 
 
-
-int compareRecords(record_t rec1, record_t rec2, unsigned char field) {
-    switch (field) {
-        case 0:
-            if (rec1.recid > rec2.recid) return 1;
-            else if (rec1.recid == rec2.recid) return 0;
-            else return -1;
-        case 1:
-            if (rec1.num > rec2.num) return 1;
-            else if (rec1.num == rec2.num) return 0;
-            else return -1;
-        case 2:
-            if (strcmp(rec1.str, rec2.str) == 1) return 1;
-            else if (strcmp(rec1.str, rec2.str) == 0) return 0;
-            else return -1;
-        case 3:
-            if (rec1.num > rec2.num) return 1;
-            else if (rec1.num == rec2.num)
-                if (strcmp(rec1.str, rec2.str) == 1) return 1;
-                else if (strcmp(rec1.str, rec2.str) == 0) return 0;
-                else return -1;
-            else return -1;
-        default:
-            cerr << "Bad field input" << endl;
-            return 0;
-    }
-}

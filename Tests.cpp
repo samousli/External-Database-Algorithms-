@@ -8,6 +8,7 @@
 #include "Tests.h"
 #include "ComparisonPredicates.h"
 #include "MergeSortImpl.h"
+#include "EliminateDuplicatesImpl.h"
 #include "MergeJoinImpl.h"
 
 #include <cstdlib>
@@ -26,9 +27,8 @@
 using namespace std;
 
 void merge_sort_driver(uint total, uint mem) {
-    int nblocks = total; // number of blocks in the file
-    int nmem_blocks = mem;
-    cout << nblocks << endl;
+    uint nblocks = total; // number of blocks in the file
+    uint nmem_blocks = mem;
     char input_file[] = "input.bin";
     char output_file[] = "sorted.bin";
 
@@ -40,17 +40,17 @@ void merge_sort_driver(uint total, uint mem) {
     block_t *buffer = new block_t[nmem_blocks];
 
     uint *sorted_segs = new uint(0),
-            *passes = new uint(0),
-            *ios = new uint(0);
+    *passes = new uint(0),
+    *ios = new uint(0);
 
     merge_sort(input_file, 1, buffer,
-            nmem_blocks, output_file,
-            sorted_segs, passes, ios);
+               nmem_blocks, output_file,
+               sorted_segs, passes, ios);
 
     cout << "Is sorted? " << is_sorted(output_file, 1) << endl;
     cout << "Sorted segments: " << *sorted_segs << endl
-            << "IO's: " << *ios << endl
-            << "Passes: " << *passes << endl;
+         << "IO's: " << *ios << endl
+         << "Passes: " << *passes << endl;
 
     // print_file_contents(output_file);
 
@@ -58,6 +58,37 @@ void merge_sort_driver(uint total, uint mem) {
     delete sorted_segs;
     delete passes;
     delete ios;
+}
+
+void eliminate_duplicates_driver(uint total, uint mem) {
+    uint nblocks = total; // number of blocks in the file
+    uint nmem_blocks = mem;
+    char input_file[] = "input.bin";
+    char output_file[] = "sorted.bin";
+
+    // Create test input file.
+    create_test_file(input_file, nblocks);
+
+    // Create a buffer with the given block count and
+    // pass them as arguments for the sorting to take place
+    block_t *buffer = new block_t[nmem_blocks];
+
+    uint *uniques = new uint(0),
+    *ios = new uint(0);
+
+    eliminateDuplicatesImpl(input_file, 1, buffer,
+                            nmem_blocks, output_file, uniques, ios);
+
+    cout << "Duplicates eliminated? " << test_duplicates(output_file, 1) << endl;
+    cout << "IO's: " << *ios << endl
+         << "Uniques: " << *uniques << endl;
+
+    //print_file_contents(output_file);
+
+    delete[] buffer;
+    delete uniques;
+    delete ios;
+
 }
 
 void create_test_file(char *filename, uint nblocks) {
@@ -76,7 +107,7 @@ void create_test_file(char *filename, uint nblocks) {
 
             // prepare a record
             record.recid = recid++;
-            record.num = rand() % 1000000;
+            record.num = rand() % 1000;
             strcpy(record.str, "hello\0"); // put the same string to all records
             record.valid = true;
 
@@ -93,6 +124,9 @@ void create_test_file(char *filename, uint nblocks) {
     }
     outfile.close();
 }
+
+
+
 
 void print_file_contents(char *filename, uint nblocks) {
     ifstream infile;
@@ -121,35 +155,122 @@ void print_file_contents(char *filename, uint nblocks) {
 
 
     infile.close();
-    printf("Invalid blocks: %d\n", invalid_blocks);
-    printf("Block count: %d\n", block_count);
-   // cout << "Is sorted?" << is_sorted(filename, 1) << endl;
+
+    cout << "Invalid blocks: " << invalid_blocks << endl
+         << "Block count: " << block_count << endl
+         << "Is sorted?" << is_sorted(filename, 1) << endl;
 }
 
-bool test_duplicates(char *infile, int nblocks, unsigned char field) {
+
+
+
+bool test_duplicates(char *infile, unsigned char field) {
     block_t block;
     record_t record;
     record_t nextRecord;
     ifstream input(infile, ios::in | ios::binary);
-    for (int i = 0; i < nblocks; i++) { // for each block
+    input.seekg(0, input.end);
+    uint block_count = (uint) input.tellg() / sizeof (block_t);
+    input.seekg(0, input.beg);
+
+
+    for (int i = 0; i < block_count; i++) { // for each block
         input.read((char*) &block, sizeof (block_t)); // read block
-        for (uint y = 0; y < block.nreserved; y++) { // for each record 
-            if (i == 0 && y == 0) { // if first record initialize record variable 
+        for (uint y = 0; y < block.nreserved; y++) { // for each record
+            if (i == 0 && y == 0) { // if first record initialize record variable
                 record = block.entries[0];
-            } else { // not first record 
+            } else { // not first record
                 nextRecord = block.entries[y];
-                int compare = compareField(record, nextRecord, field);
-                if (compare == 0) { // duplicate founded . return false 
+                int compare = compareRecords(record, nextRecord, field);
+                if (compare == 0) { // duplicate found. return false
+                    cout << record.num << " matches " << nextRecord.num << endl;
                     return false;
                 } else {
-                    record = nextRecord; // initialize current record 
+                    record = nextRecord; // initialize current record
                 }
 
             }
         }
     }
-    return true; // Duplicates elinimated 
+    return true; // Duplicates elinimated
 }
+
+
+
+void print_block_data(block_t &block) {
+    bool sorted = true;
+    int invalid_records = 0;
+    uint first, last;
+    record_t record, prev_rec;
+    for (uint r = 0; r < block.nreserved; ++r) {
+        record = block.entries[r];
+        if (!record.valid)
+            ++invalid_records;
+        if (r != 0 && record.num < prev_rec.num) {
+            sorted = false;
+            break;
+        }
+        prev_rec = record;
+    }
+    first = block.entries[0].num;
+    last = block.entries[99].num;
+    printf("Block id: %d\tSorted: %d\tValues: (%d, %d)\n", block.blockid, sorted, first, last);
+    cout << "Nreserved: " << block.nreserved << "\tDummy: "
+         << block.dummy << "\tNext block id: " << block.next_blockid << "\tInvalid records: " << invalid_records << endl;
+}
+
+bool is_sorted(char *filename, unsigned char field) {
+
+    ifstream infile(filename, ios::in | ios::binary);
+
+    infile.seekg(0, infile.end);
+    uint block_count = (uint) infile.tellg() / sizeof (block_t);
+    infile.seekg(0, infile.beg);
+    block_t block;
+    record_t pr, nr;
+
+    record_comparator cmp(field, false);
+
+    bool sorted = true;
+    // Assuming that the file is properly formatted.
+    for (uint b = 0; b < block_count; ++b) {
+        infile.read((char*) &block, sizeof (block_t)); // read block from file
+        int end = block.nreserved; // end of each block
+        for (int r = 0; r < end; ++r) {
+            nr = block.entries[r];
+            if (b != 0 && r != 0) {
+                if (!cmp(pr, nr)) {
+                    sorted = false;
+                    cerr << "Error: " << pr.num << " < " << nr.num << endl;
+                    break;
+                }
+            }
+            pr = nr;
+        }
+    }
+
+    infile.close();
+    return sorted;
+}
+
+uint file_block_count(char *file) {
+    ifstream s(file, ios::in | ios::ate);
+    uint c = (uint) s.tellg() / sizeof (block_t);
+    s.close();
+    return c;
+}
+
+double get_cpu_time(void) {
+    timeval tim;
+    rusage ru;
+    getrusage(RUSAGE_SELF, &ru);
+    tim = ru.ru_utime;
+    double t = (double) tim.tv_sec + (double) tim.tv_usec / 1000000.0;
+    tim = ru.ru_stime;
+    t += (double) tim.tv_sec + (double) tim.tv_usec / 1000000.0;
+    return t;
+}
+
 
 void heap_test(char *filename, uint nblocks) {
 
@@ -191,86 +312,10 @@ void heap_test(char *filename, uint nblocks) {
         b.dummy++;
 
         printf("this record id: %d, num: %d, str: '%s'\n",
-                r.recid, r.num, r.str);
+               r.recid, r.num, r.str);
 
 
         if (b.dummy < b.nreserved)
             pq.push(b);
     }
 }
-
-void print_block_data(block_t &block) {
-    bool sorted = true;
-    int invalid_records = 0;
-    uint first, last;
-    record_t record, prev_rec;
-    for (uint r = 0; r < block.nreserved; ++r) {
-        record = block.entries[r];
-        if (!record.valid)
-            ++invalid_records;
-        if (r != 0 && record.num < prev_rec.num) {
-            sorted = false;
-            break;
-        }
-        prev_rec = record;
-    }
-    first = block.entries[0].num;
-    last = block.entries[99].num;
-    printf("Block id: %d\tSorted: %d\tValues: (%d, %d)\n", block.blockid, sorted, first, last);
-    cout << "Nreserved: " << block.nreserved << "\tDummy: "
-            << block.dummy << "\tNext block id: " << block.next_blockid << "\tInvalid records: " << invalid_records << endl;
-}
-
-bool is_sorted(char *filename, unsigned char field) {
-
-    ifstream infile(filename, ios::in | ios::binary);
-
-    infile.seekg(0, infile.end);
-    uint block_count = (uint) infile.tellg() / sizeof (block_t);
-    infile.seekg(0, infile.beg);
-    block_t block;
-    record_t pr, nr;
-
-    record_comparator cmp(field, false);
-
-    bool sorted = true;
-    // Assuming that the file is properly formatted.
-    for (uint b = 0; b < block_count; ++b) {
-        infile.read((char*) &block, sizeof (block_t)); // read block from file
-        int end = block.nreserved; // end of each block 
-        for (int r = 0; r < end; ++r) {
-            nr = block.entries[r];
-            if (b != 0 && r != 0) {
-                if (!cmp(pr, nr)) {
-                    sorted = false;
-                    cerr << "Error: " << pr.num << " < " << nr.num << endl;
-                    break;
-                }
-            }
-            pr = nr;
-        }
-    }
-
-    infile.close();
-    return sorted;
-}
-
-uint file_block_count(char *file) {
-    ifstream s(file, ios::in | ios::ate);
-    uint c = (uint) s.tellg() / sizeof (block_t);
-    s.close();
-    return c;
-}
-
-double get_cpu_time(void) {
-    timeval tim;
-    rusage ru;
-    getrusage(RUSAGE_SELF, &ru);
-    tim = ru.ru_utime;
-    double t = (double) tim.tv_sec + (double) tim.tv_usec / 1000000.0;
-    tim = ru.ru_stime;
-    t += (double) tim.tv_sec + (double) tim.tv_usec / 1000000.0;
-    return t;
-}
-
-

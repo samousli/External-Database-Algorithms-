@@ -38,13 +38,13 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
     //  Fill the buffer and sort the blocks inside
     for (uint i = 0; i < block_count; i += nmem_blocks) {
         // Find the num of blocks that can be read
-        uint read_count = nmem_blocks < block_count - i ? nmem_blocks : block_count - i;
+        uint read_len = nmem_blocks < block_count - i ? nmem_blocks : block_count - i;
         // Read into buffer
-        input.read((char*) buffer, read_count * sizeof (block_t));
+        input.read((char*) buffer, read_len * sizeof (block_t));
         ++(*nios);
 
         // Sort the buffer
-        mem_merge(tmp_out, buffer, read_count, field, nios);
+        mem_merge(tmp_out, buffer, read_len, field, nios);
         ++(*npasses);
     }
 
@@ -60,6 +60,9 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
             nsorted_segs, npasses, nios);
 }
 
+/**
+
+*/
 void file_merge(char *input_file, char *output_file, block_t *buffer,
         uint nmem_blocks, unsigned char field, uint block_count,
         uint *nsorted_segs, uint *npasses, uint *nios) {

@@ -1,4 +1,10 @@
 /build/
 /dist/
-/nbproject/private/
+/obj/
+/cccc/
 *.bin
+*.xml
+*.save
+*.gch
+*.cbp
+*.depend

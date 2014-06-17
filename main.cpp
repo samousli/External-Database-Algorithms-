@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
 
     double sah = get_cpu_time();
 
-    eliminate_duplicates_driver(15000,200);
+    eliminate_duplicates_driver(10,2);
     //merge_sort_driver(9412, 64);
 
     sah = get_cpu_time() - sah;

@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   EliminateDuplicatesImpl.h
  * Author: geohar
  *
@@ -18,7 +18,6 @@ int testRecordsForDuplicates(block_t *buffer, int read_count,
         record_t currentRecord, block_t currentBlock, std::ofstream &output,
         unsigned int *nunique, unsigned int *nios, unsigned char field);
 
-int compareRecords(record_t rec1, record_t rec2, unsigned char field);
 
 #endif	/* ELIMINATEDUPLICATESIMPL_H */
 

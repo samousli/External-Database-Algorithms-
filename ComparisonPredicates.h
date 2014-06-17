@@ -41,39 +41,7 @@ struct block_comparator {
         return *this;
     }
 
-    bool operator()(const block_t& lb, const block_t& rb) {
-        bool result;
-        if (lb.dummy > 99 || rb.dummy > 99) {
-            std::cerr << "ERROR ! dummy out of bounds" << std::endl
-                    << lb.nreserved << ", " << rb.nreserved << std::endl
-                    << lb.dummy << ", " << rb.dummy << std::endl;
-            std::string s;
-            std::cin >> s;
-        }
-        record_t l = lb.entries[lb.dummy];
-        record_t r = rb.entries[rb.dummy];
-        switch (_field) {
-        case 0:
-            result = l.recid > r.recid;
-            break;
-        case 1:
-            result = l.num > r.num;
-            break;
-        case 2:
-            result = strcmp(l.str, r.str) > 0;
-            break;
-        case 3:
-            if (l.num >= r.num) result = true;
-            else if (l.num == r.num) result = strcmp(l.str, r.str) >= 0;
-            else result = false;
-            break;
-        default:
-            result = false;
-            std::cerr << "Undefined behavior" << std::endl;
-        }
-        return _greater ? result : !result;
-    }
-
+    bool operator()(const block_t& lb, const block_t& rb);
 };
 
 struct record_comparator {
@@ -105,31 +73,12 @@ struct record_comparator {
         return *this;
     }
 
-    bool operator()(const record_t& l, const record_t& r) {
-        bool result;
-        switch (_field) {
-        case 0:
-            result = l.recid > r.recid;
-            break;
-        case 1:
-            result = l.num > r.num;
-            break;
-        case 2:
-            result = strcmp(l.str, r.str) > 0;
-            break;
-        case 3:
-            if (l.num > r.num) result = true;
-            else if (l.num == r.num) result = strcmp(l.str, r.str) > 0;
-            else result = false;
-            break;
-        default:
-            result = false;
-            std::cerr << "Undefined behavior" << std::endl;
-        }
-        return _greater ? result : !result;
-    }
+    bool operator()(const record_t& l, const record_t& r);
 
 };
+
+
+int compareRecords(record_t rec1, record_t rec2, unsigned char field);
 
 
 #endif	/* COMPARISONPREDICATES_H */

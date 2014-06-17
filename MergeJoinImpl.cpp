@@ -66,7 +66,7 @@ void mergeJoinImpl(char *infile1, char *infile2, unsigned char field, block_t *b
     secondRecord = secondBlock.entries[secondBlock.dummy++]; // get first record from file
 
     while ((*firstIterator) < first_block_count && (*secondIterator) < second_block_count) { // while any of two files reached eof
-        int compare = compareField(firstRecord, secondRecord, field); // compare records
+        int compare = compareRecords(firstRecord, secondRecord, field); // compare records
         if (compare == -1) {// first record value is smaller than second record value
             int result = retrieveRecord(&firstBlock, &firstRecord, input1, nios, firstIterator,first_block_count);
             if (result == 0) { // file eof
@@ -96,14 +96,14 @@ void mergeJoinImpl(char *infile1, char *infile2, unsigned char field, block_t *b
                 if (result == 0) {// file eof
                     break;
                 }
-                if (compareField(firstRecord, secondRecord, field) != 0) { // different value from that was written to file
+                if (compareRecords(firstRecord, secondRecord, field) != 0) { // different value from that was written to file
                     do{ // search to first file for same values
                       int result = retrieveRecord(&firstBlock,&firstRecord,input1,nios,firstIterator,first_block_count);//read next record from first file
                       if(result == 0){ // file eof
                           break;
                       }
                       else {
-                          if(compareField(pairRecord,firstRecord,field) == 0){  // same value . add it to output
+                          if(compareRecords(pairRecord,firstRecord,field) == 0){  // same value . add it to output
                                serialize_record(output, outputBlock, secondRecord, nios);
                                ++(*nios);
                                ++(*nres);
@@ -142,40 +142,6 @@ void mergeJoinImpl(char *infile1, char *infile2, unsigned char field, block_t *b
     output.close(); // close output stream
 }
 
-// Tzampa zorizese :P
-int shortComp(record_t r1, record_t r2, unsigned char field) {
-    record_comparator cmp(field);
-    if (cmp(r1, r2)) return  1;
-    if (cmp(r2, r1)) return -1;
-    return 0;
-}
-
-int compareField(record_t rec1, record_t rec2, unsigned char field) {
-    switch (field) {
-        case 0:
-            if (rec1.recid > rec2.recid) return 1;
-            else if (rec1.recid == rec2.recid) return 0;
-            else return -1;
-        case 1:
-            if (rec1.num > rec2.num) return 1;
-            else if (rec1.num == rec2.num) return 0;
-            else return -1;
-        case 2:
-            if (strcmp(rec1.str, rec2.str) == 1) return 1;
-            else if (strcmp(rec1.str, rec2.str) == 0) return 0;
-            else return -1;
-        case 3:
-            if (rec1.num > rec2.num) return 1;
-            else if (rec1.num == rec2.num)
-                if (strcmp(rec1.str, rec2.str) == 1) return 1;
-                else if (strcmp(rec1.str, rec2.str) == 0) return 0;
-                else return -1;
-            else return -1;
-        default:
-            cerr << "Bad field input" << endl;
-            return 0;
-    }
-}
 
 int retrieveRecord(block_t *block, record_t *record, ifstream &input,
 

@@ -14,15 +14,15 @@
 typedef unsigned int uint;
 using namespace std;
 
+void merge_sort_driver(uint total, uint mem);
+
+void eliminate_duplicates_driver(uint total, uint mem);
+
 void create_test_file(char *filename, uint nblocks);
 
 void print_file_contents(char *filename, uint nblocks = 0);
 
 void heap_test(char *filename, uint nblocks);
-
-void merge_sort_driver(uint total, uint mem);
-
-void eliminate_duplicates_driver(uint total, uint mem);
 
 void print_block_data(block_t &block);
 

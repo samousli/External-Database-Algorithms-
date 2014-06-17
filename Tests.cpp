@@ -27,8 +27,8 @@
 using namespace std;
 
 void merge_sort_driver(uint total, uint mem) {
-    int nblocks = total; // number of blocks in the file
-    int nmem_blocks = mem;
+    uint nblocks = total; // number of blocks in the file
+    uint nmem_blocks = mem;
     char input_file[] = "input.bin";
     char output_file[] = "sorted.bin";
 
@@ -61,8 +61,8 @@ void merge_sort_driver(uint total, uint mem) {
 }
 
 void eliminate_duplicates_driver(uint total, uint mem) {
-    int nblocks = total; // number of blocks in the file
-    int nmem_blocks = mem;
+    uint nblocks = total; // number of blocks in the file
+    uint nmem_blocks = mem;
     char input_file[] = "input.bin";
     char output_file[] = "sorted.bin";
 
@@ -83,7 +83,7 @@ void eliminate_duplicates_driver(uint total, uint mem) {
     cout << "IO's: " << *ios << endl
          << "Uniques: " << *uniques << endl;
 
-    // print_file_contents(output_file);
+    //print_file_contents(output_file);
 
     delete[] buffer;
     delete uniques;
@@ -155,9 +155,10 @@ void print_file_contents(char *filename, uint nblocks) {
 
 
     infile.close();
-    printf("Invalid blocks: %d\n", invalid_blocks);
-    printf("Block count: %d\n", block_count);
-    cout << "Is sorted?" << is_sorted(filename, 1) << endl;
+
+    cout << "Invalid blocks: " << invalid_blocks << endl
+         << "Block count: " << block_count << endl
+         << "Is sorted?" << is_sorted(filename, 1) << endl;
 }
 
 
@@ -180,7 +181,7 @@ bool test_duplicates(char *infile, unsigned char field) {
                 record = block.entries[0];
             } else { // not first record
                 nextRecord = block.entries[y];
-                int compare = compareField(record, nextRecord, field);
+                int compare = compareRecords(record, nextRecord, field);
                 if (compare == 0) { // duplicate found. return false
                     cout << record.num << " matches " << nextRecord.num << endl;
                     return false;

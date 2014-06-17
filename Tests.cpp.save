@@ -73,7 +73,8 @@ void eliminate_duplicates_driver(uint total, uint mem) {
     // pass them as arguments for the sorting to take place
     block_t *buffer = new block_t[nmem_blocks];
 
-    uint *uniques = new uint(0),
+    uint *sorted_segs = new uint(0),
+    *uniques = new uint(0),
     *ios = new uint(0);
 
     eliminateDuplicatesImpl(input_file, 1, buffer,
@@ -107,7 +108,7 @@ void create_test_file(char *filename, uint nblocks) {
 
             // prepare a record
             record.recid = recid++;
-            record.num = rand() % 1000;
+            record.num = rand() % 1000000;
             strcpy(record.str, "hello\0"); // put the same string to all records
             record.valid = true;
 
@@ -182,7 +183,7 @@ bool test_duplicates(char *infile, unsigned char field) {
                 nextRecord = block.entries[y];
                 int compare = compareField(record, nextRecord, field);
                 if (compare == 0) { // duplicate found. return false
-                    cout << record.num << " matches " << nextRecord.num << endl;
+                    cout << record << " matches"
                     return false;
                 } else {
                     record = nextRecord; // initialize current record

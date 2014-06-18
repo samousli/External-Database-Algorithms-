@@ -5,30 +5,25 @@
 #include "Tests.h"
 #include <fstream>
 #include "Tests.h"
-
+#include <iostream>
 
 using namespace std;
 
-void MergeSortDriver();
-void benchmark();
-
 int main(int argc, char** argv) {
 
-    double sah = get_cpu_time();
+    hash_join_driver(1000, 12000, 100);
 
-    eliminate_duplicates_driver(10,2);
-    //merge_sort_driver(9412, 64);
-
-    sah = get_cpu_time() - sah;
-    cout << "Time: " << sah << " seconds" << endl;
+    //eliminate_duplicates_driver(10,2);
+//    for (uint total = 2; total <= 10; ++total) {
+//        for (uint mem = 2; mem <= total; ++mem) {
+//            double time = get_cpu_time();
+//            eliminate_duplicates_driver(total, mem);
+//            time = get_cpu_time() - time;
+//            cout << "time: " << time << " seconds" << endl;
+//        }
+//    }
 
     return 0;
 }
 
-void benchmark() {
-    double sah = get_cpu_time();
-    //  merge_sort_driver(1 << 14, 1 << 14);
-    sah = get_cpu_time() - sah;
-    cout << "Sah: " << sah << " seconds" << endl;
 
-}

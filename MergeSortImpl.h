@@ -31,7 +31,7 @@ void merge_step(std::ifstream &input, std::ofstream &output, block_t *buffer, bl
 /*
  * Returns true is the block is filled and serialized.
  */
-bool serialize_record(std::ofstream &outfile, block_t &block, record_t &record, uint *nios);
+bool serialize_record(std::ofstream &outfile, block_t &block,const record_t &record, uint *nios);
 
 void read_block(std::ifstream &input, uint block_id, block_t *output_block, uint *nios);
 

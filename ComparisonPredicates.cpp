@@ -51,6 +51,7 @@ bool record_comparator::operator()(const record_t& l, const record_t& r) {
         result = l.recid > r.recid;
         break;
     case 1:
+
         result = l.num > r.num;
         break;
     case 2:
@@ -95,6 +96,7 @@ int compareRecords(record_t rec1, record_t rec2, unsigned char field) {
     }
 }
 
+inline
 int shortComp(record_t r1, record_t r2, unsigned char field) {
     record_comparator cmp(field);
     if (cmp(r1, r2)) return  1;

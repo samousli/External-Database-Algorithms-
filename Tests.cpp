@@ -10,6 +10,7 @@
 #include "MergeSortImpl.h"
 #include "EliminateDuplicatesImpl.h"
 #include "MergeJoinImpl.h"
+#include "HashJoinImpl.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -20,6 +21,7 @@
 #include <math.h>
 #include <time.h>
 #include <queue>
+#include <random>
 #include <algorithm>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -43,12 +45,12 @@ void merge_sort_driver(uint total, uint mem) {
     *passes = new uint(0),
     *ios = new uint(0);
 
-    merge_sort(input_file, 1, buffer,
-               nmem_blocks, output_file,
-               sorted_segs, passes, ios);
+    merge_sort(input_file, 1, buffer, nmem_blocks,
+               output_file, sorted_segs, passes, ios);
 
-    cout << "Is sorted? " << is_sorted(output_file, 1) << endl;
-    cout << "Sorted segments: " << *sorted_segs << endl
+    bool sorted =is_sorted(output_file, 1);
+    cout << "Is sorted? " << boolalpha << sorted  << endl
+         << "Sorted segments: " << *sorted_segs << endl
          << "IO's: " << *ios << endl
          << "Passes: " << *passes << endl;
 
@@ -64,7 +66,7 @@ void eliminate_duplicates_driver(uint total, uint mem) {
     uint nblocks = total; // number of blocks in the file
     uint nmem_blocks = mem;
     char input_file[] = "input.bin";
-    char output_file[] = "sorted.bin";
+    char output_file[] = "output.bin";
 
     // Create test input file.
     create_test_file(input_file, nblocks);
@@ -79,8 +81,9 @@ void eliminate_duplicates_driver(uint total, uint mem) {
     eliminateDuplicatesImpl(input_file, 1, buffer,
                             nmem_blocks, output_file, uniques, ios);
 
-    cout << "Duplicates eliminated? " << test_duplicates(output_file, 1) << endl;
-    cout << "IO's: " << *ios << endl
+    bool elim = test_duplicates(output_file, 1);
+    cout << "Duplicates eliminated? " << boolalpha << elim << endl
+         << "IO's: " << *ios << endl
          << "Uniques: " << *uniques << endl;
 
     //print_file_contents(output_file);
@@ -91,14 +94,54 @@ void eliminate_duplicates_driver(uint total, uint mem) {
 
 }
 
+void merge_join_driver(uint total, uint mem) {
+
+}
+
+void hash_join_driver(uint total1, uint total2, uint mem) {
+    char input1[] = "input1.bin",
+                    input2[] = "input2.bin",
+                               output[] = "output.bin";
+
+    // Create test input files.
+    create_test_file(input1, total1);
+    create_test_file(input2, total2);
+
+    // Create a buffer with the given block count and
+    // pass them as arguments for the sorting to take place
+    block_t *buffer = new block_t[mem];
+
+    uint *nres = new uint(0),
+    *nios = new uint(0);
+
+    hash_join(input1, input2, 1, buffer, mem, output, nres, nios);
+
+    // Test
+
+    delete[] buffer;
+    delete nres;
+    delete nios;
+}
+
 void create_test_file(char *filename, uint nblocks) {
     // generate a file
     ofstream outfile(filename, ios::out | ios::binary);
+
     block_t block;
     record_t record;
+
+    // Because of padding there were uninitialized bytes left behind.
+    memset(&block, 0, sizeof(block_t));
+    memset(&record, 0, sizeof(record_t));
+
     uint recid = 0;
     // Seed the pseudo-random generator
     srand(time(NULL));
+
+    // C PRG does not randomize well due to the time(NULL) seed
+    // Using TR1 Mersenne twister
+    random_device rd;
+    mt19937 gen(rd());
 
     for (uint b = 0; b < nblocks; ++b) { // for each block
 
@@ -107,12 +150,13 @@ void create_test_file(char *filename, uint nblocks) {
 
             // prepare a record
             record.recid = recid++;
-            record.num = rand() % 1000;
-            strcpy(record.str, "hello\0"); // put the same string to all records
+            record.num = gen() % 100000;
+            strcpy(record.str, "hello/0"); // put the same string to all records
             record.valid = true;
-
+            ///block.entries[r] = record;
             memcpy(&block.entries[r], &record, sizeof (record_t)); // copy record to block
         }
+
         block.dummy = 0;
         block.nreserved = MAX_RECORDS_PER_BLOCK;
         block.valid = true;
@@ -124,7 +168,6 @@ void create_test_file(char *filename, uint nblocks) {
     }
     outfile.close();
 }
-
 
 
 
@@ -183,7 +226,8 @@ bool test_duplicates(char *infile, unsigned char field) {
                 nextRecord = block.entries[y];
                 int compare = compareRecords(record, nextRecord, field);
                 if (compare == 0) { // duplicate found. return false
-                    cout << record.num << " matches " << nextRecord.num << endl;
+                    cout << "ERROR: " <<  record.num << " matches " << nextRecord.num << endl;
+                    cout << "Indexes: " << i << ", " << y << endl;
                     return false;
                 } else {
                     record = nextRecord; // initialize current record
@@ -231,7 +275,6 @@ bool is_sorted(char *filename, unsigned char field) {
 
     record_comparator cmp(field, false);
 
-    bool sorted = true;
     // Assuming that the file is properly formatted.
     for (uint b = 0; b < block_count; ++b) {
         infile.read((char*) &block, sizeof (block_t)); // read block from file
@@ -240,9 +283,7 @@ bool is_sorted(char *filename, unsigned char field) {
             nr = block.entries[r];
             if (b != 0 && r != 0) {
                 if (!cmp(pr, nr)) {
-                    sorted = false;
-                    cerr << "Error: " << pr.num << " < " << nr.num << endl;
-                    break;
+                    return false;
                 }
             }
             pr = nr;
@@ -250,7 +291,7 @@ bool is_sorted(char *filename, unsigned char field) {
     }
 
     infile.close();
-    return sorted;
+    return true;
 }
 
 uint file_block_count(char *file) {

@@ -11,7 +11,8 @@
 #include "dbtproj.h"
 #include <fstream>
 
-
+void hash_join (char *infile1, char *infile2, unsigned char field, block_t *buffer,
+                uint nmem_blocks, char *outfile, uint *nres, uint *nios) ;
 
 #endif	/* HASHJOINIMPL_H */
 

@@ -8,3 +8,4 @@
 *.gch
 *.cbp
 *.depend
+*.o

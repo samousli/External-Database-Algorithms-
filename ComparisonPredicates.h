@@ -84,4 +84,3 @@ int shortComp(record_t r1, record_t r2, unsigned char field);
 
 
 #endif	/* COMPARISONPREDICATES_H */
-

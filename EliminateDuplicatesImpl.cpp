@@ -1,6 +1,7 @@
 
 #include "EliminateDuplicatesImpl.h"
 #include "ComparisonPredicates.h"
+#include "FileOperations.h"
 #include "MergeSortImpl.h"
 #include "Tests.h"
 #include "dbtproj.h"
@@ -38,17 +39,12 @@ void eliminateDuplicatesImpl(char *infile, unsigned char field, block_t *buffer,
     if (!input) {
         merge_sort(infile, field, buffer, nmem_blocks, sortedfile, sorted_segs, passes, nios);
     }
-    delete sorted_segs;
-    delete passes;
-
-
     input.close(); // close sorted file
     uint block_count = file_block_count(sortedfile); // get number of blocks (sorted file )
     input.open(sortedfile, ios::in | ios::binary); // open sorted file again
 
     // current retrieved block
     block_t outputBlock;
-    memset(&outputBlock, 0, sizeof(block_t));
     outputBlock.blockid = 0;
     outputBlock.valid = false;
     outputBlock.nreserved = 0;
@@ -101,4 +97,5 @@ void testRecordsForDuplicates(block_t *buffer, int read_count, record_t *current
         }
     }
 }
+
 

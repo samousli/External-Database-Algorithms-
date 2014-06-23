@@ -28,14 +28,6 @@ void merge_step(std::ifstream &input, std::ofstream &output, block_t *buffer, bl
                 uint ways, uint init_block_id, uint block_count, uint sorted_seq_len,
                 unsigned char field, uint *nios);
 
-/*
- * Returns true is the block is filled and serialized.
- */
-bool serialize_record(std::ofstream &outfile, block_t &block, record_t &record, uint *nios);
-
-void read_block(std::ifstream &input, uint block_id, block_t *output_block, uint *nios);
-
-
 
 #endif	/* MERGESORTIMPL_H */
 

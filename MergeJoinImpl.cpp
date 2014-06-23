@@ -1,12 +1,14 @@
-#include "Tests.h"
 #include "MergeJoinImpl.h"
 #include "MergeSortImpl.h"
 #include "dbtproj.h"
 #include "ComparisonPredicates.h"
+#include "FileOperations.h"
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <cstring>
+
+using namespace std;
 
 /* ----------------------------------------------------------------------------------------------------------------------
    infile1: the name of the first input file
@@ -20,22 +22,26 @@
    ----------------------------------------------------------------------------------------------------------------------
  */
 void mergeJoinImpl(char *infile1, char *infile2, unsigned char field, block_t *buffer,
-        unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) {
+                   unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) {
 
     // Merge Sort Both!
     // Iterate linearly and write matching pairs to the output
     uint *firstIterator = new uint(0); // iterator for first sorted file
     uint *secondIterator = new uint(0); // iterator for second sorted file
-    uint *remainingBlocks = new uint(0);
     block_t firstBlock; // retrieved block from first sorted file
     block_t secondBlock; // retrieved block from second sorted file
     record_t firstRecord; // retrieved record from first sorted file
-    record_t pairRecord ;
+    record_t pairRecord ; // variable saves current record from first input to examine other records from first input
     record_t secondRecord; // retrieved record from second sorted file
     block_t outputBlock; // block to write results to output file
     outputBlock.blockid = 0; // initialize block id to zero
     outputBlock.valid = false; // initialize valid to false
     outputBlock.nreserved = 0; // initialize nreserved to zero
+
+
+    // Initializing all the bytes of the output block
+    // in order to silence Valgrind. (Caused from implicit struct padding)
+    memset(&outputBlock, 0, sizeof(block_t));
 
     char output1[] = "sorted1.bin", output2[] = "sorted2.bin";
 
@@ -48,10 +54,11 @@ void mergeJoinImpl(char *infile1, char *infile2, unsigned char field, block_t *b
     uint first_block_count = file_block_count(output1);
     uint second_block_count = file_block_count(output2);
 
-    *remainingBlocks = first_block_count;
+//    print_contents_to_file(output1,"output1.txt");
+    //  print_contents_to_file(output2,"output2.txt");
 
-    cout << "Sorted 1 : " << first_block_count << endl;
-    cout << "Sorted 2 : " << second_block_count << endl;
+//   cout << "Sorted 1 : " << first_block_count << endl;
+    //  cout << "Sorted 2 : " << second_block_count << endl;
 
     ifstream input1(output1, ios::in | ios::binary); // open first sorted file
     ifstream input2(output2, ios::in | ios::binary); // open second sorted file
@@ -72,8 +79,7 @@ void mergeJoinImpl(char *infile1, char *infile2, unsigned char field, block_t *b
             if (result == 0) { // file eof
                 break;
             }
-        }
-        else if (compare == 1) { // first record value is bigger than second record value
+        } else if (compare == 1) { // first record value is bigger than second record value
             int result = retrieveRecord(&secondBlock, &secondRecord, input2, nios, secondIterator,second_block_count);
 
             if (result == 0) {// file eof
@@ -85,9 +91,7 @@ void mergeJoinImpl(char *infile1, char *infile2, unsigned char field, block_t *b
             pairRecord = firstRecord; // initialize pairRecord for comparison
 
             serialize_record(output, outputBlock, firstRecord, nios); //write first record to file
-            ++(*nios);
             serialize_record(output, outputBlock, secondRecord, nios); // write second record to file
-            ++(*nios);
             ++(*nres);
 
             do { //while loop to examine for same values
@@ -97,46 +101,38 @@ void mergeJoinImpl(char *infile1, char *infile2, unsigned char field, block_t *b
                     break;
                 }
                 if (compareRecords(firstRecord, secondRecord, field) != 0) { // different value from that was written to file
-                    do{ // search to first file for same values
-                      int result = retrieveRecord(&firstBlock,&firstRecord,input1,nios,firstIterator,first_block_count);//read next record from first file
-                      if(result == 0){ // file eof
-                          break;
-                      }
-                      else {
-                          if(compareRecords(pairRecord,firstRecord,field) == 0){  // same value . add it to output
-                               serialize_record(output, outputBlock, secondRecord, nios);
-                               ++(*nios);
-                               ++(*nres);
-                          }
-                          else{ // not same value . go to next record  . break while loop
-                              break;
-                          }
-                      }
-                    }while(true);
+                    do { // search to first file for same values
+                        int result = retrieveRecord(&firstBlock,&firstRecord,input1,nios,firstIterator,first_block_count);//read next record from first file
+                        if(result == 0) { // file eof
+                            break;
+                        } else {
+                            if(compareRecords(pairRecord,firstRecord,field) == 0) { // same value . add it to output
+                                serialize_record(output, outputBlock, firstRecord, nios);
+                                ++(*nres);
+                            } else { // not same value . go to next record  . break while loop
+                                break;
+                            }
+                        }
+                    } while(true);
 
                     break; // break while loop . go to next iteration
 
                 } else { // founded same value with that was written to file
                     serialize_record(output, outputBlock, secondRecord, nios);
-                    ++(*nios);
                     ++(*nres);
                 }
             } while (true);
-
         }
-
     }
     if (outputBlock.nreserved != 0) { // last block that is not filled with Maximum Records . Write it
         outputBlock.valid = true;
         output.write((char*) &outputBlock, sizeof (block_t));
         ++(*nios);
     }
-    cout << "Merge-Join Output File : " << endl;
 
-    cout << "Is sorted? " << is_sorted(outfile, 0) << endl;
-    cout << "IO's: " << *nios << endl
-            << "Pairs : " << *nres << endl;
-
+    delete firstIterator;
+    delete secondIterator;
+    delete dummy;
     input1.close(); // close input stream
     input2.close(); // close input stream
     output.close(); // close output stream
@@ -144,8 +140,8 @@ void mergeJoinImpl(char *infile1, char *infile2, unsigned char field, block_t *b
 
 
 int retrieveRecord(block_t *block, record_t *record, ifstream &input,
+                   unsigned int *nios, unsigned int *iterator,uint block_count) {
 
-        unsigned int *nios, unsigned int *iterator,uint block_count) {
     if (block->dummy < block->nreserved) {
         *record = block->entries[block->dummy++]; // go to next record
 
@@ -156,7 +152,6 @@ int retrieveRecord(block_t *block, record_t *record, ifstream &input,
         input.read((char*) block, sizeof (block_t));
         *record = block->entries[block->dummy++];
         ++(*nios);
-
         ++(*iterator);
     }
     return 1;

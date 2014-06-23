@@ -28,7 +28,7 @@ using namespace std;
    ----------------------------------------------------------------------------------------------------------------------
  */
 void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int nmem_blocks,
-        char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
+               char *outfile, unsigned int *nsorted_segs, unsigned int *npasses, unsigned int *nios) {
 
 
     merge_sort(infile,field,buffer,nmem_blocks,outfile,nsorted_segs,npasses,nios);
@@ -45,7 +45,7 @@ void MergeSort(char *infile, unsigned char field, block_t *buffer, unsigned int 
    ----------------------------------------------------------------------------------------------------------------------
  */
 void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer,
-        unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) {
+                         unsigned int nmem_blocks, char *outfile, unsigned int *nunique, unsigned int *nios) {
 
     eliminateDuplicatesImpl(infile, field, buffer, nmem_blocks, outfile, nunique, nios);
 }
@@ -62,7 +62,7 @@ void EliminateDuplicates(char *infile, unsigned char field, block_t *buffer,
    ----------------------------------------------------------------------------------------------------------------------
  */
 void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffer,
-        unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) {
+               unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) {
 
     mergeJoinImpl(infile1, infile2, field, buffer, nmem_blocks, outfile, nres, nios);
 }
@@ -82,4 +82,5 @@ void MergeJoin(char *infile1, char *infile2, unsigned char field, block_t *buffe
 void HashJoin (char *infile1, char *infile2, unsigned char field, block_t *buffer,
                unsigned int nmem_blocks, char *outfile, unsigned int *nres, unsigned int *nios) {
 
+    hash_join(infile1, infile2, field, buffer, nmem_blocks, outfile, nres, nios);
 }

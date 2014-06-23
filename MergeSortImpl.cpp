@@ -1,6 +1,8 @@
+#include "MergeSortImpl.h"
 #include "dbtproj.h"
 #include "ComparisonPredicates.h"
-#include "MergeSortImpl.h"
+#include "FileOperations.h"
+
 #include "Tests.h"
 
 #include <iostream>
@@ -37,7 +39,7 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
     input.seekg(0, input.beg);
     //  Fill the buffer and sort the blocks inside
     for (uint i = 0; i < block_count; i += nmem_blocks) {
-        // Find the num of blocks that can be read
+        // Find the number of blocks that can be read
         uint read_len = nmem_blocks < block_count - i ? nmem_blocks : block_count - i;
         // Read into buffer
         input.read((char*) buffer, read_len * sizeof (block_t));
@@ -228,35 +230,5 @@ void mem_merge(ofstream &output, block_t *buffer, uint nblocks, unsigned char fi
             --heap_size;
     }
 }
-
-void read_block(ifstream &input, uint block_id, block_t *output_block, uint *nios) {
-
-    input.seekg(block_id * sizeof (block_t));
-
-    input.read((char*) output_block, sizeof (block_t));
-    output_block->dummy = 0;
-    output_block->next_blockid = block_id + 1;
-    ++(*nios);
-}
-
-bool serialize_record(ofstream &outfile, block_t &block, record_t &record, uint *nios) {
-
-    memcpy(&block.entries[block.nreserved++], &record, sizeof(record_t));
-
-    // If block is full, write to file.
-    if (block.nreserved == MAX_RECORDS_PER_BLOCK) {
-        block.valid = true;
-        block.dummy = 0;
-        outfile.write((char*) &block, sizeof (block_t));
-        ++block.blockid;
-        ++block.next_blockid;
-        block.nreserved = 0;
-        block.valid = false;
-        ++(*nios);
-        return true;
-    }
-    return false;
-}
-
 
 

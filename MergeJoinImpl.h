@@ -1,9 +1,3 @@
-/*
- * File:   MergeJoinImpl.h
- * Author: avail
- *
- * Created on June 15, 2014, 3:12 AM
- */
 
 #ifndef MERGEJOINIMPL_H
 #define	MERGEJOINIMPL_H

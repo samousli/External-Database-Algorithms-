@@ -230,5 +230,3 @@ void mem_merge(ofstream &output, block_t *buffer, uint nblocks, unsigned char fi
             --heap_size;
     }
 }
-
-

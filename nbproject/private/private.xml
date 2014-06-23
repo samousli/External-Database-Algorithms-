@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <data xmlns="http://www.netbeans.org/ns/make-project-private/1">
+        <activeConfTypeElem>1</activeConfTypeElem>
+        <activeConfIndexElem>0</activeConfIndexElem>
+    </data>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/MergeJoinImpl.cpp</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/ComparisonPredicates.h</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/EliminateDuplicatesImpl.h</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/EliminateDuplicatesImpl.cpp</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/Tests.h</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/MergeSortImpl.cpp</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/main.cpp</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/MergeJoinImpl.h</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/dbtproj.h</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/dbtproj.cpp</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/MergeSortImpl.h</file>
+            <file>file:/home/avail/NetBeansProjects/database-storage-implementations/Tests.cpp</file>
+        </group>
+    </open-files>
+</project-private>

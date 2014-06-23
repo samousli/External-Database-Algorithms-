@@ -78,6 +78,7 @@ void hash_join (char *infile1, char *infile2, unsigned char field, block_t *buff
     size_t size1 = file_block_count(infile1),
            size2 = file_block_count(infile2);
 
+    ifstream small_file;
     bool first_in = (size1 < size2);
     size_t build_size = first_in ? size1 : size2,
            probe_size = first_in ? size2 : size1;
@@ -357,4 +358,5 @@ void mem_hash_join (char *infile1, char *infile2, unsigned char field, block_t *
         output.write((char*)&output_block, sizeof(block_t));
     }
 }
+
 

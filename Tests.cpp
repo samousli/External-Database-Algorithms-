@@ -12,17 +12,16 @@
 #include "EliminateDuplicatesImpl.h"
 #include "MergeJoinImpl.h"
 #include "HashJoinImpl.h"
+#include "PRNG.h"
 
 #include <cstdlib>
 #include <cstring>
+#include <climits>
 #include <cstdio>
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <math.h>
-#include <time.h>
 #include <queue>
-#include <random>
 #include <algorithm>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -119,10 +118,10 @@ void merge_join_driver(uint total, uint mem) {
     mergeJoinImpl(input1_file, input2_file, 1, buffer, nmem_blocks, output_file, nres, ios);
 
     cout << "Merge-Join Output File : " << endl;
-    cout<<"output file block_count : "<<file_block_count(output_file)<<endl;
+    cout <<"output file block_count : " << file_block_count(output_file) << endl;
     cout << "Is sorted? " << is_sorted(output_file,1) << endl;
     cout << "IO's: " << *ios << endl
-         << "Pairs : " << *nres << endl;
+          << "Pairs : " << *nres << endl;
     // print_file_contents(output_file);
     print_contents_to_file(output_file,(char*)"mergejoin.txt");
 
@@ -137,8 +136,6 @@ void hash_join_driver(uint total1, uint total2, uint mem) {
 
     char input1[] = "input1.bin",
                     input2[] = "input2.bin";
-
-
 
     // Create a buffer with the given block count and
     // pass them as arguments for the sorting to take place
@@ -162,14 +159,6 @@ void hash_join_driver(uint total1, uint total2, uint mem) {
     time = get_cpu_time();
     mergeJoinImpl   (input1, input2, 1, buffer, mem, output_m, nres_m, nios_m);
     cout << get_cpu_time() - time << " merge time" << endl;
-//    ++resilience;
-//        if (resilience % 1000 == 0) {
-//            cout << "Resilience: " << resilience << endl;
-//            string s;
-//            cin >> s;
-//        }
-//    }
-//    cout << "Resilience: " << resilience << endl;
 
     convert_to_txt_file(output_h, (char*) "output_h.txt", *nres_h / 100 + 1);
     convert_to_txt_file(output_m, (char*) "output_m.txt", *nres_m / 100 + 1);
@@ -204,14 +193,6 @@ void create_test_file(char *filename, uint nblocks) {
     memset(&record, 0, sizeof(record_t));
 
     uint recid = 0;
-    // Seed the pseudo-random generator
-    // srand(time(NULL));
-
-    // C PRG does not randomize well due to the time(NULL) seed
-    // Using TR1 Mersenne twister
-    random_device rd;
-    mt19937 gen(rd());
-
 
     for (uint b = 0; b < nblocks; ++b) { // for each block
 
@@ -220,7 +201,7 @@ void create_test_file(char *filename, uint nblocks) {
 
             // prepare a record
             record.recid = recid++;
-            record.num = gen() % 10000;
+            record.num = rand(1000); //INT_MAX
             strcpy(record.str, "hello\0"); // put the same string to all records
             record.valid = true;
             //block.entries[r] = record;

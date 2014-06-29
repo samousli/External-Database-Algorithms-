@@ -28,6 +28,13 @@ void merge_step(std::ifstream &input, std::ofstream &output, block_t *buffer, bl
                 uint ways, uint init_block_id, uint block_count, uint sorted_seq_len,
                 unsigned char field, uint *nios);
 
+// Merge sort isn't in place in increases the number of IO's linearly
+// Replacing it with a quick sort.
+
+void quick_sort(block_t *buffer, unsigned char field, uint b1, uint r1, uint b2, uint r2);
+
+std::pair<uint, uint> partition(block_t *buffer, unsigned char field, uint b1, uint r1, uint b2, uint r2);
+
 
 #endif	/* MERGESORTIMPL_H */
 

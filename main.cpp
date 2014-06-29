@@ -12,8 +12,9 @@ using namespace std;
 int main(int argc, char** argv) {
 
     double time = get_cpu_time();
+    merge_sort_driver(2, 10);
     //merge_join_driver(5, 3);
-    hash_join_driver(6, 4, 4);
+    //hash_join_driver(1, 2, 10);
     time = get_cpu_time() - time;
     cout << "time: " << time << " seconds" << endl;
 

@@ -15,39 +15,10 @@
 
 using namespace std;
 
-
+// converts std::string to a c_str, probably not safe, 1 time uses only.
 char *C_STR(string s) {
     return (char*)s.c_str();
 }
-
-struct recordHash {
-    unsigned char _field = 0;
-    uint _salt;
-    uint _modulus = 0;
-
-    recordHash(unsigned char field, uint salt, uint modulus)
-        : _field(field), _salt(salt), _modulus(modulus) {}
-
-    size_t operator()( record_t const& r) const {
-
-        switch (_field) {
-        case 0:
-            return (hash<uint>()(r.recid) ^ _salt) % _modulus;
-        case 1:
-            return (hash<uint>()(r.num) ^ _salt) % _modulus;
-        case 2:
-            return (hash<string>()(string(begin(r.str), end(r.str)-1))
-                    ^ _salt) % _modulus;
-        case 3:
-            size_t h1 = hash<uint>()(r.num);
-            size_t h2 = hash<string>()(string(begin(r.str), end(r.str)-1));
-            return (h1 ^ h2 ^ _salt) % _modulus; // XOR them
-        }
-
-        cerr << "Invalid field in hash function" << endl;
-        exit(2);
-    }
-};
 
 /* --------------------------------------------------------------------------------------------------------------------------------
    infile1: the name of the first input file
@@ -92,7 +63,7 @@ void hash_join (char *infile1, char *infile2, unsigned char field, block_t *buff
     uint salt = gen();
 
     // If the build file fits into memory, do an in memory hash join and return.
-    if (build_size < nmem_blocks ) {
+    if (build_size < nmem_blocks - 1) {       // 1 for probe 1 for output block
         mem_hash_join(infile1, infile2, field, buffer, nmem_blocks, outfile, nres, nios, salt);
         return;
     }
@@ -133,7 +104,7 @@ vector<hash_pair> partition(char *infile1, char *infile2, unsigned char field, b
     uint salt = gen();
 
     vector<string> parts1 = hash_partition(infile1, file1_size, field, nmem_blocks, buffer, nios, salt),
-                   parts2 = hash_partition(infile2, file2_size, field, nmem_blocks, buffer, nios, salt);
+                     parts2 = hash_partition(infile2, file2_size, field, nmem_blocks, buffer, nios, salt);
 
     // file name, salt pair
     vector<pair<string, uint> > files1, files2;
@@ -275,8 +246,9 @@ void mem_hash_join (char *infile1, char *infile2, unsigned char field, block_t *
 
     // Reserve blocks for probing
     // The key will be the hash and the value a pointer to the buffer location
-    block_t *bucket = buffer;
-    block_t *probes = buffer + build_size;
+    block_t output_block = *buffer;
+    block_t *bucket = buffer + 1;
+    block_t *probes = buffer + build_size + 1;
 
     // Open the build file
     ifstream input_file(build_file, ios::in | ios::binary);
@@ -285,7 +257,7 @@ void mem_hash_join (char *infile1, char *infile2, unsigned char field, block_t *
     unordered_multimap<size_t, record_t*> hashSet(nmem_blocks);
 
     // The hash function
-    recordHash r_hash(field, hash_salt, build_size);
+    recordHash r_hash(field, hash_salt, build_size * 100);
 
     // Fill the buffer
     input_file.read((char*) bucket, build_size * sizeof (block_t));
@@ -304,7 +276,6 @@ void mem_hash_join (char *infile1, char *infile2, unsigned char field, block_t *
     ////////////////////////////////////////////////////////////////
 
     // Initialize output block
-    block_t output_block;
     memset(&output_block, 0, sizeof(block_t));
     output_block.nreserved = 0;
     output_block.valid = false;
@@ -319,11 +290,11 @@ void mem_hash_join (char *infile1, char *infile2, unsigned char field, block_t *
     // Appending instead of overwriting
     ofstream output(outfile, ios::app | ios::binary);
 
-    uint probe_at_once = nmem_blocks - build_size;
+    uint probe_at_once = nmem_blocks - build_size - 1;
 
     // Start probing
     for (uint i = 0; i < probe_size; i += probe_at_once) {
-        // Find the number of blocks that should be read
+        // Find the number of blocks to be read
         uint read_len = probe_at_once > probe_size - i ? probe_size - i : probe_at_once;
         // Read into buffer
         input_file.read((char*) probes, read_len * sizeof (block_t));
@@ -334,9 +305,12 @@ void mem_hash_join (char *infile1, char *infile2, unsigned char field, block_t *
 
                 rec = probes[b].entries[r];
                 size_t h = r_hash(rec);
-
+                // Bucket index
+                size_t bi = hashSet.bucket(h);
                 // Iterate through the bucket and output the matching pairs
-                for (auto it = hashSet.begin(h); it != hashSet.end(h); ++it) {
+                for (auto it = hashSet.begin(bi); it != hashSet.end(bi); ++it) {
+
+                   // cout << rec.num << ", " << h << ", " << (*(*it).second).num << endl;
                     record_t r2 = *(*it).second;
                     if (!compareRecords(r2, rec, field) ) {
 

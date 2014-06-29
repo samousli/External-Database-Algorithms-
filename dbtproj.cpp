@@ -14,8 +14,6 @@
 #include <queue>
 
 
-using namespace std;
-
 /* ----------------------------------------------------------------------------------------------------------------------
    infile: the name of the input file
    field: which field will be used for sorting: 0 is for recid, 1 is for num, 2 is for str and 3 is for both num and str

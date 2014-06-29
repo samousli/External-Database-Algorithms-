@@ -2,7 +2,7 @@
 #include "dbtproj.h"
 #include "ComparisonPredicates.h"
 #include "FileOperations.h"
-
+#include "PRNG.h"
 #include "Tests.h"
 
 #include <iostream>
@@ -11,11 +11,10 @@
 #include <cstring>
 #include <cstddef>
 #include <cstdio>
-#include <queue>
-#include <algorithm>
-#include <array>
-#include <iterator>
-#include <math.h>
+#include <algorithm>// std::sort
+#include <iterator> // std::begin, std::end
+#include <utility>  // make_pair
+
 
 using namespace std;
 
@@ -46,7 +45,11 @@ void merge_sort(char *input_file, unsigned char field, block_t *buffer, uint nme
         ++(*nios);
 
         // Sort the buffer
-        mem_merge(tmp_out, buffer, read_len, field, nios);
+        //mem_merge(tmp_out, buffer, read_len, field, nios);
+        quick_sort(buffer, field, 0, 0, read_len, buffer[read_len-1].nreserved);
+        tmp_out.write((char*)buffer, read_len * sizeof(block_t));
+        ++(*nios);
+
         ++(*nsorted_segs);
     }
 
@@ -74,8 +77,8 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
     // At most the size of the buffer, memory limitation.
     ways = ways > nmem_blocks ? nmem_blocks : ways;
     uint segment_len = nmem_blocks;
-    cout << "Total block count: " << block_count << endl
-         << "Segment length: " << segment_len << endl;
+    //cout << "Total block count: " << block_count << endl
+    //     << "Segment length: " << segment_len << endl;
     ifstream input;
     ofstream output;
     bool output_file_to_output = true;
@@ -87,7 +90,7 @@ void file_merge(char *input_file, char *output_file, block_t *buffer,
         uint ways_req = ceil(block_count / (float) segment_len);
         ways = ways > ways_req ? ways_req : ways;
 
-        cout << ways << "-way merge" << endl;
+        //cout << ways << "-way merge" << endl;
 
         // Files should swap each time
         // And if in the the temp file is the final output, it should be renamed.
@@ -184,7 +187,7 @@ void merge_step(ifstream &input, ofstream &output, block_t *buffer, block_t &out
 }
 
 /**
- * Memory resident n-way merge sort.
+ * n-way merge sort.
  */
 void mem_merge(ofstream &output, block_t *buffer, uint nblocks, unsigned char field, uint *nios) {
     // Initialize output block
@@ -207,6 +210,7 @@ void mem_merge(ofstream &output, block_t *buffer, uint nblocks, unsigned char fi
 
     heap_size = nblocks - 1;
     for (uint i = 0; i < nblocks; ++i) {
+        // C++ style sort
         record_t *first = &buffer[i].entries[0],
                   *last = &buffer[i].entries[buffer[i].nreserved - 1] + 1;
         // does not overflow: [first, last)
@@ -230,3 +234,94 @@ void mem_merge(ofstream &output, block_t *buffer, uint nblocks, unsigned char fi
             --heap_size;
     }
 }
+
+
+
+// (b1, r1) are inclusive, (b2, r2) are exclusive
+void quick_sort(block_t *buffer, unsigned char field, uint b1, uint r1, uint b2, uint r2) {
+    if (b1 == b2) {
+        cout << "Big kahuna!" << endl;
+        return;
+    }
+    // If in same block, don't use quick_sort anymore
+    if (b1 == b2 - 1) {
+        if (r1 < r2 - 1) {
+            // C++ style sort, faster
+            record_comparator r_comp(field, false);
+            record_t *first = &buffer[b1].entries[r1],
+                      *last = &buffer[b1].entries[r2 - 1] + 1;
+            sort(first, last, r_comp);
+        }
+        cout << "Same block, get out!" << endl;
+    } else {
+
+        // Partition the buffer with a random pilot and get block and record indices.
+        pair<uint, uint> pivot = partition(buffer, field, b1, r1, b2, r2);
+        uint bp = pivot.first, rp = pivot.second;
+        cout << "Partitioned: (" << bp << ", " << rp << ")\n";
+        /*
+        for(uint b = b1; b < bp; ++b) {
+            // If not the last block, till n_reserved, else till r2
+            uint first = 0, last = buffer[b].nreserved;
+            if (b == b1) first = r1;
+            else if (b == bp) last = rp;
+
+            for (uint r = first; r < last; ++r)
+                cout << buffer[b].entries[r].num << "\t";
+        }
+        cout << endl << "Lesser than: " << buffer[bp].entries[rp].num << endl;
+        //*/
+        string s;
+        //cin >> s;
+
+        quick_sort(buffer, field, b1, r1, bp + 1, rp + 1);  // Inclusive, exclusive
+        // Tail optimization
+        quick_sort(buffer, field, bp, rp, b2, r2); // Inclusive, exclusive
+    }
+}
+
+// inclusive, exclusive
+// inline
+pair<uint, uint> partition(block_t *buffer, unsigned char field, uint b1, uint r1, uint b2, uint r2) {
+
+    if (b1 == b2) {
+        cout << "FML" << endl;
+
+    }
+
+    uint pivot_b = b1 + rand(b2 - b1),
+         pivot_r = rand(buffer[pivot_b].nreserved) ;
+    cout << "Pivot: " << pivot_b << ", " << pivot_r << endl;
+
+    record_comparator r_comp = record_comparator(field, false);
+
+    uint index_b = b1, index_r = r1;
+
+    // Swap index into the end to simplify things
+    swap(buffer[pivot_b].entries[pivot_r], buffer[b2 - 1].entries[r2 - 1]);
+
+    for (uint b = b1; b < b2; ++b) {
+        // If not the last block, till n_reserved, else till r2
+        uint first = 0, last = buffer[b].nreserved;
+        if (b == b1) first = r1;
+        else if (b == b2 - 1) last = r2 - 1;
+
+        for(uint r = first; r < last; ++r) {
+            if (r_comp(buffer[b].entries[r], buffer[pivot_b].entries[pivot_r])) {
+                // Swap the 2 files
+                swap(buffer[b].entries[r], buffer[index_b].entries[index_r]);
+
+                // Increment index
+                if (++index_r == buffer[b].nreserved) {
+                    index_r = 0;
+                    ++index_b;
+                }
+            }
+        }
+    }
+    // Swap the pivot back into place
+    swap(buffer[pivot_b].entries[pivot_r], buffer[index_b].entries[index_r]);
+
+    return make_pair(index_b, index_r);
+}
+

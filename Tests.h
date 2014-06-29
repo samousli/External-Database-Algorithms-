@@ -12,7 +12,6 @@
 #include <iostream>
 
 typedef unsigned int uint;
-using namespace std;
 
 void merge_sort_driver(uint total, uint mem);
 
@@ -21,7 +20,6 @@ void eliminate_duplicates_driver(uint total, uint mem);
 void merge_join_driver(uint total, uint mem);
 
 void hash_join_driver(uint total1, uint total2, uint mem);
-
 
 void create_test_file(char *filename, uint nblocks);
 

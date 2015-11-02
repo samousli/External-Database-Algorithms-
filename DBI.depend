@@ -81,12 +81,13 @@
 
 1401210629 source:/home/avail/workspace/DBI/DBI/DataSerializer.cpp
 
-1403002093 source:/home/avail/workspace/DBI/DBI/dbtproj.cpp
+1404163240 source:/home/avail/workspace/DBI/DBI/dbtproj.cpp
 	"dbtproj.h"
-	"EliminateDuplicatesImpl.h"
 	"ComparisonPredicates.h"
 	"MergeSortImpl.h"
+	"EliminateDuplicatesImpl.h"
 	"MergeJoinImpl.h"
+	"HashJoinImpl.h"
 	"Tests.h"
 	<iostream>
 	<fstream>
@@ -95,9 +96,9 @@
 	<cstddef>
 	<queue>
 
-1403002066 /home/avail/workspace/DBI/DBI/dbtproj.h
+1403376808 /home/avail/workspace/DBI/DBI/dbtproj.h
 
-1403007600 /home/avail/workspace/DBI/DBI/ComparisonPredicates.h
+1404124161 /home/avail/workspace/DBI/DBI/ComparisonPredicates.h
 	<iostream>
 	<cstring>
 	"dbtproj.h"
@@ -107,12 +108,12 @@
 	<iostream>
 	<fstream>
 
-1403009296 /home/avail/workspace/DBI/DBI/MergeSortImpl.h
+1404169523 /home/avail/workspace/DBI/DBI/MergeSortImpl.h
 	"dbtproj.h"
 	<iostream>
 	<queue>
 
-1403005967 /home/avail/workspace/DBI/DBI/Tests.h
+1404165429 /home/avail/workspace/DBI/DBI/Tests.h
 	"dbtproj.h"
 	<iostream>
 
@@ -125,7 +126,7 @@
 	<cstdlib>
 	<cstring>
 
-1403010109 source:/home/avail/workspace/DBI/DBI/main.cpp
+1404175982 source:/home/avail/workspace/DBI/DBI/main.cpp
 	"dbtproj.h"
 	"ComparisonPredicates.h"
 	"MergeSortImpl.h"
@@ -133,11 +134,14 @@
 	"Tests.h"
 	<fstream>
 	"Tests.h"
+	<iostream>
 
-1403008649 source:/home/avail/workspace/DBI/DBI/MergeSortImpl.cpp
+1404175964 source:/home/avail/workspace/DBI/DBI/MergeSortImpl.cpp
+	"MergeSortImpl.h"
 	"dbtproj.h"
 	"ComparisonPredicates.h"
-	"MergeSortImpl.h"
+	"FileOperations.h"
+	"PRNG.h"
 	"Tests.h"
 	<iostream>
 	<fstream>
@@ -145,49 +149,52 @@
 	<cstring>
 	<cstddef>
 	<cstdio>
-	<queue>
 	<algorithm>
-	<array>
 	<iterator>
-	<math.h>
+	<utility>
 
-1403010246 source:/home/avail/workspace/DBI/DBI/Tests.cpp
+1404168807 source:/home/avail/workspace/DBI/DBI/Tests.cpp
 	"Tests.h"
 	"ComparisonPredicates.h"
+	"FileOperations.h"
 	"MergeSortImpl.h"
 	"EliminateDuplicatesImpl.h"
 	"MergeJoinImpl.h"
+	"HashJoinImpl.h"
+	"PRNG.h"
 	<cstdlib>
 	<cstring>
+	<climits>
 	<cstdio>
 	<string>
 	<iostream>
 	<fstream>
-	<math.h>
-	<time.h>
 	<queue>
 	<algorithm>
 	<sys/time.h>
 	<sys/resource.h>
 
-1403009309 /home/avail/workspace/DBI/DBI/MergeJoinImpl.h
+1404154693 /home/avail/workspace/DBI/DBI/MergeJoinImpl.h
 	"dbtproj.h"
 	<fstream>
+	<vector>
 
-1403008954 source:/home/avail/workspace/DBI/DBI/MergeJoinImpl.cpp
-	"Tests.h"
+1404169721 source:/home/avail/workspace/DBI/DBI/MergeJoinImpl.cpp
 	"MergeJoinImpl.h"
 	"MergeSortImpl.h"
 	"dbtproj.h"
 	"ComparisonPredicates.h"
+	"FileOperations.h"
+	"Tests.h"
 	<cstdio>
 	<cstdlib>
 	<iostream>
 	<cstring>
 
-1403011238 source:/home/avail/workspace/DBI/DBI/EliminateDuplicatesImpl.cpp
+1404169600 source:/home/avail/workspace/DBI/DBI/EliminateDuplicatesImpl.cpp
 	"EliminateDuplicatesImpl.h"
 	"ComparisonPredicates.h"
+	"FileOperations.h"
 	"MergeSortImpl.h"
 	"Tests.h"
 	"dbtproj.h"
@@ -197,12 +204,374 @@
 	<fstream>
 	<cstring>
 
-1403005915 /home/avail/workspace/DBI/DBI/EliminateDuplicatesImpl.h
+1403038426 /home/avail/workspace/DBI/DBI/EliminateDuplicatesImpl.h
 	"dbtproj.h"
 	<fstream>
 
-1403008866 source:/home/avail/workspace/DBI/DBI/ComparisonPredicates.cpp
+1404124067 source:/home/avail/workspace/DBI/DBI/ComparisonPredicates.cpp
 	"ComparisonPredicates.h"
 	<cstring>
+	<iostream>
+
+1404074139 /home/avail/workspace/DBI/DBI/HashJoinImpl.h
+	"dbtproj.h"
+	<iostream>
+	<fstream>
+	<climits>
+	<algorithm>
+	<vector>
+
+1404169630 source:/home/avail/workspace/DBI/DBI/FileOperations.cpp
+	"FileOperations.h"
+	"Tests.h"
+	"dbtproj.h"
+	<fstream>
+	<iostream>
+	<cstring>
+
+1404169589 /home/avail/workspace/DBI/DBI/FileOperations.h
+	"dbtproj.h"
+	<fstream>
+
+1404172885 source:/home/avail/workspace/DBI/DBI/HashJoinImpl.cpp
+	"HashJoinImpl.h"
+	"Tests.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	<iostream>
+	<cstring>
+	<cstdio>
+	<cstdlib>
+	<fstream>
+	<unordered_map>
+	<vector>
+	<set>
+	<algorithm>
+
+1404010005 /home/avail/workspace/DBI/DBI/PRNG.h
+	<climits>
+
+1404009992 source:/home/avail/workspace/DBI/DBI/PRNG.cpp
+	"PRNG.h"
+	<random>
+
+1404124066 source:/home/avail/Workspace/2024-2212/ComparisonPredicates.cpp
+	"ComparisonPredicates.h"
+	<cstring>
+	<iostream>
+
+1404124160 /home/avail/Workspace/2024-2212/ComparisonPredicates.h
+	<iostream>
+	<cstring>
+	"dbtproj.h"
+
+1403376808 /home/avail/Workspace/2024-2212/dbtproj.h
+
+1404163240 source:/home/avail/Workspace/2024-2212/dbtproj.cpp
+	"dbtproj.h"
+	"ComparisonPredicates.h"
+	"MergeSortImpl.h"
+	"EliminateDuplicatesImpl.h"
+	"MergeJoinImpl.h"
+	"HashJoinImpl.h"
+	"Tests.h"
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<cstddef>
+	<queue>
+
+1404169522 /home/avail/Workspace/2024-2212/MergeSortImpl.h
+	"dbtproj.h"
+	<iostream>
+	<queue>
+
+1403038426 /home/avail/Workspace/2024-2212/EliminateDuplicatesImpl.h
+	"dbtproj.h"
+	<fstream>
+
+1404154692 /home/avail/Workspace/2024-2212/MergeJoinImpl.h
+	"dbtproj.h"
+	<fstream>
+	<vector>
+
+1404074138 /home/avail/Workspace/2024-2212/HashJoinImpl.h
+	"dbtproj.h"
+	<iostream>
+	<fstream>
+	<climits>
+	<algorithm>
+	<vector>
+
+1404165428 /home/avail/Workspace/2024-2212/Tests.h
+	"dbtproj.h"
+	<iostream>
+
+1404169600 source:/home/avail/Workspace/2024-2212/EliminateDuplicatesImpl.cpp
+	"EliminateDuplicatesImpl.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	"MergeSortImpl.h"
+	"Tests.h"
+	"dbtproj.h"
+	<cstdio>
+	<cstdlib>
+	<iostream>
+	<fstream>
+	<cstring>
+
+1404169588 /home/avail/Workspace/2024-2212/FileOperations.h
+	"dbtproj.h"
+	<fstream>
+
+1404169630 source:/home/avail/Workspace/2024-2212/FileOperations.cpp
+	"FileOperations.h"
+	"Tests.h"
+	"dbtproj.h"
+	<fstream>
+	<iostream>
+	<cstring>
+
+1404172884 source:/home/avail/Workspace/2024-2212/HashJoinImpl.cpp
+	"HashJoinImpl.h"
+	"Tests.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	<iostream>
+	<cstring>
+	<cstdio>
+	<cstdlib>
+	<fstream>
+	<unordered_map>
+	<vector>
+	<set>
+	<algorithm>
+
+1412346718 source:/home/avail/Workspace/2024-2212/main.cpp
+	"dbtproj.h"
+	"ComparisonPredicates.h"
+	"MergeSortImpl.h"
+	"MergeJoinImpl.h"
+	"Tests.h"
+	<fstream>
+	"Tests.h"
+	<iostream>
+
+1404169720 source:/home/avail/Workspace/2024-2212/MergeJoinImpl.cpp
+	"MergeJoinImpl.h"
+	"MergeSortImpl.h"
+	"dbtproj.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	"Tests.h"
+	<cstdio>
+	<cstdlib>
+	<iostream>
+	<cstring>
+
+1404175964 source:/home/avail/Workspace/2024-2212/MergeSortImpl.cpp
+	"MergeSortImpl.h"
+	"dbtproj.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	"PRNG.h"
+	"Tests.h"
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<cstddef>
+	<cstdio>
+	<algorithm>
+	<iterator>
+	<utility>
+
+1404010004 /home/avail/Workspace/2024-2212/PRNG.h
+	<climits>
+
+1404009992 source:/home/avail/Workspace/2024-2212/PRNG.cpp
+	"PRNG.h"
+	<random>
+
+1404168806 source:/home/avail/Workspace/2024-2212/Tests.cpp
+	"Tests.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	"MergeSortImpl.h"
+	"EliminateDuplicatesImpl.h"
+	"MergeJoinImpl.h"
+	"HashJoinImpl.h"
+	"PRNG.h"
+	<cstdlib>
+	<cstring>
+	<climits>
+	<cstdio>
+	<string>
+	<iostream>
+	<fstream>
+	<queue>
+	<algorithm>
+	<sys/time.h>
+	<sys/resource.h>
+
+1404124066 source:/home/avail/workspace/old projects/Database Impl/ComparisonPredicates.cpp
+	"ComparisonPredicates.h"
+	<cstring>
+	<iostream>
+
+1404124160 /home/avail/workspace/old projects/Database Impl/ComparisonPredicates.h
+	<iostream>
+	<cstring>
+	"dbtproj.h"
+
+1403376808 /home/avail/workspace/old projects/Database Impl/dbtproj.h
+
+1404163240 source:/home/avail/workspace/old projects/Database Impl/dbtproj.cpp
+	"dbtproj.h"
+	"ComparisonPredicates.h"
+	"MergeSortImpl.h"
+	"EliminateDuplicatesImpl.h"
+	"MergeJoinImpl.h"
+	"HashJoinImpl.h"
+	"Tests.h"
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<cstddef>
+	<queue>
+
+1404169522 /home/avail/workspace/old projects/Database Impl/MergeSortImpl.h
+	"dbtproj.h"
+	<iostream>
+	<queue>
+
+1403038426 /home/avail/workspace/old projects/Database Impl/EliminateDuplicatesImpl.h
+	"dbtproj.h"
+	<fstream>
+
+1404154692 /home/avail/workspace/old projects/Database Impl/MergeJoinImpl.h
+	"dbtproj.h"
+	<fstream>
+	<vector>
+
+1404074138 /home/avail/workspace/old projects/Database Impl/HashJoinImpl.h
+	"dbtproj.h"
+	<iostream>
+	<fstream>
+	<climits>
+	<algorithm>
+	<vector>
+
+1404165428 /home/avail/workspace/old projects/Database Impl/Tests.h
+	"dbtproj.h"
+	<iostream>
+
+1404169600 source:/home/avail/workspace/old projects/Database Impl/EliminateDuplicatesImpl.cpp
+	"EliminateDuplicatesImpl.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	"MergeSortImpl.h"
+	"Tests.h"
+	"dbtproj.h"
+	<cstdio>
+	<cstdlib>
+	<iostream>
+	<fstream>
+	<cstring>
+
+1404169588 /home/avail/workspace/old projects/Database Impl/FileOperations.h
+	"dbtproj.h"
+	<fstream>
+
+1404169630 source:/home/avail/workspace/old projects/Database Impl/FileOperations.cpp
+	"FileOperations.h"
+	"Tests.h"
+	"dbtproj.h"
+	<fstream>
+	<iostream>
+	<cstring>
+
+1404172884 source:/home/avail/workspace/old projects/Database Impl/HashJoinImpl.cpp
+	"HashJoinImpl.h"
+	"Tests.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	<iostream>
+	<cstring>
+	<cstdio>
+	<cstdlib>
+	<fstream>
+	<unordered_map>
+	<vector>
+	<set>
+	<algorithm>
+
+1404169720 source:/home/avail/workspace/old projects/Database Impl/MergeJoinImpl.cpp
+	"MergeJoinImpl.h"
+	"MergeSortImpl.h"
+	"dbtproj.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	"Tests.h"
+	<cstdio>
+	<cstdlib>
+	<iostream>
+	<cstring>
+
+1404175964 source:/home/avail/workspace/old projects/Database Impl/MergeSortImpl.cpp
+	"MergeSortImpl.h"
+	"dbtproj.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	"PRNG.h"
+	"Tests.h"
+	<iostream>
+	<fstream>
+	<cstdlib>
+	<cstring>
+	<cstddef>
+	<cstdio>
+	<algorithm>
+	<iterator>
+	<utility>
+
+1404010004 /home/avail/workspace/old projects/Database Impl/PRNG.h
+	<climits>
+
+1404009992 source:/home/avail/workspace/old projects/Database Impl/PRNG.cpp
+	"PRNG.h"
+	<random>
+
+1404168806 source:/home/avail/workspace/old projects/Database Impl/Tests.cpp
+	"Tests.h"
+	"ComparisonPredicates.h"
+	"FileOperations.h"
+	"MergeSortImpl.h"
+	"EliminateDuplicatesImpl.h"
+	"MergeJoinImpl.h"
+	"HashJoinImpl.h"
+	"PRNG.h"
+	<cstdlib>
+	<cstring>
+	<climits>
+	<cstdio>
+	<string>
+	<iostream>
+	<fstream>
+	<queue>
+	<algorithm>
+	<sys/time.h>
+	<sys/resource.h>
+
+1446477805 source:/home/avail/workspace/old projects/Database Impl/main.cpp
+	"dbtproj.h"
+	"ComparisonPredicates.h"
+	"MergeSortImpl.h"
+	"MergeJoinImpl.h"
+	"Tests.h"
+	<fstream>
+	"Tests.h"
 	<iostream>
 
